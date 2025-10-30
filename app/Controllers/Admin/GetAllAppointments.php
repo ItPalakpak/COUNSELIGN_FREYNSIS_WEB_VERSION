@@ -60,7 +60,7 @@ class GetAllAppointments extends BaseController
                         COALESCE(CONCAT(spi.last_name, ', ', spi.first_name), NULL) AS student_name,
                         appointments.preferred_date as appointed_date,
                         appointments.preferred_time as appointed_time,
-                        appointments.consultation_type,
+                        appointments.method_type,
                         appointments.purpose,
                         c.name as counselor_name,
                         appointments.status, appointments.reason,

@@ -37,7 +37,8 @@ class Appointments extends BaseController
         // Query to get all appointments with user and counselor information
         // Filtered by counselor_id
         $query = "SELECT
-                    a.*,
+                    a.*, 
+                    a.method_type, -- formerly consultation_type
                     u.email as user_email,
                     u.username,
                     COALESCE(CONCAT(spi.last_name, ', ', spi.first_name), u.username) AS student_name,
@@ -124,9 +125,8 @@ class Appointments extends BaseController
         $db = \Config\Database::connect();
 
         $query = $db->table('appointments')
-            ->select('appointments.*, users.email as user_email, users.username, 
-                     CONCAT(sai.course, " - ", sai.year_level) as course_year,
-                     sai.course, sai.year_level, CONCAT(spi.first_name, " ", spi.last_name) as student_name, c.name as counselor_name')
+            ->select('appointments.*, appointments.method_type as method_type, users.email as user_email, users.username, 
+                     CONCAT(sai.course, " - ", sai.year_level) as course_year, sai.course, sai.year_level, CONCAT(spi.first_name, " ", spi.last_name) as student_name, c.name as counselor_name')
             ->join('users', 'users.user_id = appointments.student_id', 'left')
             ->join('student_academic_info sai', 'sai.student_id = appointments.student_id', 'left')
             ->join('student_personal_info spi', 'spi.student_id = appointments.student_id', 'left')
@@ -316,7 +316,7 @@ class Appointments extends BaseController
 
             // 1) Approved regular appointments (treated as "New")
             $appointmentsQuery = "SELECT
-                        a.*, a.updated_at,
+                        a.*, a.method_type, a.updated_at,
                         u.email, u.username,
                         CONCAT(sai.course, ' - ', sai.year_level) as course_year,
                         sai.course, sai.year_level,

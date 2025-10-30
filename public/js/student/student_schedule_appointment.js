@@ -880,7 +880,7 @@ function showAppointmentConfirmation() {
 function validateForm() {
     const preferredDate = document.getElementById('preferredDate').value;
     const preferredTime = document.getElementById('preferredTime').value;
-    const consultationType = document.getElementById('consultationType').value;
+    const methodType = document.getElementById('methodType').value;
     const purpose = document.getElementById('purpose').value;
 
     if (!preferredDate) {
@@ -893,8 +893,8 @@ function validateForm() {
         return false;
     }
 
-    if (!consultationType) {
-        showMessage('error', 'Please select a consultation type.');
+    if (!methodType) {
+        showMessage('error', 'Please select a method type.');
         return false;
     }
 

@@ -207,7 +207,7 @@
                             <p><strong>Time:</strong> <span id="modalTime"></span></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Consultation Type:</strong> <span id="modalConsultationType"></span></p>
+                            <p><strong>Method Type:</strong> <span id="modalConsultationType"></span></p>
                             <p><strong>Purpose:</strong> <span id="modalPurpose"></span></p>
                             <p><strong>Counselor Preference:</strong> <span id="modalCounselorPreference"></span></p>
                             <p><strong>Status:</strong> <span id="modalStatus" class="badge"></span></p>

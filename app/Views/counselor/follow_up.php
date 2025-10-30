@@ -130,7 +130,6 @@
                         <i class="fas fa-plus me-2"></i>
                         Create New Follow-up
                     </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -207,7 +206,6 @@
                             <select class="form-control" id="consultationType" name="consultation_type" required>
                                 <option value="">Select consultation type</option>
                                 <option value="Individual Counseling">Individual Counseling</option>
-                                <option value="Group Counseling">Group Counseling</option>
                                 <option value="Career Guidance">Career Guidance</option>
                                 <option value="Academic Counseling">Academic Counseling</option>
                                 <option value="Personal Development">Personal Development</option>
@@ -361,7 +359,6 @@
     <script>
         window.BASE_URL = "<?= base_url() ?>";
     </script>
-    <script src="<?= base_url('js/counselor/counselor_dashboard.js') ?>"></script>
     <script src="<?= base_url('js/counselor/follow_up.js') ?>" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<?= base_url('js/counselor/counselor_drawer.js') ?>"></script>

@@ -349,7 +349,7 @@
                                     <th>Full Name</th>
                                     <th>Date</th>
                                     <th>Time</th>
-                                <th>Consultation Type</th>
+                                <th>Method Type</th>
                                 <th>Purpose</th>
                                     <th>Status</th>
                                     <th style="width: 60%;">Reason for Status</th>
@@ -369,7 +369,7 @@
                                     <th>Full Name</th>
                                     <th>Date</th>
                                     <th>Time</th>
-                                <th>Consultation Type</th>
+                                <th>Method Type</th>
                                 <th>Purpose</th>
                                     <th>Status</th>
                                 </tr>
@@ -388,7 +388,7 @@
                                     <th>Full Name</th>
                                     <th>Date</th>
                                     <th>Time</th>
-                                <th>Consultation Type</th>
+                                <th>Method Type</th>
                                 <th>Purpose</th>
                                     <th>Status</th>
                                     <th style="width: 60%;">Reason for Status</th>
@@ -408,7 +408,7 @@
                                     <th>Full Name</th>
                                     <th>Date</th>
                                     <th>Time</th>
-                                <th>Consultation Type</th>
+                                <th>Method Type</th>
                                 <th>Purpose</th>
                                     <th>Status</th>
                                 </tr>
@@ -427,7 +427,7 @@
                                     <th>Full Name</th>
                                     <th>Date</th>
                                     <th>Time</th>
-                                <th>Consultation Type</th>
+                                <th>Method Type</th>
                                 <th>Purpose</th>
                                     <th>Status</th>
                                     <th style="width: 60%;">Reason for Status</th>

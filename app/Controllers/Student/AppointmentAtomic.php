@@ -46,7 +46,7 @@ class AppointmentAtomic extends BaseController
                 'student_id' => session()->get('user_id_display'),
                 'preferred_date' => $this->request->getPost('preferred_date'),
                 'preferred_time' => $this->request->getPost('preferred_time'),
-                'consultation_type' => $this->request->getPost('consultation_type'),
+                'method_type' => $this->request->getPost('method_type'),
                 'counselor_preference' => $this->request->getPost('counselor_preference') ?? 'No preference',
                 'description' => $this->request->getPost('description'),
                 'reason' => $this->request->getPost('reason'),

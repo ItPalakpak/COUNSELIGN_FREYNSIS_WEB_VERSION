@@ -97,9 +97,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="consultationType">Consultation Type</label>
-                            <select id="consultationType" name="consultationType" class="form-control" required>
-                                <option value="">Select a consultation type</option>
+                            <label for="methodType">Method Type</label>
+                            <select id="methodType" name="methodType" class="form-control" required>
+                                <option value="">Select a method type</option>
                                 <option>In-person</option>
                                 <option>Online (Video)</option>
                                 <option>Online (Audio only)</option>

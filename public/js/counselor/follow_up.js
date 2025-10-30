@@ -133,7 +133,7 @@ function displayCompletedAppointments(appointments, searchTerm = '') {
                 </div>
                 <div class="appointment-type">
                     <i class="fas fa-comments"></i>
-                    <span>${appointment.consultation_type}</span>
+                    <span>${appointment.method_type}</span>
                 </div>
                 ${appointment.purpose ? `
                 <div class="appointment-purpose">
@@ -200,7 +200,12 @@ async function openFollowUpSessionsModal(parentAppointmentId, studentId) {
                 }
             } catch (_) {}
             // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('followUpSessionsModal'));
+            const modalEl = document.getElementById('followUpSessionsModal');
+            if (modalEl) {
+                modalEl.setAttribute('data-parent-appointment-id', parentAppointmentId);
+                modalEl.setAttribute('data-student-id', studentId);
+            }
+            const modal = new bootstrap.Modal(modalEl);
             modal.show();
         } else {
             showError(data.message || 'Failed to load follow-up sessions');
@@ -229,19 +234,35 @@ function displayFollowUpSessions(sessions) {
         return;
     }
 
+    // Sort sessions: pending first, then by sequence number
+    const sortedSessions = [...sessions].sort((a, b) => {
+        // Pending status comes first
+        if (a.status === 'pending' && b.status !== 'pending') return -1;
+        if (a.status !== 'pending' && b.status === 'pending') return 1;
+        
+        // Otherwise sort by sequence number
+        return a.follow_up_sequence - b.follow_up_sequence;
+    });
+
     // Ensure grid layout for desktop (CSS sets columns)
     container.style.display = 'grid';
     noDataMessage.style.display = 'none';
+
+    // Check if there's a pending session
+    const hasPendingSession = sortedSessions.some(s => s.status === 'pending');
+
+    // Show/hide create button based on pending status
     if (createBtn) {
-        createBtn.disabled = true;
-        createBtn.classList.add('d-none');
+        if (hasPendingSession) {
+            createBtn.disabled = true;
+            createBtn.classList.add('d-none');
+        } else {
+            createBtn.disabled = false;
+            createBtn.classList.remove('d-none');
+        }
     }
 
-    const lastSession = sessions[sessions.length - 1];
-    const lastIsPending = lastSession && lastSession.status === 'pending';
-    const lastIsEligibleForNext = lastSession && (lastSession.status === 'completed' || lastSession.status === 'cancelled');
-
-    container.innerHTML = sessions.map(session => `
+    container.innerHTML = sortedSessions.map(session => `
         <div class="follow-up-session-card">
             <div class="session-header">
                 <div class="session-sequence">Follow-up #${session.follow_up_sequence}</div>
@@ -273,19 +294,16 @@ function displayFollowUpSessions(sessions) {
                 <button class="btn btn-danger btn-sm" ${session.status !== 'pending' ? 'disabled' : ''} onclick="openCancelFollowUpModal(${session.id})">
                     <i class="fas fa-ban"></i> Cancel
                 </button>
-                <button class="btn btn-primary btn-sm" ${((!lastIsEligibleForNext) || session.id !== lastSession.id) ? 'disabled' : ''} onclick="createNewFollowUpFromSession(${session.id}, ${session.follow_up_sequence})">
-                    <i class="fas fa-plus"></i> Create Next Follow-up
-                </button>
             </div>
         </div>
     `).join('');
 }
 
 // Create new follow-up from existing session
-function createNewFollowUpFromSession(sessionId, currentSequence) {
-    currentFollowUpSequence = currentSequence + 1;
-    openCreateFollowUpModal();
-}
+//function createNewFollowUpFromSession(sessionId, currentSequence) {
+ //   currentFollowUpSequence = currentSequence + 1;
+ //   openCreateFollowUpModal();
+//}
 
 // Mark follow-up as completed
 async function markFollowUpCompleted(id) {
@@ -319,9 +337,14 @@ async function markFollowUpCompleted(id) {
         const data = await response.json();
         if (data.status === 'success') {
             showSuccess(data.message || 'Follow-up marked as completed');
+            
+            // Refresh the follow-up sessions modal
             if (currentParentAppointmentId) {
-                openFollowUpSessionsModal(currentParentAppointmentId, currentStudentId);
+                await openFollowUpSessionsModal(currentParentAppointmentId, currentStudentId);
             }
+            
+            // Refresh the completed appointments list to update the badge
+            await loadCompletedAppointments();
         } else {
             showError(data.message || 'Failed to complete follow-up');
         }
@@ -367,9 +390,6 @@ async function confirmCancelFollowUp() {
         const csrfName = csrfMeta?.getAttribute('name') || 'csrf_test_name';
         const csrfHash = csrfMeta?.getAttribute('content') || '';
 
-        // Append default text prefix to the cancellation reason
-        //const formattedReason = `${reason}`;
-
         const form = new URLSearchParams();
         form.append('id', String(id));
         form.append('reason', reason);
@@ -391,9 +411,14 @@ async function confirmCancelFollowUp() {
             const modalEl = document.getElementById('cancelFollowUpModal');
             const modal = bootstrap.Modal.getInstance(modalEl);
             if (modal) modal.hide();
+            
+            // Refresh the follow-up sessions modal
             if (currentParentAppointmentId) {
-                openFollowUpSessionsModal(currentParentAppointmentId, currentStudentId);
+                await openFollowUpSessionsModal(currentParentAppointmentId, currentStudentId);
             }
+            
+            // Refresh the completed appointments list to update the badge
+            await loadCompletedAppointments();
         } else {
             showError(data.message || 'Failed to cancel follow-up');
         }
@@ -412,6 +437,9 @@ function openCreateFollowUpModal() {
     document.getElementById('parentAppointmentId').value = currentParentAppointmentId;
     document.getElementById('studentId').value = currentStudentId;
 
+    // Reset form
+    document.getElementById('createFollowUpForm').reset();
+    
     // Set minimum date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -510,6 +538,17 @@ function setupModalEventListeners() {
     const createNewFollowUpBtn = document.getElementById('createNewFollowUpBtn');
     if (createNewFollowUpBtn) {
         createNewFollowUpBtn.addEventListener('click', () => {
+            // ENSURE IDs ARE SET IF NOT
+            if (!currentParentAppointmentId || !currentStudentId) {
+                // Try to read IDs from data attributes on the button or modal parent as fallback
+                const modal = document.getElementById('followUpSessionsModal');
+                if (modal) {
+                    const parentId = modal.getAttribute('data-parent-appointment-id');
+                    const studentId = modal.getAttribute('data-student-id');
+                    if (parentId) currentParentAppointmentId = parentId;
+                    if (studentId) currentStudentId = studentId;
+                }
+            }
             currentFollowUpSequence = 1;
             openCreateFollowUpModal();
         });
@@ -548,10 +587,20 @@ function setupModalEventListeners() {
     }
 }
 
+
 // Save follow-up appointment
 async function saveFollowUp() {
     const form = document.getElementById('createFollowUpForm');
     const formData = new FormData(form);
+    
+    // Get parent appointment ID and student ID from the form
+    const parentAppointmentId = formData.get('parent_appointment_id');
+    const studentId = formData.get('student_id');
+    
+    // LOG formData for debug
+    const dataObj = {};
+    for (const [k, v] of formData.entries()) dataObj[k] = v;
+    console.log('Submitting follow-up data:', dataObj);
     const saveBtn = document.getElementById('saveFollowUpBtn');
 
     // Validate required fields
@@ -579,8 +628,20 @@ async function saveFollowUp() {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Network response was not ok');
+            let errorMessage = 'Network response was not ok';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorMessage;
+            } catch (jsonErr) {
+                try {
+                    // Fallback: get plain text
+                    const errorText = await response.text();
+                    errorMessage = errorText || errorMessage;
+                } catch (txtErr) {}
+            }
+            showError(errorMessage);
+            console.error('Server response error (raw):', errorMessage, response);
+            return;
         }
 
         const data = await response.json();
@@ -588,16 +649,24 @@ async function saveFollowUp() {
         if (data.status === 'success') {
             showSuccess(data.message || 'Follow-up appointment created successfully');
             
-            // Close the modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('createFollowUpModal'));
-            if (modal) {
-                modal.hide();
+            // Close the create modal
+            const createModal = bootstrap.Modal.getInstance(document.getElementById('createFollowUpModal'));
+            if (createModal) {
+                createModal.hide();
             }
             
-            // Refresh the follow-up sessions
-            if (currentParentAppointmentId) {
-                openFollowUpSessionsModal(currentParentAppointmentId, currentStudentId);
-            }
+            // Update global variables with values from form
+            currentParentAppointmentId = parentAppointmentId;
+            currentStudentId = studentId;
+            
+            // Refresh the completed appointments list to update the badge count
+            await loadCompletedAppointments();
+            
+            // Refresh the follow-up sessions modal
+            // Use setTimeout to ensure the create modal is fully hidden before showing sessions
+            setTimeout(() => {
+                openFollowUpSessionsModal(parentAppointmentId, studentId);
+            }, 300);
         } else {
             showError(data.message || 'Failed to create follow-up appointment');
         }
@@ -1057,9 +1126,12 @@ async function updateFollowUp() {
                 modal.hide();
             }
             
+            // Refresh the completed appointments list to update the badge
+            await loadCompletedAppointments();
+            
             // Refresh the follow-up sessions
             if (currentParentAppointmentId) {
-                openFollowUpSessionsModal(currentParentAppointmentId, currentStudentId);
+                await openFollowUpSessionsModal(currentParentAppointmentId, currentStudentId);
             }
         } else {
             showError(data.message || 'Failed to update follow-up session');

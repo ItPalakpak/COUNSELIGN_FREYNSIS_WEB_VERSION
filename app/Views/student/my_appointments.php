@@ -146,7 +146,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Time</th>
-                                    <th>Consultation Type</th>
+                                    <th>Method Type</th>
                                     <th>Purpose</th>
                                     <th>Counselor</th>
                                     <th>Status</th>
@@ -169,7 +169,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Time</th>
-                                    <th>Consultation Type</th>
+                                    <th>Method Type</th>
                                     <th>Purpose</th>
                                     <th>Counselor</th>
                                     <th>Status</th>
@@ -191,7 +191,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Time</th>
-                                    <th>Consultation Type</th>
+                                    <th>Method Type</th>
                                     <th>Purpose</th>
                                     <th>Counselor</th>
                                     <th>Status</th>
@@ -212,7 +212,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Time</th>
-                                    <th>Consultation Type</th>
+                                    <th>Method Type</th>
                                     <th>Purpose</th>
                                     <th>Counselor</th>
                                     <th>Status</th>
@@ -306,7 +306,7 @@
                             <input type="time" class="form-control" id="editTime" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editConsultationType" class="form-label">Consultation Type</label>
+                            <label for="editConsultationType" class="form-label">Method Type</label>
                             <select class="form-select" id="editConsultationType" required>
                                 <option value="">Select type...</option>
                                 <option value="Academic">Academic</option>

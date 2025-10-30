@@ -419,7 +419,7 @@ class Appointment extends BaseController
         if ($this->request->getMethod() === 'POST') {
             $preferred_date = trim($this->request->getPost('preferredDate'));
             $preferred_time = trim($this->request->getPost('preferredTime'));
-            $consultation_type = trim($this->request->getPost('consultationType'));
+            $method_type = trim($this->request->getPost('methodType'));
             $purpose = trim($this->request->getPost('purpose'));
             $counselor_preference = trim($this->request->getPost('counselorPreference') ?? 'No preference');
             $description = trim($this->request->getPost('description'));
@@ -432,8 +432,8 @@ class Appointment extends BaseController
                 $response['message'] = 'Please select a preferred time.';
                 return $this->response->setJSON($response);
             }
-            if (empty($consultation_type)) {
-                $response['message'] = 'Please select a consultation type.';
+            if (empty($method_type)) {
+                $response['message'] = 'Please select a method type.';
                 return $this->response->setJSON($response);
             }
             if (empty($purpose)) {
@@ -461,7 +461,7 @@ class Appointment extends BaseController
                 'student_id' => $user_id,
                 'preferred_date' => $preferred_date,
                 'preferred_time' => $preferred_time,
-                'consultation_type' => $consultation_type,
+                'method_type' => $method_type,
                 'purpose' => $purpose,
                 'counselor_preference' => $counselor_preference,
                 'description' => $description,
@@ -605,7 +605,7 @@ class Appointment extends BaseController
         $updateData = [
             'preferred_date' => $data['preferred_date'] ?? null,
             'preferred_time' => $data['preferred_time'] ?? null,
-            'consultation_type' => $data['consultation_type'] ?? null,
+            'method_type' => $data['method_type'] ?? null,
             'purpose' => $data['purpose'] ?? null,
             'counselor_preference' => $data['counselor_preference'] ?? null,
             'description' => $data['description'] ?? null,

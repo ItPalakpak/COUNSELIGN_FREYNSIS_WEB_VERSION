@@ -74,7 +74,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const dateObj = new Date(appointment.appointed_date || appointment.preferred_date);
             const formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             const formattedTime = formatTime(appointment.time || appointment.preferred_time);
-            const scheduleType = appointment.schedule_type || (appointment.parent_appointment_id ? 'Follow-up session' : 'New');
+            let scheduleType = appointment.schedule_type || (appointment.parent_appointment_id ? 'Follow-up session' : 'New');
+            if (scheduleType === 'New') scheduleType = 'First Session';
+            if (scheduleType === 'Follow-up session' || scheduleType === 'Follow-up') scheduleType = 'Follow-up Session';
             const recordKind = appointment.record_kind || 'appointment';
             const actionHtml = (recordKind === 'follow_up')
                 ? '<span class="text-muted">Manage in Follow-up Sessions</span>'
@@ -90,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${appointment.student_name || 'N/A'}</td>
                 <td>${formattedDate || 'Invalid Date'}</td>
                 <td>${formattedTime || 'N/A'}</td>
-                <td>${appointment.consultation_type || 'In-person'}</td>
+                <td>${appointment.method_type || 'In-person'}</td>
                 <td>${scheduleType}</td>
                 <td>${appointment.purpose || 'N/A'}</td>
                 <td class="text-center">

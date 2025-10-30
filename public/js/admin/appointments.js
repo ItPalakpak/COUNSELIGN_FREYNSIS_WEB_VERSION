@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (modalTime) modalTime.textContent = appointment.preferred_time || 'N/A';
         
         const modalConsultationType = modal.querySelector('#modalConsultationType');
-        if (modalConsultationType) modalConsultationType.textContent = appointment.consultation_type || 'In-person';
+        if (modalConsultationType) modalConsultationType.textContent = appointment.method_type || 'In-person';
         
         const modalPurpose = modal.querySelector('#modalPurpose');
         if (modalPurpose) modalPurpose.textContent = appointment.purpose || 'N/A';
@@ -706,7 +706,7 @@ document.addEventListener('DOMContentLoaded', function() {
             id: appointment.id,
                 student_id: appointment.student_id || '',
                 name: appointment.username || `Student ${appointment.student_id}`,
-                role: appointment.consultation_type || 'Online Consultation',
+                role: appointment.method_type || 'Online Consultation',
                 appointed_date: appointment.preferred_date,
                 time: appointment.preferred_time || '',
                 appointed_counselor: appointment.counselorPreference || 'Any Available',
