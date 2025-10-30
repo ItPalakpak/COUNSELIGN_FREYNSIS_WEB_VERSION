@@ -1,0 +1,1106 @@
+2025-05-18 07:43:59 - GET request received
+
+2025-05-18 07:44:06 - GET request received
+
+2025-05-18 07:45:05 - GET request received
+
+2025-05-18 07:45:56 - GET request received
+
+2025-05-18 07:49:46 - GET request received
+
+2025-05-18 07:49:49 - GET request received
+
+2025-05-18 07:49:51 - GET request received
+
+2025-05-18 07:49:51 - GET request received
+
+2025-05-18 07:49:55 - GET request received
+
+2025-05-18 07:49:55 - GET request received
+
+2025-05-18 07:50:00 - GET request received
+
+2025-05-18 07:50:01 - GET request received
+
+2025-05-18 07:50:04 - GET request received
+
+2025-05-18 07:52:01 - GET request received
+
+2025-05-18 07:52:01 - GET request received
+
+2025-05-18 07:52:02 - GET request received
+
+2025-05-18 07:52:02 - GET request received
+
+2025-05-18 07:54:18 - GET request received
+
+2025-05-18 07:54:19 - GET request received
+
+2025-05-18 08:04:22 - GET request received
+
+2025-05-18 08:04:48 - GET request received
+
+2025-05-18 08:05:17 - GET request received
+
+2025-05-18 08:06:48 - POST request received
+Data: Array
+(
+    [counselorId] => COUN-2025-6117
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => technorex13@gmail.com
+    [contactNumber] => 09877665754
+    [licenseNumber] => 7293723623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [startTime] => 09:00
+    [endTime] => 10:00
+    [timeScheduled] => 09:00 - 10:00
+    [availableDays] => ["Monday","Tuesday"]
+)
+
+
+2025-05-18 08:06:48 - Remove profile flag: No
+
+2025-05-18 08:06:48 - Starting file upload for counselor ID: COUN-2025-6117
+
+2025-05-18 08:06:48 - File details
+Data: Array
+(
+    [name] => IMG_20250424_102920_953.jpg
+    [type] => image/jpeg
+    [size] => 2854366
+)
+
+
+2025-05-18 08:06:48 - Attempting to upload file to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-6117_1747555608.jpg
+
+2025-05-18 08:06:48 - File uploaded successfully to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-6117_1747555608.jpg
+
+2025-05-18 08:06:48 - Adding new counselor: COUN-2025-6117
+
+2025-05-18 08:06:48 - Counselor operation successful
+Data: Array
+(
+    [counselor_id] => COUN-2025-6117
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => technorex13@gmail.com
+    [contact_number] => 09877665754
+    [license_number] => 7293723623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [profile_picture] => /UGCSystem/Photos/counselor_profiles/counselor_COUN-2025-6117_1747555608.jpg
+    [created_at] => 2025-05-18 16:06:48
+    [updated_at] => 2025-05-18 16:06:48
+    [time_scheduled] => 09:00 - 10:00
+    [available_days] => ["Monday","Tuesday"]
+)
+
+
+2025-05-18 08:06:49 - GET request received
+
+2025-05-18 08:12:21 - GET request received
+
+2025-05-18 08:12:35 - GET request received
+
+2025-05-18 08:15:02 - GET request received
+
+2025-05-18 08:20:59 - GET request received
+
+2025-05-18 08:23:27 - GET request received
+
+2025-05-18 08:25:32 - GET request received
+
+2025-05-18 08:26:12 - POST request received
+Data: Array
+(
+    [counselorId] => COUN-2025-6510
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => technorex13@gmail.com
+    [contactNumber] => 09877665754
+    [licenseNumber] => 7293723623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [startTime] => 09:00
+    [endTime] => 11:00
+    [timeScheduled] => 09:00 - 11:00
+    [availableDays] => ["Tuesday"]
+)
+
+
+2025-05-18 08:26:12 - Remove profile flag: No
+
+2025-05-18 08:26:12 - Starting file upload for counselor ID: COUN-2025-6510
+
+2025-05-18 08:26:12 - File details
+Data: Array
+(
+    [name] => IMG_20250514_093959_650.jpg
+    [type] => image/jpeg
+    [size] => 3547851
+)
+
+
+2025-05-18 08:26:12 - Attempting to upload file to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-6510_1747556772.jpg
+
+2025-05-18 08:26:12 - File uploaded successfully to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-6510_1747556772.jpg
+
+2025-05-18 08:26:12 - Adding new counselor: COUN-2025-6510
+
+2025-05-18 08:26:12 - Error occurred: Duplicate entry 'technorex13@gmail.com' for key 'email'
+Data: #0 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `co...', Array, false)
+#1 C:\xampp\htdocs\UGCSystem\app\Controllers\Admin\CounselorsApi.php(205): CodeIgniter\Database\BaseBuilder->insert(Array)
+#2 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\CodeIgniter.php(933): App\Controllers\Admin\CounselorsApi->save()
+#3 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\CounselorsApi))
+#4 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#5 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\Boot.php(334): CodeIgniter\CodeIgniter->run()
+#6 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#7 C:\xampp\htdocs\UGCSystem\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#8 {main}
+
+2025-05-18 08:26:28 - POST request received
+Data: Array
+(
+    [counselorId] => COUN-2025-6510
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => exodusrex13@gmail.com
+    [contactNumber] => 09877665754
+    [licenseNumber] => 7293723623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [startTime] => 09:00
+    [endTime] => 11:00
+    [timeScheduled] => 09:00 - 11:00
+    [availableDays] => ["Tuesday"]
+)
+
+
+2025-05-18 08:26:28 - Remove profile flag: No
+
+2025-05-18 08:26:28 - Starting file upload for counselor ID: COUN-2025-6510
+
+2025-05-18 08:26:28 - File details
+Data: Array
+(
+    [name] => IMG_20250514_093959_650.jpg
+    [type] => image/jpeg
+    [size] => 3547851
+)
+
+
+2025-05-18 08:26:28 - Attempting to upload file to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-6510_1747556788.jpg
+
+2025-05-18 08:26:28 - File uploaded successfully to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-6510_1747556788.jpg
+
+2025-05-18 08:26:28 - Adding new counselor: COUN-2025-6510
+
+2025-05-18 08:26:28 - Error occurred: Duplicate entry '7293723623' for key 'license_number'
+Data: #0 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `co...', Array, false)
+#1 C:\xampp\htdocs\UGCSystem\app\Controllers\Admin\CounselorsApi.php(205): CodeIgniter\Database\BaseBuilder->insert(Array)
+#2 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\CodeIgniter.php(933): App\Controllers\Admin\CounselorsApi->save()
+#3 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin\CounselorsApi))
+#4 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#5 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\Boot.php(334): CodeIgniter\CodeIgniter->run()
+#6 C:\xampp\htdocs\UGCSystem\vendor\codeigniter4\framework\system\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#7 C:\xampp\htdocs\UGCSystem\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#8 {main}
+
+2025-05-18 08:26:35 - POST request received
+Data: Array
+(
+    [counselorId] => COUN-2025-6510
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => exodusrex13@gmail.com
+    [contactNumber] => 09877665754
+    [licenseNumber] => 72937232233623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [startTime] => 09:00
+    [endTime] => 11:00
+    [timeScheduled] => 09:00 - 11:00
+    [availableDays] => ["Tuesday"]
+)
+
+
+2025-05-18 08:26:35 - Remove profile flag: No
+
+2025-05-18 08:26:35 - Starting file upload for counselor ID: COUN-2025-6510
+
+2025-05-18 08:26:35 - File details
+Data: Array
+(
+    [name] => IMG_20250514_093959_650.jpg
+    [type] => image/jpeg
+    [size] => 3547851
+)
+
+
+2025-05-18 08:26:35 - Attempting to upload file to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-6510_1747556795.jpg
+
+2025-05-18 08:26:35 - File uploaded successfully to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-6510_1747556795.jpg
+
+2025-05-18 08:26:35 - Adding new counselor: COUN-2025-6510
+
+2025-05-18 08:26:35 - Counselor operation successful
+Data: Array
+(
+    [counselor_id] => COUN-2025-6510
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => exodusrex13@gmail.com
+    [contact_number] => 09877665754
+    [license_number] => 72937232233623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [profile_picture] => /UGCSystem/public/Photos/counselor_profiles/counselor_COUN-2025-6510_1747556795.jpg
+    [created_at] => 2025-05-18 16:26:35
+    [updated_at] => 2025-05-18 16:26:35
+    [time_scheduled] => 09:00 - 11:00
+    [available_days] => ["Tuesday"]
+)
+
+
+2025-05-18 08:26:35 - GET request received
+
+2025-05-18 08:26:45 - GET request received
+
+2025-05-18 08:27:34 - POST request received
+Data: Array
+(
+    [counselorId] => COUN-2025-6510
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => exodusrex13@gmail.com
+    [contactNumber] => 09877665754323
+    [licenseNumber] => 72937232233623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [startTime] => 08:30
+    [endTime] => 09:30
+    [timeScheduled] => 08:30 - 09:30
+    [availableDays] => ["Tuesday","Friday"]
+)
+
+
+2025-05-18 08:27:34 - Remove profile flag: No
+
+2025-05-18 08:27:34 - Starting file upload for counselor ID: COUN-2025-6510
+
+2025-05-18 08:27:34 - No file uploaded or file upload error
+
+2025-05-18 08:27:34 - Updating existing counselor: COUN-2025-6510
+
+2025-05-18 08:27:34 - Counselor operation successful
+Data: Array
+(
+    [counselor_id] => COUN-2025-6510
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => exodusrex13@gmail.com
+    [contact_number] => 09877665754323
+    [license_number] => 72937232233623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [profile_picture] => /UGCSystem/public/Photos/counselor_profiles/counselor_COUN-2025-6510_1747556795.jpg
+    [created_at] => 2025-05-18 16:26:35
+    [updated_at] => 2025-05-18 16:27:34
+    [time_scheduled] => 08:30 - 09:30
+    [available_days] => ["Tuesday","Friday"]
+)
+
+
+2025-05-18 08:27:34 - GET request received
+
+2025-05-18 08:27:50 - DELETE request received
+
+2025-05-18 08:27:50 - Delete data
+Data: Array
+(
+    [counselor_id] => COUN-2025-6117
+)
+
+
+2025-05-18 08:28:00 - GET request received
+
+2025-05-18 08:28:28 - GET request received
+
+2025-05-18 08:29:08 - GET request received
+
+2025-05-18 08:30:37 - GET request received
+
+2025-05-18 08:31:57 - GET request received
+
+2025-05-18 08:36:55 - GET request received
+
+2025-05-18 08:37:16 - POST request received
+Data: Array
+(
+    [counselorId] => COUN-2025-6510
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => exodusrex13@gmail.com
+    [contactNumber] => 09877665754323
+    [licenseNumber] => 72937232233623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [startTime] => 08:30
+    [endTime] => 21:30
+    [timeScheduled] => 08:30 - 21:30
+    [availableDays] => ["Tuesday","Friday"]
+)
+
+
+2025-05-18 08:37:16 - Remove profile flag: No
+
+2025-05-18 08:37:16 - Starting file upload for counselor ID: COUN-2025-6510
+
+2025-05-18 08:37:16 - No file uploaded or file upload error
+
+2025-05-18 08:37:16 - Updating existing counselor: COUN-2025-6510
+
+2025-05-18 08:37:16 - Counselor operation successful
+Data: Array
+(
+    [counselor_id] => COUN-2025-6510
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => exodusrex13@gmail.com
+    [contact_number] => 09877665754323
+    [license_number] => 72937232233623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [profile_picture] => /UGCSystem/public/Photos/counselor_profiles/counselor_COUN-2025-6510_1747556795.jpg
+    [created_at] => 2025-05-18 16:26:35
+    [updated_at] => 2025-05-18 16:37:16
+    [time_scheduled] => 08:30 - 21:30
+    [available_days] => ["Tuesday","Friday"]
+)
+
+
+2025-05-18 08:37:16 - GET request received
+
+2025-05-18 08:38:25 - GET request received
+
+2025-05-18 08:38:29 - DELETE request received
+
+2025-05-18 08:38:29 - Delete data
+Data: Array
+(
+    [counselor_id] => COUN-2025-6510
+)
+
+
+2025-05-18 08:38:29 - Deleting profile picture: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-6510_1747556795.jpg
+
+2025-05-18 08:38:36 - GET request received
+
+2025-05-18 08:39:31 - GET request received
+
+2025-05-18 08:39:57 - GET request received
+
+2025-05-18 08:40:24 - GET request received
+
+2025-05-18 08:40:49 - GET request received
+
+2025-05-18 09:05:01 - GET request received
+
+2025-05-18 09:05:04 - GET request received
+
+2025-05-18 09:05:07 - GET request received
+
+2025-05-18 09:06:09 - GET request received
+
+2025-05-18 09:32:52 - GET request received
+
+2025-05-18 09:32:59 - GET request received
+
+2025-05-18 09:42:10 - GET request received
+
+2025-05-18 09:42:18 - GET request received
+
+2025-05-18 09:42:24 - GET request received
+
+2025-05-18 09:52:33 - GET request received
+
+2025-05-18 09:52:50 - GET request received
+
+2025-05-18 10:51:25 - GET request received
+
+2025-05-18 10:56:48 - GET request received
+
+2025-05-18 10:56:50 - GET request received
+
+2025-05-18 12:03:54 - GET request received
+
+2025-05-18 12:03:59 - GET request received
+
+2025-05-18 12:05:07 - GET request received
+
+2025-05-18 12:05:18 - GET request received
+
+2025-05-18 12:06:30 - GET request received
+
+2025-05-18 13:33:29 - GET request received
+
+2025-05-18 13:33:30 - GET request received
+
+2025-05-18 13:37:00 - GET request received
+
+2025-05-18 13:37:22 - GET request received
+
+2025-05-18 13:37:37 - GET request received
+
+2025-05-18 13:37:38 - GET request received
+
+2025-05-18 13:39:13 - POST request received
+Data: Array
+(
+    [counselorId] => COUN-2025-1790
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => technorex13@gmail.com
+    [contactNumber] => 09877665754
+    [licenseNumber] => 7293723623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [startTime] => 10:40
+    [endTime] => 12:40
+    [timeScheduled] => 10:40 - 12:40
+    [availableDays] => ["Tuesday"]
+)
+
+
+2025-05-18 13:39:13 - Remove profile flag: No
+
+2025-05-18 13:39:13 - Starting file upload for counselor ID: COUN-2025-1790
+
+2025-05-18 13:39:13 - File details
+Data: Array
+(
+    [name] => IMG_20250514_100020_637.jpg
+    [type] => image/jpeg
+    [size] => 3692862
+)
+
+
+2025-05-18 13:39:13 - Attempting to upload file to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-1790_1747575553.jpg
+
+2025-05-18 13:39:13 - File uploaded successfully to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-1790_1747575553.jpg
+
+2025-05-18 13:39:13 - Adding new counselor: COUN-2025-1790
+
+2025-05-18 13:39:13 - Counselor operation successful
+Data: Array
+(
+    [counselor_id] => COUN-2025-1790
+    [name] => Ma geng geng
+    [specialization] => Jampaks
+    [degree] => BS in SHIT
+    [email] => technorex13@gmail.com
+    [contact_number] => 09877665754
+    [license_number] => 7293723623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [profile_picture] => /UGCSystem/public/Photos/counselor_profiles/counselor_COUN-2025-1790_1747575553.jpg
+    [created_at] => 2025-05-18 21:39:13
+    [updated_at] => 2025-05-18 21:39:13
+    [time_scheduled] => 10:40 - 12:40
+    [available_days] => ["Tuesday"]
+)
+
+
+2025-05-18 13:39:14 - GET request received
+
+2025-05-18 21:41:27 - GET request received
+
+2025-05-19 16:53:33 - GET request received
+
+2025-05-19 16:54:49 - GET request received
+
+2025-05-19 16:54:51 - GET request received
+
+2025-05-19 16:54:58 - GET request received
+
+2025-05-19 17:05:43 - GET request received
+
+2025-05-19 17:05:45 - GET request received
+
+2025-05-19 17:06:48 - GET request received
+
+2025-05-19 17:06:51 - GET request received
+
+2025-05-19 17:06:53 - GET request received
+
+2025-05-19 17:06:56 - GET request received
+
+2025-05-19 17:07:00 - GET request received
+
+2025-05-19 17:07:06 - GET request received
+
+2025-05-20 02:03:59 - GET request received
+
+2025-05-20 02:04:01 - GET request received
+
+2025-05-20 02:04:56 - POST request received
+Data: Array
+(
+    [counselorId] => COUN-2025-4526
+    [name] => Showme
+    [specialization] => Elden Ring
+    [degree] => BS in ANNOYING
+    [email] => exodusrex13@gmail.com
+    [contactNumber] => 09877665754
+    [licenseNumber] => 7293-723623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [startTime] => 11:00
+    [endTime] => 13:00
+    [timeScheduled] => 11:00 - 13:00
+    [availableDays] => ["Wednesday","Friday"]
+)
+
+
+2025-05-20 02:04:56 - Remove profile flag: No
+
+2025-05-20 02:04:56 - Starting file upload for counselor ID: COUN-2025-4526
+
+2025-05-20 02:04:56 - File details
+Data: Array
+(
+    [name] => 1351968.jpg
+    [type] => image/jpeg
+    [size] => 266955
+)
+
+
+2025-05-20 02:04:56 - Attempting to upload file to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-4526_1747706696.jpg
+
+2025-05-20 02:04:56 - File uploaded successfully to: C:\xampp\htdocs\UGCSystem\public\Photos/counselor_profiles/counselor_COUN-2025-4526_1747706696.jpg
+
+2025-05-20 02:04:56 - Adding new counselor: COUN-2025-4526
+
+2025-05-20 02:04:56 - Counselor operation successful
+Data: Array
+(
+    [counselor_id] => COUN-2025-4526
+    [name] => Showme
+    [specialization] => Elden Ring
+    [degree] => BS in ANNOYING
+    [email] => exodusrex13@gmail.com
+    [contact_number] => 09877665754
+    [license_number] => 7293-723623
+    [address] => Zone 3, Poblacion, Claveria, Misamis oriental
+    [profile_picture] => /UGCSystem/public/Photos/counselor_profiles/counselor_COUN-2025-4526_1747706696.jpg
+    [created_at] => 2025-05-20 10:04:56
+    [updated_at] => 2025-05-20 10:04:56
+    [time_scheduled] => 11:00 - 13:00
+    [available_days] => ["Wednesday","Friday"]
+)
+
+
+2025-05-20 02:04:57 - GET request received
+
+2025-05-20 02:39:32 - GET request received
+
+2025-05-20 02:39:44 - GET request received
+
+2025-05-20 02:50:39 - GET request received
+
+2025-05-20 03:00:31 - GET request received
+
+2025-09-30 09:12:24 - GET request received
+
+2025-10-01 11:26:15 - GET request received
+
+2025-10-01 11:26:19 - GET request received
+
+2025-10-01 11:26:26 - GET request received
+
+2025-10-01 11:30:25 - GET request received
+
+2025-10-01 11:49:48 - GET request received
+
+2025-10-01 11:50:45 - GET request received
+
+2025-10-01 11:56:23 - GET request received
+
+2025-10-01 11:59:01 - GET request received
+
+2025-10-01 11:59:03 - GET request received
+
+2025-10-01 11:59:29 - GET request received
+
+2025-10-01 11:59:39 - GET request received
+
+2025-10-01 11:59:42 - GET request received
+
+2025-10-01 11:59:47 - GET request received
+
+2025-10-01 12:00:33 - GET request received
+
+2025-10-01 12:00:49 - GET request received
+
+2025-10-01 12:00:51 - GET request received
+
+2025-10-01 12:01:05 - GET request received
+
+2025-10-01 12:05:57 - GET request received
+
+2025-10-01 12:06:05 - GET request received
+
+2025-10-01 12:07:06 - GET request received
+
+2025-10-01 12:07:33 - GET request received
+
+2025-10-01 12:10:16 - GET request received
+
+2025-10-01 12:10:18 - GET request received
+
+2025-10-02 11:08:33 - GET request received
+
+2025-10-02 11:12:56 - GET request received
+
+2025-10-02 11:17:02 - GET request received
+
+2025-10-02 11:19:32 - GET request received
+
+2025-10-02 11:23:17 - GET request received
+
+2025-10-02 11:24:50 - GET request received
+
+2025-10-02 11:58:19 - GET request received
+
+2025-10-02 12:16:25 - GET request received
+
+2025-10-02 12:17:27 - GET request received
+
+2025-10-02 12:17:48 - GET request received
+
+2025-10-02 12:18:15 - GET request received
+
+2025-10-02 12:20:34 - GET request received
+
+2025-10-02 12:21:05 - GET request received
+
+2025-10-02 12:22:45 - GET request received
+
+2025-10-02 12:23:24 - GET request received
+
+2025-10-02 12:23:46 - GET request received
+
+2025-10-02 12:24:02 - GET request received
+
+2025-10-02 12:24:55 - GET request received
+
+2025-10-02 12:25:16 - GET request received
+
+2025-10-02 12:25:32 - GET request received
+
+2025-10-02 12:25:51 - GET request received
+
+2025-10-02 12:26:02 - GET request received
+
+2025-10-02 12:26:16 - GET request received
+
+2025-10-02 12:26:43 - GET request received
+
+2025-10-02 12:26:46 - GET request received
+
+2025-10-02 12:26:54 - GET request received
+
+2025-10-02 12:27:42 - GET request received
+
+2025-10-02 12:27:45 - GET request received
+
+2025-10-02 12:30:01 - GET request received
+
+2025-10-02 12:32:50 - GET request received
+
+2025-10-02 12:32:59 - GET request received
+
+2025-10-02 12:33:05 - GET request received
+
+2025-10-02 14:51:58 - GET request received
+
+2025-10-03 12:40:15 - GET request received
+
+2025-10-03 12:40:19 - GET request received
+
+2025-10-03 12:40:22 - GET request received
+
+2025-10-03 12:40:25 - GET request received
+
+2025-10-03 12:40:33 - GET request received
+
+2025-10-03 14:20:10 - GET request received
+
+2025-10-03 14:20:36 - GET request received
+
+2025-10-03 14:22:05 - GET request received
+
+2025-10-03 14:22:08 - GET request received
+
+2025-10-03 14:22:11 - GET request received
+
+2025-10-03 14:22:13 - GET request received
+
+2025-10-03 14:24:05 - GET request received
+
+2025-10-03 14:24:07 - GET request received
+
+2025-10-03 14:24:11 - GET request received
+
+2025-10-03 14:34:28 - GET request received
+
+2025-10-03 14:34:32 - GET request received
+
+2025-10-03 14:34:35 - GET request received
+
+2025-10-03 14:34:39 - GET request received
+
+2025-10-03 14:39:27 - GET request received
+
+2025-10-03 14:39:29 - GET request received
+
+2025-10-03 14:39:34 - GET request received
+
+2025-10-03 14:42:00 - GET request received
+
+2025-10-03 14:42:02 - GET request received
+
+2025-10-03 14:42:05 - GET request received
+
+2025-10-03 14:42:26 - GET request received
+
+2025-10-03 14:42:29 - GET request received
+
+2025-10-03 14:43:20 - GET request received
+
+2025-10-03 14:43:24 - GET request received
+
+2025-10-03 14:43:26 - GET request received
+
+2025-10-03 14:43:34 - GET request received
+
+2025-10-03 14:45:33 - GET request received
+
+2025-10-03 14:46:20 - GET request received
+
+2025-10-03 14:50:35 - GET request received
+
+2025-10-03 14:50:39 - GET request received
+
+2025-10-03 14:50:58 - GET request received
+
+2025-10-03 14:53:59 - GET request received
+
+2025-10-03 14:54:05 - GET request received
+
+2025-10-03 14:57:07 - GET request received
+
+2025-10-03 14:57:15 - GET request received
+
+2025-10-03 14:57:16 - GET request received
+
+2025-10-03 14:57:55 - GET request received
+
+2025-10-03 14:57:56 - GET request received
+
+2025-10-03 14:57:56 - GET request received
+
+2025-10-03 14:57:56 - GET request received
+
+2025-10-03 14:57:57 - GET request received
+
+2025-10-03 14:57:57 - GET request received
+
+2025-10-03 14:57:57 - GET request received
+
+2025-10-03 14:57:58 - GET request received
+
+2025-10-03 14:57:58 - GET request received
+
+2025-10-03 14:57:58 - GET request received
+
+2025-10-03 14:57:59 - GET request received
+
+2025-10-03 15:00:27 - GET request received
+
+2025-10-03 15:01:14 - GET request received
+
+2025-10-03 15:01:31 - GET request received
+
+2025-10-03 15:01:33 - GET request received
+
+2025-10-03 15:01:39 - GET request received
+
+2025-10-03 15:22:46 - GET request received
+
+2025-10-03 15:22:48 - GET request received
+
+2025-10-03 15:22:53 - GET request received
+
+2025-10-03 15:22:57 - GET request received
+
+2025-10-03 15:23:15 - GET request received
+
+2025-10-03 15:23:17 - GET request received
+
+2025-10-03 15:25:32 - GET request received
+
+2025-10-03 15:26:03 - GET request received
+
+2025-10-03 15:26:04 - GET request received
+
+2025-10-03 15:26:08 - GET request received
+
+2025-10-03 15:26:10 - GET request received
+
+2025-10-03 15:26:17 - GET request received
+
+2025-10-03 15:26:19 - GET request received
+
+2025-10-03 15:31:22 - GET request received
+
+2025-10-03 15:31:24 - GET request received
+
+2025-10-03 15:31:31 - GET request received
+
+2025-10-03 15:32:42 - GET request received
+
+2025-10-03 15:33:00 - GET request received
+
+2025-10-03 15:36:37 - GET request received
+
+2025-10-03 15:38:00 - GET request received
+
+2025-10-03 15:38:03 - GET request received
+
+2025-10-03 15:38:08 - GET request received
+
+2025-10-03 15:38:55 - GET request received
+
+2025-10-03 15:39:11 - GET request received
+
+2025-10-03 15:39:26 - GET request received
+
+2025-10-03 15:39:56 - GET request received
+
+2025-10-03 15:39:59 - GET request received
+
+2025-10-03 15:40:00 - GET request received
+
+2025-10-03 15:40:04 - GET request received
+
+2025-10-03 16:25:36 - GET request received
+
+2025-10-03 16:27:39 - GET request received
+
+2025-10-03 16:28:42 - GET request received
+
+2025-10-03 16:33:04 - GET request received
+
+2025-10-03 16:35:31 - GET request received
+
+2025-10-03 16:36:41 - GET request received
+
+2025-10-04 15:35:35 - GET request received
+
+2025-10-04 15:35:51 - GET request received
+
+2025-10-04 15:35:54 - GET request received
+
+2025-10-04 15:37:42 - GET request received
+
+2025-10-04 15:37:46 - GET request received
+
+2025-10-04 15:37:51 - GET request received
+
+2025-10-04 15:38:14 - GET request received
+
+2025-10-04 15:42:57 - GET request received
+
+2025-10-04 15:43:01 - GET request received
+
+2025-10-04 15:43:05 - GET request received
+
+2025-10-04 15:51:00 - GET request received
+
+2025-10-04 15:51:03 - GET request received
+
+2025-10-04 15:51:04 - GET request received
+
+2025-10-04 15:51:05 - GET request received
+
+2025-10-04 15:54:44 - GET request received
+
+2025-10-04 16:20:24 - GET request received
+
+2025-10-04 16:45:14 - GET request received
+
+2025-10-04 16:45:22 - GET request received
+
+2025-10-04 16:45:25 - GET request received
+
+2025-10-05 04:07:22 - GET request received
+
+2025-10-05 04:08:30 - GET request received
+
+2025-10-05 04:09:01 - GET request received
+
+2025-10-05 04:09:04 - GET request received
+
+2025-10-05 04:09:06 - GET request received
+
+2025-10-05 04:09:06 - GET request received
+
+2025-10-05 04:09:11 - GET request received
+
+2025-10-05 04:09:16 - GET request received
+
+2025-10-05 04:42:03 - GET request received
+
+2025-10-05 04:42:17 - GET request received
+
+2025-10-05 05:03:25 - GET request received
+
+2025-10-05 05:04:43 - GET request received
+
+2025-10-05 14:23:49 - GET request received
+
+2025-10-05 14:25:53 - GET request received
+
+2025-10-05 14:32:57 - GET request received
+
+2025-10-05 15:35:16 - GET request received
+
+2025-10-05 15:35:20 - GET request received
+
+2025-10-05 15:35:37 - GET request received
+
+2025-10-05 16:34:38 - GET request received
+
+2025-10-05 16:35:25 - GET request received
+
+2025-10-05 16:36:25 - GET request received
+
+2025-10-05 16:37:34 - GET request received
+
+2025-10-05 16:40:23 - GET request received
+
+2025-10-09 07:13:46 - GET request received
+
+2025-10-09 07:13:50 - GET request received
+
+2025-10-09 07:14:00 - GET request received
+
+2025-10-09 07:14:11 - GET request received
+
+2025-10-09 07:49:33 - GET request received
+
+2025-10-12 06:24:57 - GET request received
+
+2025-10-12 10:49:26 - GET request received
+
+2025-10-12 10:49:29 - GET request received
+
+2025-10-12 10:49:58 - GET request received
+
+2025-10-12 10:50:11 - GET request received
+
+2025-10-13 16:07:18 - GET request received
+
+2025-10-14 02:12:21 - GET request received
+
+2025-10-14 02:22:14 - GET request received
+
+2025-10-14 02:22:21 - GET request received
+
+2025-10-14 12:27:06 - GET request received
+
+2025-10-14 12:27:08 - GET request received
+
+2025-10-14 12:27:25 - GET request received
+
+2025-10-14 12:27:32 - GET request received
+
+2025-10-14 12:27:46 - GET request received
+
+2025-10-14 15:09:39 - GET request received
+
+2025-10-14 15:09:41 - GET request received
+
+2025-10-14 15:10:04 - GET request received
+
+2025-10-15 01:28:48 - GET request received
+
+2025-10-15 01:29:28 - GET request received
+
+2025-10-15 01:29:44 - GET request received
+
+2025-10-15 01:30:37 - GET request received
+
+2025-10-15 01:33:39 - GET request received
+
+2025-10-15 01:34:52 - GET request received
+
+2025-10-15 01:35:10 - GET request received
+
+2025-10-15 01:36:58 - GET request received
+
+2025-10-15 01:37:04 - GET request received
+
+2025-10-15 01:37:05 - GET request received
+
+2025-10-15 01:44:49 - GET request received
+
+2025-10-15 01:48:50 - GET request received
+
+2025-10-15 01:49:37 - GET request received
+
+2025-10-15 01:49:40 - GET request received
+
+2025-10-15 01:51:29 - GET request received
+
+2025-10-15 01:52:59 - GET request received
+
+2025-10-15 01:53:47 - GET request received
+
+2025-10-15 01:54:18 - GET request received
+
+2025-10-15 01:54:27 - GET request received
+
+2025-10-15 01:54:59 - GET request received
+
+2025-10-15 01:57:52 - GET request received
+
+2025-10-15 01:58:25 - GET request received
+
+2025-10-15 01:58:38 - GET request received
+
+2025-10-15 02:25:52 - GET request received
+
+2025-10-15 02:35:17 - GET request received
+
+2025-10-15 22:56:37 - GET request received
+
+2025-10-16 00:04:18 - GET request received
+
+2025-10-16 00:09:47 - GET request received
+
+2025-10-17 05:11:16 - GET request received
+
+2025-10-19 12:21:28 - GET request received
+
+2025-10-21 12:00:04 - GET request received
+
+2025-10-30 06:35:03 - GET request received
+
+2025-10-30 06:35:25 - GET request received
+
+2025-10-30 06:35:54 - GET request received
+
+2025-10-30 06:36:09 - GET request received
+
