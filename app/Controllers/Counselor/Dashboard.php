@@ -90,11 +90,12 @@ class Dashboard extends BaseController
                     a.counselor_preference,
                     a.status,
                     a.created_at,
-                    COALESCE(u.username, a.student_id) as username,
+                    COALESCE(CONCAT(spi.first_name, ' ', spi.last_name), u.username, a.student_id) as student_name,
                     u.email as user_email,
                     COALESCE(CONCAT(sai.course, ' - ', sai.year_level), 'N/A') as course_year
                   FROM appointments a
                   LEFT JOIN users u ON a.student_id = u.user_id
+                  LEFT JOIN student_personal_info spi ON spi.student_id = u.user_id
                   LEFT JOIN student_academic_info sai ON sai.student_id = u.user_id
                   WHERE a.status = 'pending'
                   AND a.counselor_preference = ?

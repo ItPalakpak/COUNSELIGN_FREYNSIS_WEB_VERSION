@@ -102,12 +102,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
     $routes->get('filter-data/student-academic-map', 'FilterData::getStudentAcademicMap');
 });
 
-// User routes
+// Student routes
 $routes->group('student', ['namespace' => 'App\Controllers\Student'], function($routes) {
     $routes->get('dashboard', 'Dashboard::index');
     $routes->get('dashboard/get-profile-data', 'Dashboard::getProfileData');
     $routes->get('session/check', 'SessionCheck::index');
     $routes->match(['GET', 'POST'], 'message/operations', 'Message::operations');
+    $routes->get('messages', 'Message::index');
     $routes->get('profile/get', 'Profile::getProfile');
     $routes->get('announcements', 'Announcements::index');
     $routes->get('announcements/all', 'Announcements::getAll');
@@ -135,6 +136,7 @@ $routes->group('student', ['namespace' => 'App\Controllers\Student'], function($
 
     $routes->get('appointments/get-my-appointments', 'Appointment::getMyAppointments');
     $routes->get('appointments/booked-times', 'Appointment::getBookedTimesForDate');
+    $routes->get('appointments/check-group-slots', 'Appointment::checkGroupSlotAvailability');
     $routes->post('appointments/update', 'Appointment::update');
     $routes->delete('appointments/delete/(:num)', 'Appointment::delete/$1');
     $routes->get('follow-up-sessions', 'FollowUpSessions::index');
@@ -143,6 +145,7 @@ $routes->group('student', ['namespace' => 'App\Controllers\Student'], function($
     $routes->post('appointments/cancel', 'Appointment::cancel');
     $routes->post('appointments/track-download', 'Appointment::trackDownload');
     $routes->post('appointments/test-email', 'Appointment::testEmailService');
+    $routes->get('appointments/check-group-slots', 'Appointment::checkGroupSlots');
 
 
 

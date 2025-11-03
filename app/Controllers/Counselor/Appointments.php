@@ -341,7 +341,7 @@ class Appointments extends BaseController
                         f.preferred_date,
                         f.preferred_time,
                         f.consultation_type,
-                        NULL as purpose,
+                        f.consultation_type as purpose,
                         'approved' as status,
                         u.email,
                         u.username,

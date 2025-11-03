@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadCounselors();
         setupFormSubmission();
         setupCounselorAvailabilityFiltering();
+        setupConsultationTypeHandling();
         checkForUrlMessage();
         initializeCounselorsCalendarDrawer();
         // Directly load counselor schedules since the toggle/drawer was removed
@@ -338,7 +339,7 @@ function setupCounselorAvailabilityFiltering() {
 }
 
 // Refresh the Preferred Time <select> to show only counselor-available 30-min ranges for the selected date,
-// and exclude already-booked ranges (approved appointments on that date)
+// and exclude already-booked ranges based on consultation type
 async function refreshTimeSlotsForDate(dateStr){
     try {
         const select = document.getElementById('preferredTime');
@@ -350,6 +351,10 @@ async function refreshTimeSlotsForDate(dateStr){
         // Determine currently selected counselor (if any)
         const counselorSelect = document.getElementById('counselorPreference');
         const selectedCounselorId = counselorSelect ? counselorSelect.value : '';
+
+        // Get selected consultation type
+        const consultationTypeSelect = document.getElementById('consultationType');
+        const selectedConsultationType = consultationTypeSelect ? consultationTypeSelect.value : '';
 
         // 1) Load counselors' schedules and build the UNION of 30-min ranges for the selected day
         let availableRanges = [];
@@ -386,11 +391,15 @@ async function refreshTimeSlotsForDate(dateStr){
             }
         } catch (_) {}
 
-        // 2) Fetch booked (approved) time ranges for this date
+        // 2) Fetch booked time ranges for this date - filtered by consultation type
         const url = new URL((window.BASE_URL || '/') + 'student/appointments/booked-times');
         url.searchParams.append('date', dateStr);
         if (selectedCounselorId && selectedCounselorId !== 'No preference') {
             url.searchParams.append('counselor_id', selectedCounselorId);
+        }
+        // Pass consultation type to filter booked times appropriately
+        if (selectedConsultationType) {
+            url.searchParams.append('consultation_type', selectedConsultationType);
         }
         const res = await fetch(url.toString(), { method:'GET', credentials:'include', headers:{ 'Accept':'application/json' }});
         let booked = [];
@@ -758,12 +767,42 @@ function setupFormSubmission() {
                 return;
             }
 
-            // Check for counselor conflicts before submission
-            checkCounselorConflicts().then(hasConflict => {
-                if (hasConflict) {
-                    return; // Conflict modal will be shown, don't proceed with submission
-                }
-
+            // Check for counselor conflicts and group slot availability before submission
+            const consultationType = document.getElementById('consultationType').value;
+            const date = document.getElementById('preferredDate').value;
+            const time = document.getElementById('preferredTime').value;
+            
+            // For group consultation, check slot availability first
+            if (consultationType === 'Group Consultation') {
+                const counselorId = document.getElementById('counselorPreference').value;
+                checkGroupSlotAvailability(date, time, counselorId).then(availabilityInfo => {
+                    if (!availabilityInfo || !availabilityInfo.isAvailable) {
+                        showMessage('error', 'Group consultation slots are full for this time slot (maximum 5 participants). Please select a different time or date.');
+                        toggleLoadingState(false);
+                        return;
+                    }
+                    proceedWithSubmission();
+                }).catch(error => {
+                    console.error('Error checking group slots:', error);
+                    showMessage('error', 'Error checking group slot availability. Please try again.');
+                    toggleLoadingState(false);
+                });
+            } else {
+                // For individual consultation, use existing conflict check
+                checkCounselorConflicts().then(hasConflict => {
+                    if (hasConflict) {
+                        toggleLoadingState(false);
+                        return; // Conflict modal will be shown, don't proceed with submission
+                    }
+                    proceedWithSubmission();
+                }).catch(error => {
+                    console.error('Error checking conflicts:', error);
+                    showMessage('error', 'Error checking counselor availability. Please try again.');
+                    toggleLoadingState(false);
+                });
+            }
+            
+            function proceedWithSubmission() {
                 // Show loading state
                 toggleLoadingState(true);
 
@@ -814,10 +853,7 @@ function setupFormSubmission() {
                 // Always hide loading state, regardless of success or error
                 toggleLoadingState(false);
             });
-            }).catch(error => {
-                console.error('Error checking conflicts:', error);
-                showMessage('error', 'Error checking counselor availability. Please try again.');
-            });
+            }
         });
     }
 }
@@ -880,6 +916,7 @@ function showAppointmentConfirmation() {
 function validateForm() {
     const preferredDate = document.getElementById('preferredDate').value;
     const preferredTime = document.getElementById('preferredTime').value;
+    const consultationType = document.getElementById('consultationType').value;
     const methodType = document.getElementById('methodType').value;
     const purpose = document.getElementById('purpose').value;
 
@@ -890,6 +927,11 @@ function validateForm() {
 
     if (!preferredTime) {
         showMessage('error', 'Please select a preferred time.');
+        return false;
+    }
+
+    if (!consultationType) {
+        showMessage('error', 'Please select a consultation type.');
         return false;
     }
 
@@ -1302,6 +1344,142 @@ function formatTimeSlot(timeSlot) {
     }
     
     return timeSlot;
+}
+
+// Setup consultation type handling
+function setupConsultationTypeHandling() {
+    const consultationTypeSelect = document.getElementById('consultationType');
+    const consultationTypeHelp = document.getElementById('consultationTypeHelp');
+    const preferredDateInput = document.getElementById('preferredDate');
+    const preferredTimeSelect = document.getElementById('preferredTime');
+    const counselorSelect = document.getElementById('counselorPreference');
+
+    if (!consultationTypeSelect || !consultationTypeHelp) return;
+
+    function updateHelpText() {
+        const selectedType = consultationTypeSelect.value;
+        if (selectedType === 'Group Consultation') {
+            consultationTypeHelp.textContent = 'Group consultation allows up to 5 students per time slot.';
+            consultationTypeHelp.style.color = '#2563EB';
+            // Check slot availability when date/time changes for group consultation
+            checkGroupSlotAvailabilityForCurrentSelection();
+        } else if (selectedType === 'Individual Consultation') {
+            consultationTypeHelp.textContent = 'One-on-one consultation with the counselor.';
+            consultationTypeHelp.style.color = '#6B7280';
+        } else {
+            consultationTypeHelp.textContent = '';
+        }
+    }
+
+    function checkGroupSlotAvailabilityForCurrentSelection() {
+        const date = preferredDateInput.value;
+        const time = preferredTimeSelect.value;
+        const counselorId = counselorSelect.value;
+
+        if (consultationTypeSelect.value === 'Group Consultation' && date && time) {
+            checkGroupSlotAvailability(date, time, counselorId).then(hasSlots => {
+                if (hasSlots !== null) {
+                    updateSlotAvailabilityDisplay(hasSlots);
+                }
+            });
+        } else {
+            clearSlotAvailabilityDisplay();
+        }
+    }
+
+    consultationTypeSelect.addEventListener('change', () => {
+        updateHelpText();
+        // Refresh time slots when consultation type changes (different logic for individual vs group)
+        const selectedDate = preferredDateInput ? preferredDateInput.value : '';
+        if (selectedDate) {
+            refreshTimeSlotsForDate(selectedDate);
+        }
+        checkGroupSlotAvailabilityForCurrentSelection();
+    });
+
+    if (preferredDateInput) {
+        preferredDateInput.addEventListener('change', checkGroupSlotAvailabilityForCurrentSelection);
+    }
+    if (preferredTimeSelect) {
+        preferredTimeSelect.addEventListener('change', checkGroupSlotAvailabilityForCurrentSelection);
+    }
+    if (counselorSelect) {
+        counselorSelect.addEventListener('change', checkGroupSlotAvailabilityForCurrentSelection);
+    }
+
+    // Initial help text update
+    updateHelpText();
+}
+
+// Check group slot availability
+async function checkGroupSlotAvailability(date, time, counselorId = '') {
+    try {
+        const url = new URL((window.BASE_URL || '/') + 'student/appointments/check-group-slots');
+        url.searchParams.append('date', date);
+        url.searchParams.append('time', time);
+        if (counselorId && counselorId !== 'No preference') {
+            url.searchParams.append('counselor_id', counselorId);
+        }
+
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            return {
+                isAvailable: data.isAvailable,
+                bookedSlots: data.bookedSlots,
+                availableSlots: data.availableSlots
+            };
+        }
+
+        return null;
+    } catch (error) {
+        SecureLogger.info('Error checking group slot availability:', error.message);
+        return null;
+    }
+}
+
+// Update slot availability display
+function updateSlotAvailabilityDisplay(availabilityInfo) {
+    const consultationTypeHelp = document.getElementById('consultationTypeHelp');
+    if (!consultationTypeHelp || !availabilityInfo) return;
+
+    if (availabilityInfo.availableSlots > 0) {
+        consultationTypeHelp.innerHTML = `Group consultation: <strong>${availabilityInfo.availableSlots}</strong> slot(s) available (${availabilityInfo.bookedSlots}/5 booked).`;
+        consultationTypeHelp.style.color = '#059669';
+    } else {
+        consultationTypeHelp.innerHTML = `Group consultation: <strong>No slots available</strong> (${availabilityInfo.bookedSlots}/5 booked). Please choose another time.`;
+        consultationTypeHelp.style.color = '#DC2626';
+    }
+}
+
+// Clear slot availability display
+function clearSlotAvailabilityDisplay() {
+    const consultationTypeHelp = document.getElementById('consultationTypeHelp');
+    if (!consultationTypeHelp) return;
+
+    const consultationTypeSelect = document.getElementById('consultationType');
+    if (consultationTypeSelect && consultationTypeSelect.value === 'Group Consultation') {
+        consultationTypeHelp.textContent = 'Group consultation allows up to 5 students per time slot.';
+        consultationTypeHelp.style.color = '#2563EB';
+    } else if (consultationTypeSelect && consultationTypeSelect.value === 'Individual Consultation') {
+        consultationTypeHelp.textContent = 'One-on-one consultation with the counselor.';
+        consultationTypeHelp.style.color = '#6B7280';
+    } else {
+        consultationTypeHelp.textContent = '';
+    }
 }
 
 // Setup acknowledgment validation

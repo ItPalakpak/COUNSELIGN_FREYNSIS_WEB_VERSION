@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${formattedDate || 'Invalid Date'}</td>
                 <td>${formattedTime || 'N/A'}</td>
                 <td>${appointment.method_type || 'In-person'}</td>
+                <td>${appointment.consultation_type || 'Individual Consultation'}</td>
                 <td>${scheduleType}</td>
                 <td>${appointment.purpose || 'N/A'}</td>
                 <td class="text-center">

@@ -284,17 +284,19 @@ function displayFollowUpSessions(sessions) {
                 ${session.description ? `<div class="session-description"><strong>Description:</strong> ${session.description}</div>` : ''}
                 ${session.reason ? `<div class="session-reason"><strong>${session.status === 'cancelled' ? 'Reason For Cancellation:' : 'Reason For Follow-up:'}</strong> ${session.reason}</div>` : ''}
             </div>
+            ${session.status === 'pending' ? `
             <div class="session-actions d-flex gap-2 flex-wrap">
-                <button class="btn btn-success btn-sm" ${(session.status === 'completed' || session.status === 'cancelled') ? 'disabled' : ''} onclick="markFollowUpCompleted(${session.id})">
+                <button class="btn btn-success btn-sm" onclick="markFollowUpCompleted(${session.id})">
                     <i class="fas fa-check"></i> Mark as Completed
                 </button>
-                <button class="btn btn-warning btn-sm" ${session.status !== 'pending' ? 'disabled' : ''} onclick="openEditFollowUpModal(${session.id})">
+                <button class="btn btn-warning btn-sm" onclick="openEditFollowUpModal(${session.id})">
                     <i class="fas fa-edit"></i> Edit
                 </button>
-                <button class="btn btn-danger btn-sm" ${session.status !== 'pending' ? 'disabled' : ''} onclick="openCancelFollowUpModal(${session.id})">
+                <button class="btn btn-danger btn-sm" onclick="openCancelFollowUpModal(${session.id})">
                     <i class="fas fa-ban"></i> Cancel
                 </button>
             </div>
+            ` : ''}
         </div>
     `).join('');
 }
@@ -576,15 +578,7 @@ function setupModalEventListeners() {
         });
     }
 
-    // Edit date change listener for availability loading
-    const editPreferredDateInput = document.getElementById('editPreferredDate');
-    if (editPreferredDateInput) {
-        editPreferredDateInput.addEventListener('change', function() {
-            if (this.value) {
-                loadCounselorAvailabilityForEdit(this.value);
-            }
-        });
-    }
+    // Edit date field is read-only, so no event listener needed
 }
 
 
@@ -984,11 +978,8 @@ function openEditFollowUpModal(sessionId) {
     document.getElementById('editDescription').value = sessionDescription;
     document.getElementById('editReason').value = sessionReason;
 
-    // Load availability for the selected date
-    const selectedDate = document.getElementById('editPreferredDate').value;
-    if (selectedDate) {
-        loadCounselorAvailabilityForEdit(selectedDate);
-    }
+    // Date and time fields are read-only, so we don't need to load availability
+    // They will display the original values chosen by the counselor
 
     // Show the modal
     const modal = new bootstrap.Modal(document.getElementById('editFollowUpModal'));
@@ -1085,6 +1076,12 @@ async function updateFollowUp() {
     const form = document.getElementById('editFollowUpForm');
     const formData = new FormData(form);
     const updateBtn = document.getElementById('updateFollowUpBtn');
+
+    // Since preferred_time select is disabled, manually include its value
+    const preferredTime = document.getElementById('editPreferredTime').value;
+    if (preferredTime) {
+        formData.set('preferred_time', preferredTime);
+    }
 
     // Validate required fields
     const requiredFields = ['id', 'preferred_date', 'preferred_time', 'consultation_type'];

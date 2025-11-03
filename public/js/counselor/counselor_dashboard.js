@@ -453,7 +453,7 @@ document.addEventListener("DOMContentLoaded", function () {
                           appointment.status
                         )}<br>
                         <strong>Student:</strong> ${
-                          appointment.username || appointment.student_id
+                          appointment.student_name || appointment.username || appointment.student_id
                         }<br>
                         <strong>Method:</strong> ${
                           appointment.method_type || "N/A"
@@ -1161,7 +1161,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       appointmentCard.innerHTML = `
             <p class="text-body-secondary mb-1"><strong>Student:</strong> ${escapeHtml(
-              appointment.username || appointment.student_id || "N/A"
+              appointment.student_name || appointment.username || appointment.student_id || "N/A"
             )}</p>
             <p class="text-body-secondary mb-1"><strong>Date:</strong> ${formattedDate}</p>
             <p class="text-body-secondary mb-1"><strong>Time:</strong> ${escapeHtml(

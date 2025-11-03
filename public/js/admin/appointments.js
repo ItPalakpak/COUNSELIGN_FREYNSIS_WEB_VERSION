@@ -342,11 +342,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalTime = modal.querySelector('#modalTime');
         if (modalTime) modalTime.textContent = appointment.preferred_time || 'N/A';
         
+        // Consultation Type: Individual Consultation or Group Consultation
         const modalConsultationType = modal.querySelector('#modalConsultationType');
-        if (modalConsultationType) modalConsultationType.textContent = appointment.method_type || 'In-person';
+        if (modalConsultationType) {
+            const consultationType = appointment.consultation_type;
+            modalConsultationType.textContent = (consultationType && consultationType.trim() !== '') ? consultationType : 'N/A';
+        }
         
+        // Method Type: In-person, Online (Video), Online (Audio only)
+        const modalMethodType = modal.querySelector('#modalMethodType');
+        if (modalMethodType) {
+            const methodType = appointment.method_type;
+            modalMethodType.textContent = (methodType && methodType.trim() !== '') ? methodType : 'N/A';
+        }
+        
+        // Purpose: Counseling, Psycho-Social Support, Initial Interview
         const modalPurpose = modal.querySelector('#modalPurpose');
-        if (modalPurpose) modalPurpose.textContent = appointment.purpose || 'N/A';
+        if (modalPurpose) {
+            const purpose = appointment.purpose;
+            modalPurpose.textContent = (purpose && purpose.trim() !== '') ? purpose : 'N/A';
+        }
         
         const modalCounselorPreference = modal.querySelector('#modalCounselorPreference');
         if (modalCounselorPreference) modalCounselorPreference.textContent = appointment.counselor_name || 'No Preference';

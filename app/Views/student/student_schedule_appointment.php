@@ -63,19 +63,33 @@
                     <div id="formMessage" class="hidden"></div>
 
                     <form id="consultationForm" action="/Counselign/includes/save_appointment.php" method="post">
+
                         <div class="form-group">
-                            <label for="preferredDate">Preferred Date</label>
-                            <?php
-                            // Set tomorrow as minimum date
-                            $tomorrow = date('Y-m-d', strtotime('+1 day'));
-                            ?>
+                            <label for="consultationType">
+                                Consultation Type <span class="required-asterisk">*</span>
+                            </label>
+                            <select id="consultationType" name="consultationType" class="form-control" required>
+                                <option value="">Select consultation type</option>
+                                <option value="Individual Consultation">Individual Consultation</option>
+                                <option value="Group Consultation">Group Consultation</option>
+                            </select>
+                            <small id="consultationTypeHelp" class="form-text text-muted"></small>
+                        </div>
+
+                        <!-- Date & Time Section -->
+                        <div class="form-group">
+                            <label for="preferredDate">
+                                Preferred Date <span class="required-asterisk">*</span>
+                            </label>
                             <input id="preferredDate" name="preferredDate" type="date" class="form-control"
-                                min="<?php echo $tomorrow; ?>" value="<?php echo $tomorrow; ?>" required>
+                                min="" value="" required>
                             <small>Select a date at least one day in the future</small>
                         </div>
 
                         <div class="form-group">
-                            <label for="preferredTime">Preferred Time</label>
+                            <label for="preferredTime">
+                                Preferred Time <span class="required-asterisk">*</span>
+                            </label>
                             <select id="preferredTime" name="preferredTime" class="form-control" required>
                                 <option value="">Select a time slot</option>
                                 <option value="8:00 AM - 8:30 AM">8:00 AM - 8:30 AM</option>
@@ -96,8 +110,20 @@
                             </select>
                         </div>
 
+                        <!-- Counselor & Consultation Type Section -->
                         <div class="form-group">
-                            <label for="methodType">Method Type</label>
+                            <label for="counselorPreference">
+                                Counselor Preference <span class="required-asterisk">*</span>
+                            </label>
+                            <select id="counselorPreference" name="counselorPreference" class="form-control" required>
+                                <option value="">Select a counselor</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="methodType">
+                                Method Type <span class="required-asterisk">*</span>
+                            </label>
                             <select id="methodType" name="methodType" class="form-control" required>
                                 <option value="">Select a method type</option>
                                 <option>In-person</option>
@@ -107,7 +133,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="purpose">Purpose of Consultation</label>
+                            <label for="purpose">
+                                Purpose of Consultation <span class="required-asterisk">*</span>
+                            </label>
                             <select id="purpose" name="purpose" class="form-control" required>
                                 <option value="">Select the purpose of your consultation</option>
                                 <option value="Counseling">Counseling</option>
@@ -116,13 +144,7 @@
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label for="counselorPreference">Counselor Preference</label>
-                            <select id="counselorPreference" name="counselorPreference" class="form-control" required>
-                                <option value="">Select a counselor</option>
-                            </select>
-                        </div>
-
+                        <!-- Brief Description -->
                         <div class="form-group full-width">
                             <label for="briefDescription">Brief Description (Optional)</label>
                             <textarea id="briefDescription" name="description" class="form-control" rows="3"
@@ -134,14 +156,14 @@
                             <div class="accordion" id="counselingConsentAccordion">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="consentHeading">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                                data-bs-target="#consentCollapse" aria-expanded="false" aria-controls="consentCollapse">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#consentCollapse" aria-expanded="false" aria-controls="consentCollapse">
                                             <i class="fas fa-file-contract me-2"></i>
                                             Counseling Informed Consent Form
                                         </button>
                                     </h2>
-                                    <div id="consentCollapse" class="accordion-collapse collapse" aria-labelledby="consentHeading" 
-                                         data-bs-parent="#counselingConsentAccordion">
+                                    <div id="consentCollapse" class="accordion-collapse collapse" aria-labelledby="consentHeading"
+                                        data-bs-parent="#counselingConsentAccordion">
                                         <div class="accordion-body">
                                             <div class="consent-content">
                                                 <div class="consent-intro">
@@ -195,9 +217,9 @@
                                                         DIMENSIONS OF CONFIDENTIALITY
                                                     </h4>
                                                     <p>The clients have a right to know that the counselor may be discussing certain details of the relationship with a supervisor or a colleague. Moreover, there are times when confidential information must be divulged and there are exemptions.</p>
-                                                    
+
                                                     <p>Arthur and Swanson (1993) note exemptions cited by Bisell and Royce (1992) to the ethical principle of confidentiality:</p>
-                                                    
+
                                                     <ul class="consent-exemptions-list">
                                                         <li><strong>The client is a danger to self or others.</strong> The law places physical safety above considerations of confidentiality or the right of privacy. Protection of the person takes precedence and includes the duty to warn.</li>
                                                         <li><strong>The client requests the release of information.</strong> Privacy belongs to the client and may be waived. The counselor should release information as requested by the client.</li>
@@ -214,6 +236,7 @@
                             </div>
                         </div>
 
+
                         <!-- Acknowledgment Checkboxes -->
                         <div class="acknowledgment-section">
                             <h5 class="acknowledgment-title">
@@ -224,7 +247,7 @@
                                 <div class="form-check acknowledgment-checkbox">
                                     <input class="form-check-input me-2" type="checkbox" id="consentRead" name="consentRead" required>
                                     <label class="form-check-label" for="consentRead">
-                                        I have read and reviewed the content of this Counseling Informed Consent. I likewise understand the nature and scope of counseling, its terms and conditions, and the ethical principles of confidentiality including its limitation.
+                                        I have read and reviewed the content of this Counseling Informed Consent.
                                     </label>
                                 </div>
                                 <div class="form-check acknowledgment-checkbox">
@@ -236,10 +259,11 @@
                             </div>
                             <div id="acknowledgmentError" class="acknowledgment-error hidden">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                <span>Please acknowledge both statements above to proceed with your appointment booking.</span>
+                                <span>Please acknowledge both statements above to proceed.</span>
                             </div>
                         </div>
 
+                        <!-- Submit Button -->
                         <div class="button-group">
                             <button type="submit" id="scheduleAppointmentBtn">
                                 <span id="submitText">Schedule Appointment</span>
@@ -260,7 +284,7 @@
                         Counselor's Schedule
                     </h3>
                 </div>
-                
+
                 <div class="schedule-sidebar-content">
                     <!-- Calendar Section -->
                     <div class="calendar-container">
@@ -277,14 +301,14 @@
                             <!-- Calendar will be dynamically generated here -->
                         </div>
                     </div>
-                    
+
                     <!-- Counselor Schedules Display Section -->
                     <div class="counselor-schedules-section">
                         <div class="section-header">
                             <h4><i class="fas fa-user-md me-2"></i>Available Counselors</h4>
                             <p class="text-muted">View counselors and their time slots by day</p>
                         </div>
-                        
+
                         <div class="schedules-container" id="counselorSchedulesContainer">
                             <div class="loading-schedules">
                                 <div class="spinner-border text-primary" role="status">

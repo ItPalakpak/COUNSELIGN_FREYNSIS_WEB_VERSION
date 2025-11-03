@@ -106,11 +106,38 @@ main {
     padding: 20px;
 }
 
-/* Form elements styling */
 form {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 25px;
+}
+
+/* Add these NEW sections right after */
+.form-section {
+    grid-column: 1 / -1;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e9ecef;
+}
+
+.form-section:first-of-type {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.form-section-title {
+    color: #060E57;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-section-title i {
+    color: #4169E1;
 }
 
 .form-group { width: 100%; }
@@ -147,20 +174,26 @@ textarea {
     min-height: 120px;
 }
 
+/* Small helper text under inputs */
 small {
     display: block;
     color: #718096;
     font-size: 12px;
-    margin-top: 5px;
+    margin-top: 6px;
+    line-height: 1.4;
 }
 
-/* Button styling */
+
+
+/* Button group at the end */
 .button-group {
+    grid-column: 1 / -1;
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 10px;
-    grid-column: span 2;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e9ecef;
 }
 
 button {
@@ -1100,5 +1133,65 @@ footer {
     .calendar-day {
         min-height: 40px;
         font-size: 12px;
+    }
+}
+
+/* Group slots info styling */
+#groupSlotsInfo .alert {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+#groupSlotsInfo .alert i {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+#consultationTypeHelp {
+    display: block;
+    line-height: 1.5;
+    margin-top: 6px;
+}
+
+/* Consultation type select styling */
+#consultationType {
+    font-weight: 500;
+}
+
+#consultationType option {
+    padding: 8px;
+}
+
+/* Label styling */
+label .required-asterisk {
+    color: #dc2626;
+    margin-left: 3px;
+}
+
+/* Consultation type select special styling */
+#consultationType option[value="individual"] {
+    color: #000;
+}
+
+#consultationType option[value="group"] {
+    color: #000;
+}
+
+/* Smooth transitions */
+#consultationTypeHelp,
+#groupSlotsInfo {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

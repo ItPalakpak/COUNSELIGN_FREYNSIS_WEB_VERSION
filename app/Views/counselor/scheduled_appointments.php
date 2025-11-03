@@ -96,6 +96,7 @@
                                         <th scope="col">Appointed Date</th>
                                         <th scope="col">Time</th>
                                         <th scope="col">Method</th>
+                                        <th scope="col">Consultation Type</th>
                                         <th scope="col">Appointment Type</th>
                                         <th scope="col">Purpose</th>
                                         <th scope="col" class="text-center">Status</th>

@@ -558,10 +558,11 @@ header.sticky-header {
     display: grid;
     grid-template-columns: 1.2fr 330px;
     gap: 28px;
+    align-items: start;
 }
 
 .csq-left { min-width: 0; }
-.csq-right { min-width: 0; }
+.csq-right { min-width: 0; position: sticky; top: 20px; }
 
 .csq-card { background: #f7fbff; border: 1px solid #cfe1ef; border-radius: 6px; padding: 14px; }
 .csq-sidebar-container { display: grid; gap: 16px; }
@@ -582,12 +583,13 @@ header.sticky-header {
     background: #fff; 
     border: 1px solid #6aa2c6; 
     overflow-x: auto; 
-    overflow-y: visible;
+    overflow-y: auto;
     max-width: 100%;
+    max-height: calc(100vh - 250px);
 }
 .csq-table { 
     width: 100%; 
-    min-width: 1100px; /* Ensures horizontal scroll on smaller containers */
+    min-width: 1200px; /* Ensures horizontal scroll on smaller containers */
     border-collapse: collapse; 
     font-size: 14px;
     table-layout: fixed; /* Makes columns equal width */
@@ -614,31 +616,34 @@ header.sticky-header {
 
 /* Column width adjustments for better balance */
 .csq-table th:nth-child(1), /* Student ID */
-.csq-table td:nth-child(1) { width: 14%; }
+.csq-table td:nth-child(1) { width: 10%; }
 
 .csq-table th:nth-child(2), /* Name */
-.csq-table td:nth-child(2) { width: 15%; }
+.csq-table td:nth-child(2) { width: 11%; }
 
 .csq-table th:nth-child(3), /* Appointed Date */
-.csq-table td:nth-child(3) { width: 16%; }
+.csq-table td:nth-child(3) { width: 12%; }
 
 .csq-table th:nth-child(4), /* Time */
-.csq-table td:nth-child(4) { width: 12%; }
+.csq-table td:nth-child(4) { width: 9%; }
 
 .csq-table th:nth-child(5), /* Method */
-.csq-table td:nth-child(5) { width: 12%; }
+.csq-table td:nth-child(5) { width: 9%; }
 
-.csq-table th:nth-child(6), /* Appointment Type */
-.csq-table td:nth-child(6) { width: 18%; }
+.csq-table th:nth-child(6), /* Consultation Type */
+.csq-table td:nth-child(6) { width: 13%; }
 
-.csq-table th:nth-child(7), /* Purpose */
-.csq-table td:nth-child(7) { width: 14%; }
+.csq-table th:nth-child(7), /* Appointment Type */
+.csq-table td:nth-child(7) { width: 13%; }
 
-.csq-table th:nth-child(8), /* Status */
-.csq-table td:nth-child(8) { width: 12%; }
+.csq-table th:nth-child(8), /* Purpose */
+.csq-table td:nth-child(8) { width: 10%; }
 
-.csq-table th:nth-child(9), /* Action */
-.csq-table td:nth-child(9) { width: 22%; }
+.csq-table th:nth-child(9), /* Status */
+.csq-table td:nth-child(9) { width: 9%; }
+
+.csq-table th:nth-child(10), /* Action */
+.csq-table td:nth-child(10) { width: 16%; }
 
 /* Mini calendar styles */
 .mini-calendar-card { padding: 12px; }

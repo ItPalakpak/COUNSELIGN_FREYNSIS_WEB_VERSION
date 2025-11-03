@@ -820,3 +820,18 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- Add consultation_type column to appointments table
+-- This column stores: "Individual Consultation" or "Group Consultation"
+-- Values: "Individual Consultation" or "Group Consultation"
+
+ALTER TABLE `appointments`
+ADD COLUMN `consultation_type` VARCHAR(50) NOT NULL DEFAULT 'Individual Consultation'
+AFTER `preferred_time`;
+
+-- Optional: If you want to keep existing records without updating them,
+-- use this version instead (allows NULL initially):
+-- ALTER TABLE `appointments`
+-- ADD COLUMN `consultation_type` VARCHAR(50) DEFAULT NULL
+-- AFTER `preferred_time`;
