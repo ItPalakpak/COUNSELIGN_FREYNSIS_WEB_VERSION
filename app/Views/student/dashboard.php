@@ -41,7 +41,6 @@
             <li class="nav-item"><a class="nav-link" href="<?= base_url('student/announcements') ?>"><i class="fas fa-bullhorn"></i> Announcements</a></li>
             <li class="nav-item"><a class="nav-link" href="<?= base_url('student/schedule-appointment') ?>"><i class="fas fa-plus-circle"></i> Schedule an Appointment</a></li>
             <li class="nav-item"><a class="nav-link" href="<?= base_url('student/my-appointments') ?>"><i class="fas fa-list-alt"></i> My Appointments</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?= base_url('student/messages') ?>"><i class="fas fa-comments"></i> Messages</a></li>
             <li class="nav-item"><a class="nav-link" href="<?= base_url('student/follow-up-sessions') ?>"><i class="fas fa-clipboard-list"></i> Follow Up Sessions</a></li>
             <li class="nav-item"><a class="nav-link" href="<?= base_url('student/profile') ?>"><i class="fas fa-user"></i> User Profile</a></li>
             <li class="nav-item"><a class="nav-link" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
