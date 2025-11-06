@@ -76,12 +76,15 @@
             <div class="ml-auto flex items-center space-x-6">
 
                 <a href="<?= base_url('student/messages') ?>" title="Messages" style="text-decoration:none;">
-                    <i class="fas fa-comments text-2xl" style="color: #003366; cursor: pointer;"></i>
+                    <div class="message-icon-container">
+                        <i class="fas fa-comments text-2xl" style="color: #003366; cursor: pointer;"></i>
+                        <span id="messageBadge" class="message-badge hidden"></span>
+                    </div>
                 </a>
                 <div class="relative notification-icon-container">
                     <i class="fas fa-bell text-2xl" id="notificationIcon" title="Notifications"
                         style="color: #003366; cursor: pointer;"></i>
-                    <span id="notificationBadge" class="notification-badge hidden">0</span>
+                    <span id="notificationBadge" class="notification-badge hidden"></span>
                 </div>
             </div>
         </div>
