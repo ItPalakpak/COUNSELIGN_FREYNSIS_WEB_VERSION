@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+---
+# Documentation Workflows
+
+On each feature/change:
+- Update [memory-bank/activeContext.md](mdc:memory-bank/activeContext.md): current focus, recent changes, next steps.
+- Update [memory-bank/systemPatterns.md](mdc:memory-bank/systemPatterns.md): routes, controllers, models, flows.
+- Update [memory-bank/techContext.md](mdc:memory-bank/techContext.md): configs, dependencies, schema.
+- Update [memory-bank/progress.md](mdc:memory-bank/progress.md): done, pending, known issues.
+
+Testing & Verification:
+- Run unit tests via [vendor/bin/phpunit](mdc:vendor/phpunit/phpunit) or [vendor\bin\phpunit.bat](mdc:vendor/phpunit/phpunit.bat).
+
+Commit Style:
+- Small, incremental edits with clear messages describing intent and impact.
+- Reference updated Memory Bank files in commit body when applicable.

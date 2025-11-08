@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+# Security, Validation, and Logging Guardrails
+
+Authentication & Authorization
+- Do not expose admin-only routes to unauthenticated or unauthorized users.
+- Enforce role checks in controllers/filters; prefer CI4 Filters for route groups.
+
+Input Handling
+- Validate all user inputs with CI4 Validation rules ([app/Config/Validation.php](mdc:app/Config/Validation.php)).
+- Escape output in views; avoid printing raw input.
+- Use CSRF protection via Filters if forms mutate state ([app/Config/Filters.php](mdc:app/Config/Filters.php)).
+
+Transport & Headers
+- Review CORS/CSP in [app/Config/Cors.php](mdc:app/Config/Cors.php) and [app/Config/ContentSecurityPolicy.php](mdc:app/Config/ContentSecurityPolicy.php).
+
+Error Handling & Logs
+- Never echo stack traces in production views.
+- Use CI4 Logger for server-side errors ([app/Config/Logger.php](mdc:app/Config/Logger.php)); logs go to [writable/logs](mdc:writable/logs).
+
+Data Privacy
+- Limit data exposure in JSON responses to the minimum required fields.
+- Sanitize file uploads and store in [writable/uploads](mdc:writable/uploads).
