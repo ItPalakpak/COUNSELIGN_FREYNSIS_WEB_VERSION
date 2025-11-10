@@ -37,6 +37,9 @@ $routes->post('resend-verification-email', 'Auth::resendVerificationEmail');
 
 $routes->get('/services', 'Services::index');
 
+// Maintenance routes (protected by secret key)
+$routes->get('maintenance/cleanup-notifications', 'Maintenance::cleanupNotifications');
+
 // Debug route (remove in production)
 $routes->get('/debug/session', 'Debug::session');
 

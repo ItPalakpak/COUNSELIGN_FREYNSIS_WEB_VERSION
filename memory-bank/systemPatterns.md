@@ -339,6 +339,11 @@ Notifications Cleanup Command
 - Usage: `php spark cleanup:read-notifications`
 - Scheduling: Can be set up to run every minute via cron (Linux/Unix) or Windows Task Scheduler (Windows)
 - Implementation: Uses `NotificationsModel::deleteReadNotifications()` method with proper error handling and logging
+- Automated Setup Files:
+  - `cleanup-notifications.bat`: Windows batch file for Task Scheduler (recommended)
+  - `cleanup-notifications.ps1`: PowerShell script alternative
+  - `SCHEDULER_SETUP.md`: Complete setup instructions with troubleshooting guide
+- Windows Setup: Pre-configured batch file can be directly scheduled in Windows Task Scheduler to run every minute automatically
 ## Counselor Routes (Appointments & Reports)
 
 - Base group: `counselor` → namespace `App\Controllers\Counselor`

@@ -221,14 +221,32 @@ public/js/user/user_dashboard.js      → JavaScript functions only
 * * * * * cd /path/to/project && php spark cleanup:read-notifications >> /path/to/logs/cleanup.log 2>&1
 ```
 
-**For Windows (Task Scheduler):**
-1. Open Task Scheduler
-2. Create Basic Task
-3. Set trigger: Daily, repeat every 1 minute
-4. Action: Start a program
-5. Program: `C:\xampp\php\php.exe` (or your PHP path)
-6. Arguments: `spark cleanup:read-notifications`
-7. Start in: `C:\xampp\htdocs\Counselign` (your project path)
+**For Windows (Task Scheduler) - AUTOMATED SETUP:**
+
+The system includes automated setup files for Windows Task Scheduler:
+
+1. **Batch File Method (Recommended)**:
+   - File: `cleanup-notifications.bat` in project root
+   - Automatically configured for XAMPP paths
+   - Can be directly scheduled in Windows Task Scheduler
+
+2. **PowerShell Script Method**:
+   - File: `cleanup-notifications.ps1` in project root
+   - Alternative to batch file with enhanced logging
+
+3. **Setup Instructions**:
+   - See `SCHEDULER_SETUP.md` for detailed step-by-step instructions
+   - Includes troubleshooting guide and verification steps
+
+4. **Quick Setup Steps**:
+   - Open Windows Task Scheduler
+   - Create Basic Task: "Cleanup Read Notifications"
+   - Trigger: Daily, repeat every 1 minute
+   - Action: Start program → `C:\xampp\htdocs\Counselign\cleanup-notifications.bat`
+   - Configure to run whether user is logged on or not
+   - Set to run with highest privileges if needed
+
+**Note**: The batch file and PowerShell script are pre-configured for the default XAMPP installation path. If your installation differs, update the paths in the respective files.
 
 #### Implementation Details:
 - **Database Operation**: Uses CodeIgniter Query Builder for safe deletion
