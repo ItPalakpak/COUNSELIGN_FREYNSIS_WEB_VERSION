@@ -330,6 +330,15 @@ Counselor
 Notifications Model
 - `NotificationsModel::getRecentNotifications(userId, lastActiveTime)` aggregates events, announcements, appointments (by `student_id`), and messages (student↔counselor).
 - `getUnreadCount(userId)` mirrors same sources since last activity.
+- `deleteReadNotifications()` deletes all rows in notifications table where `is_read = 1` to reduce data load. Returns array with success status and deleted count.
+
+Notifications Cleanup Command
+- Command: `cleanup:read-notifications` (Maintenance group)
+- Location: `app/Commands/CleanupReadNotifications.php`
+- Purpose: Automatically deletes all read notifications (`is_read = 1`) from the database every minute to reduce data load when retrieving notifications
+- Usage: `php spark cleanup:read-notifications`
+- Scheduling: Can be set up to run every minute via cron (Linux/Unix) or Windows Task Scheduler (Windows)
+- Implementation: Uses `NotificationsModel::deleteReadNotifications()` method with proper error handling and logging
 ## Counselor Routes (Appointments & Reports)
 
 - Base group: `counselor` → namespace `App\Controllers\Counselor`

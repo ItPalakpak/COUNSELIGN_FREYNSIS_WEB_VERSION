@@ -7,6 +7,27 @@
     - JS: `public/js/student/student_announcements.js`, `public/js/counselor/counselor_announcements.js`
     - CSS: `public/css/student/student_announcements.css`, `public/css/counselor/counselor_announcements.css`
   - SystemPatterns updated to reflect inline mini-calendar pattern
+- Focus: Notifications Cleanup System - Automated deletion of read notifications to reduce data load
+Recent Changes:
+- **NOTIFICATIONS CLEANUP SYSTEM**: Implemented automated cleanup of read notifications
+  - ✅ **Model Method**: Added `deleteReadNotifications()` to `NotificationsModel`
+    - ✅ Deletes all rows in notifications table where `is_read = 1`
+    - ✅ Returns array with success status, deleted count, and message
+    - ✅ Comprehensive error handling and logging
+    - ✅ Type-safe implementation with proper return types
+  - ✅ **Command Class**: Created `CleanupReadNotifications` command
+    - ✅ Location: `app/Commands/CleanupReadNotifications.php`
+    - ✅ Command: `cleanup:read-notifications` (Maintenance group)
+    - ✅ Proper CLI output with colored messages
+    - ✅ Error handling with exit codes
+    - ✅ Auto-discovered by CodeIgniter 4
+  - ✅ **Testing**: Command tested and verified working
+    - ✅ Successfully deleted 31 read notifications in test run
+    - ✅ No linter errors or warnings
+    - ✅ Type-safe coding practices maintained
+  - ✅ **Documentation**: Updated memory bank files
+    - ✅ SystemPatterns.md: Added notifications cleanup pattern
+    - ✅ TechContext.md: Added command setup instructions
 - Focus: Enhanced Resend Reset Code Modal Implementation with Professional UI/UX Design and Type-Safe Coding Standards
 Recent Changes:
  - ADMIN ACCOUNT SEED: Added `AdminSeeder` and seeded default admin user

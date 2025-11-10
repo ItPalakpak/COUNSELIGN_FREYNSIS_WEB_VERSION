@@ -195,3 +195,44 @@ public/js/user/user_dashboard.js      → JavaScript functions only
 - **Fallback Handling**: Returns empty structures for missing data to maintain API consistency
 - **Logging**: Comprehensive error logging for debugging data retrieval issues
 - **Session Management**: Maintains existing user activity tracking functionality
+
+### Notifications Cleanup Command
+
+**ENHANCED FEATURE**: Automated cleanup of read notifications to reduce database load.
+
+#### Command Architecture:
+- **Command Class**: `App\Commands\CleanupReadNotifications` extends `CodeIgniter\CLI\BaseCommand`
+- **Model Method**: `NotificationsModel::deleteReadNotifications()` handles the deletion logic
+- **Auto-Discovery**: CodeIgniter 4 automatically discovers commands in `App\Commands` namespace
+- **Command Group**: Maintenance group for system maintenance tasks
+
+#### Command Features:
+- **Purpose**: Deletes all rows in notifications table where `is_read = 1` to reduce data load
+- **Usage**: `php spark cleanup:read-notifications`
+- **Output**: Colored CLI output with success/error messages and deleted count
+- **Error Handling**: Comprehensive exception handling with proper logging
+- **Type Safety**: Fully type-safe implementation with proper return types
+
+#### Scheduling Setup:
+
+**For Linux/Unix (cron):**
+```bash
+# Add to crontab (crontab -e)
+* * * * * cd /path/to/project && php spark cleanup:read-notifications >> /path/to/logs/cleanup.log 2>&1
+```
+
+**For Windows (Task Scheduler):**
+1. Open Task Scheduler
+2. Create Basic Task
+3. Set trigger: Daily, repeat every 1 minute
+4. Action: Start a program
+5. Program: `C:\xampp\php\php.exe` (or your PHP path)
+6. Arguments: `spark cleanup:read-notifications`
+7. Start in: `C:\xampp\htdocs\Counselign` (your project path)
+
+#### Implementation Details:
+- **Database Operation**: Uses CodeIgniter Query Builder for safe deletion
+- **Logging**: Logs cleanup operations with deleted count
+- **Performance**: Efficient deletion query with proper indexing
+- **Safety**: Only deletes read notifications (`is_read = 1`), preserves unread notifications
+- **Return Value**: Returns array with success status, deleted count, and message for monitoring

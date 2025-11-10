@@ -678,4 +678,54 @@ class NotificationsModel extends Model
             return null;
         }
     }
+
+    /**
+     * Delete all read notifications from the notifications table
+     * This method deletes all rows where is_read = 1 to reduce data load
+     * 
+     * @return array Returns array with 'success' status and 'deleted_count' of deleted rows
+     */
+    public function deleteReadNotifications(): array
+    {
+        try {
+            $db = \Config\Database::connect();
+            
+            // Count how many rows will be deleted for logging
+            $deletedCount = $db->table('notifications')
+                ->where('is_read', 1)
+                ->countAllResults();
+            
+            if ($deletedCount === 0) {
+                return [
+                    'success' => true,
+                    'deleted_count' => 0,
+                    'message' => 'No read notifications to delete'
+                ];
+            }
+            
+            // Delete all read notifications
+            $db->table('notifications')
+                ->where('is_read', 1)
+                ->delete();
+            
+            // Log the cleanup operation
+            log_message('info', sprintf(
+                'Notifications cleanup: Deleted %d read notification(s)',
+                $deletedCount
+            ));
+            
+            return [
+                'success' => true,
+                'deleted_count' => $deletedCount,
+                'message' => sprintf('Successfully deleted %d read notification(s)', $deletedCount)
+            ];
+        } catch (\Exception $e) {
+            log_message('error', 'Error deleting read notifications: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'deleted_count' => 0,
+                'message' => 'Failed to delete read notifications: ' . $e->getMessage()
+            ];
+        }
+    }
 } 
