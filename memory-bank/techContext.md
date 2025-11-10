@@ -196,6 +196,12 @@ public/js/user/user_dashboard.js      → JavaScript functions only
 - **Logging**: Comprehensive error logging for debugging data retrieval issues
 - **Session Management**: Maintains existing user activity tracking functionality
 
+### Counselor Follow-up Availability Enhancements
+
+- **Endpoint**: `GET counselor/follow-up/availability-by-weekday` in `App\Controllers\Counselor\FollowUp` returns weekdays that contain scheduled time slots for the logged-in counselor.
+- **Frontend Logic**: `public/js/counselor/follow_up.js` caches weekday availability for 5 minutes, batches per-date availability checks, and disables dates that either lack schedules or have every 30-minute slot booked.
+- **Edit Modal Updates**: Enabled date and time inputs in `app/Views/counselor/follow_up.php`; the JS re-fetches availability when the counselor changes the preferred date and keeps the chosen time value synchronized.
+
 ### Notifications Cleanup Command
 
 **ENHANCED FEATURE**: Automated cleanup of read notifications to reduce database load.

@@ -360,6 +360,11 @@ Known Issues
   - **Landscape Support**: Special responsive rules for mobile landscape orientation
   - **Code Structure**: Replaced inline styles with CSS classes for maintainability
 - **NEW COMPLETION**: Counselor profile page implementation:
+- **NEW**: Counselor follow-up rescheduling UX improvement:
+  - Enabled editing of preferred date and time fields in the follow-up edit modal while still enforcing availability constraints.
+  - Added `GET counselor/follow-up/availability-by-weekday` API to expose counselor weekday schedules for UI disabling logic.
+  - Frontend now caches weekday availability, batches per-date checks, and disables dates that have no schedule or are fully booked.
+  - `public/js/counselor/follow_up.js` keeps the selected time option synchronized when availability lists refresh.
 Bug Fixes (Latest):
 - Fixed counselor rejection reason modal auto-closing and auto-rejecting:
   - Removed auto-reject click binding from `updateModalButtons()` in `public/js/counselor/appointments.js`.

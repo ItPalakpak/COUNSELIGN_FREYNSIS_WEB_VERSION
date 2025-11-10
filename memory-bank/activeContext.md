@@ -1582,6 +1582,10 @@ Next Steps
   - Frontend: `public/js/student/student_schedule_appointment.js` now calls eligibility endpoint on load and disables the form if student has pending, approved upcoming, or pending follow-up appointment
    - Routes: Registered under student group in `app/Config/Routes.php`
    - Scope-limited: No unrelated functions changed
+- Enabled counselor follow-up session rescheduling controls:
+  - Backend: Added `GET counselor/follow-up/availability-by-weekday` to `App\Controllers\Counselor\FollowUp` for weekday availability lookup.
+  - View: `app/Views/counselor/follow_up.php` now keeps edit modal date/time inputs enabled.
+  - Frontend: `public/js/counselor/follow_up.js` loads availability on demand, caches weekday slots, disables fully booked days, and keeps editable select state in sync.
 - Implemented CI4 Validation in `app/Controllers/Auth.php`:
   - `signup`: `userId` required|regex_match[/^\\d{10}$/]; `email` required|valid_email|is_unique[users.email]; `password` required|min_length[8]|complexity regex|matches[confirmPassword].
   - `login`: `user_id` required|regex_match[/^\\d{10}$/]; `password` required|min_length[8]|complexity regex.

@@ -221,6 +221,7 @@ $routes->group('counselor', ['namespace' => 'App\Controllers\Counselor'], functi
     $routes->get('follow-up/completed-appointments', 'FollowUp::getCompletedAppointments');
     $routes->get('follow-up/sessions', 'FollowUp::getFollowUpSessions');
     $routes->get('follow-up/availability', 'FollowUp::getCounselorAvailability');
+    $routes->get('follow-up/availability-by-weekday', 'FollowUp::getAvailabilityByWeekday');
     $routes->get('follow-up/booked-times', 'FollowUp::getBookedTimesForDate');
     $routes->post('follow-up/create', 'FollowUp::createFollowUp');
     $routes->post('follow-up/edit', 'FollowUp::editFollowUp');

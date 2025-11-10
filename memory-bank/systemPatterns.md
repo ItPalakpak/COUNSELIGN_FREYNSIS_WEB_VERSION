@@ -812,6 +812,7 @@ Inline mini-calendar embedded on the page (drawer removed).
 - `GET /counselor/follow-up/completed-appointments` → `Counselor\\FollowUp::getCompletedAppointments` (get completed appointments for logged-in counselor)
 - `GET /counselor/follow-up/sessions?parent_appointment_id={id}` → `Counselor\\FollowUp::getFollowUpSessions` (get follow-up sessions for specific parent appointment)
 - `GET /counselor/follow-up/availability?date={date}` → `Counselor\\FollowUp::getCounselorAvailability` (get counselor availability for specific date)
+- `GET /counselor/follow-up/availability-by-weekday` → `Counselor\\FollowUp::getAvailabilityByWeekday` (returns weekdays that have scheduled time slots)
 - `POST /counselor/follow-up/create` → `Counselor\\FollowUp::createFollowUp` (create new follow-up appointment)
 
 ### Validation & Filters (Auth-related)
