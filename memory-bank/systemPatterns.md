@@ -819,17 +819,17 @@ Inline mini-calendar embedded on the page (drawer removed).
 
 - Server-side Validation (CI4):
   - Signup:
-    - `userId`: required, regex_match[/^\\d{10}$/] (exactly 10 digits)
+    - `userId`: required, regex_match[/^\\d{1,10}$/] (1 to 10 digits)
     - `email`: required, valid_email, is_unique[users.email]
     - `password`: required, min_length[8], complexity regex, matches[confirmPassword]
   - Login:
-    - `user_id`: required, regex_match[/^\\d{10}$/] (exactly 10 digits)
+    - `identifier`: email OR (`user_id` as 1–10 digit numeric) OR (>=3 alphanumeric ID)
     - `password`: required, min_length[8], complexity regex
     - Redirects based on role: user → `user/dashboard`, counselor → `counselor/dashboard`, admin → `user/dashboard`
   - Admin Verification:
     - `verify-admin`: requires `user_id`, `password`; verifies admin role and hashed password; sets session and redirects to `admin/dashboard` on success; if unverified, returns prompt redirect
   - Forgot Password:
-    - `sendCode`: `input` required (valid email format OR exactly 10-digit `user_id` resolving to email)
+    - `sendCode`: `input` required (valid email OR 1–10 digit `user_id` resolving to email)
     - `setPassword`: password required, min_length[8], complexity regex
   - Contact Form:
     - name, email (valid), subject, message are required

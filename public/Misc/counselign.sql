@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 06, 2025 at 04:18 AM
+-- Generation Time: Nov 11, 2025 at 06:02 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -334,6 +334,20 @@ CREATE TABLE `notifications` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `notification_reads`
+--
+
+CREATE TABLE `notification_reads` (
+  `id` int(11) NOT NULL,
+  `user_id` varchar(50) NOT NULL,
+  `notification_type` enum('event','announcement') NOT NULL,
+  `related_id` int(11) NOT NULL,
+  `read_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `password_resets`
 --
 
@@ -356,6 +370,7 @@ CREATE TABLE `student_academic_info` (
   `student_id` varchar(10) NOT NULL,
   `course` varchar(50) NOT NULL,
   `year_level` varchar(10) NOT NULL,
+  `major_or_strand` varchar(50) NOT NULL,
   `academic_status` varchar(50) NOT NULL,
   `school_last_attended` varchar(255) DEFAULT NULL,
   `location_of_school` varchar(255) DEFAULT NULL,
@@ -664,6 +679,16 @@ ALTER TABLE `notifications`
   ADD KEY `idx_created_at` (`created_at`);
 
 --
+-- Indexes for table `notification_reads`
+--
+ALTER TABLE `notification_reads`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uk_user_notification` (`user_id`,`notification_type`,`related_id`),
+  ADD KEY `idx_user_id` (`user_id`),
+  ADD KEY `idx_notification_type` (`notification_type`),
+  ADD KEY `idx_related_id` (`related_id`);
+
+--
 -- Indexes for table `password_resets`
 --
 ALTER TABLE `password_resets`
@@ -822,6 +847,12 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `notification_reads`
+--
+ALTER TABLE `notification_reads`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

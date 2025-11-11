@@ -392,3 +392,11 @@ Bug Fixes (Latest):
 - Validate header/menu behavior across user pages (dashboard, profile)
 
 
+### Latest Completion (2025-11-11)
+- Authentication user_id policy updated for students:
+  - Frontend: `public/js/landing.js` signup validation now accepts 1–10 digit numeric IDs; resend-reset validation accepts email OR 1–10 digit numeric OR >=3 alphanumeric.
+  - View: `app/Views/landing.php` signup input pattern set to `[0-9]{1,10}` with updated title.
+  - Backend: `app/Controllers/Auth.php` student signup regex changed to `^\d{1,10}$`; login identifier accepts email OR 1–10 digit numeric OR >=3 alphanumeric.
+  - Impact: Allows shorter student IDs (1–10 digits) while rejecting >10; login and forgot password continue to accept either email or user_id.
+
+

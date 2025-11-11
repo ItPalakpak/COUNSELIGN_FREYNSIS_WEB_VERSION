@@ -82,6 +82,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
     $routes->post('admin/profile/password', 'AdminProfileApi::updatePassword');
     $routes->get('users/api', 'UsersApi::getAllUsers');
     $routes->get('users/pds/(:num)', 'UsersApi::getStudentPDSData/$1');
+    $routes->get('users/pds/(:num)/preview', 'UsersApi::previewPDS/$1');
     $routes->get('counselors/api', 'CounselorsApi::index');
     $routes->post('counselors/api', 'CounselorsApi::save');
     $routes->delete('counselors/api', 'CounselorsApi::delete');
@@ -157,6 +158,7 @@ $routes->group('student', ['namespace' => 'App\Controllers\Student'], function($
     // PDS (Personal Data Sheet) routes
     $routes->get('pds/load', 'PDS::loadPDS');
     $routes->post('pds/save', 'PDS::savePDS');
+    $routes->get('pds/preview', 'PDS::preview');
     
     // Follow-up Sessions routes
     $routes->get('follow-up-sessions', 'FollowUpSessions::index');

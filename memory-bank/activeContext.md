@@ -1,3 +1,19 @@
+## Current Focus (2025-11-11)
+- Adjust authentication to accept student `user_id` lengths of 1–10 digits (reject >10), while still allowing email identifiers everywhere (login, forgot password, resend code).
+- Keep counselor IDs unchanged (>=3 alphanumeric still valid).
+
+## Recent Changes
+- Frontend:
+  - `public/js/landing.js`: Updated student signup validation to `^\d{1,10}$`, updated resend reset code validator to accept 1–10 digit numeric IDs, and updated placeholders/titles accordingly.
+  - `app/Views/landing.php`: Signup input `pattern` set to `[0-9]{1,10}` and updated title to “1 to 10 digits.”
+- Backend:
+  - `app/Controllers/Auth.php`: 
+    - Signup (student): regex from exactly 10 digits to 1–10 digits.
+    - Login: identifier check accepts email OR 1–10 digit numeric OR >=3 alphanumeric.
+
+## Next Steps
+- Verify end-to-end login/signup/forgot flows with 1–10 digit student IDs and ensure >10 digits are rejected.
+- Monitor logs for unexpected identifier parsing edge cases.
 - Inline calendar integrated into Student and Counselor Announcements pages
   - Removed old drawer/toggle calendar UI
   - Smaller calendar with badges and overlaid event titles on day cells
