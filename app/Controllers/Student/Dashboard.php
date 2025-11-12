@@ -4,11 +4,15 @@ namespace App\Controllers\Student;
 
 
 use App\Helpers\SecureLogHelper;
+use App\Helpers\TimezoneHelper; // Add this import
 use App\Controllers\BaseController;
-use App\Models\UserModel;
+use CodeIgniter\API\ResponseTrait;
+use App\Models\QuoteModel;
+
 
 class Dashboard extends BaseController
 {
+    use ResponseTrait;
     public function index()
     {
         // Check if user is logged in and is a regular user
@@ -69,6 +73,35 @@ class Dashboard extends BaseController
         } catch (\Exception $e) {
             log_message('error', 'Database error: ' . $e->getMessage());
             return $this->response->setJSON(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+        }
+    }
+
+    public function getApprovedQuotes()
+    {
+        try {
+            $quoteModel = new QuoteModel();
+
+            // Get all approved quotes, ordered randomly but prefer less-displayed ones
+            $quotes = $quoteModel
+                ->where('status', 'approved')
+                ->orderBy('times_displayed', 'ASC')
+                ->orderBy('RAND()')
+                ->limit(10) // Limit to 10 most relevant quotes
+                ->findAll();
+
+            return $this->respond([
+                'success' => true,
+                'quotes' => $quotes,
+                'count' => count($quotes)
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', '[Quote Carousel] Error fetching approved quotes: ' . $e->getMessage());
+
+            return $this->respond([
+                'success' => false,
+                'message' => 'Failed to load quotes',
+                'quotes' => []
+            ], 500);
         }
     }
 } 

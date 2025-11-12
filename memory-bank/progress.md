@@ -1,3 +1,10 @@
+- **COMPLETED**: Student Dashboard Events & Quotes Refresh
+  - **Feature**: Introduced a welcoming dashboard section featuring an auto-advancing events carousel and rotating inspirational quotes.
+  - **Events Integration**: Carousel consumes `student/events/all`, filters for upcoming dates, and provides manual controls with graceful empty states.
+  - **Quotes Integration**: Welcome cards rotate approved entries from `student/quotes/approved-quotes`, with curated fallbacks and staggered animations.
+  - **Implementation**: Updated `app/Views/student/dashboard.php`, `public/js/student/student_dashboard.js`, and `public/css/student/student_dashboard.css`.
+  - **Resilience**: All dynamic text is sanitised, timers are cleared before reinitialisation, and fallback messaging covers API downtime.
+
 - **COMPLETED**: Comprehensive Last Activity Tracking Implementation
   - **Feature**: Implemented comprehensive last_activity tracking across all student and counselor activities
   - **Functionality**: Centralized UserActivityHelper class for consistent activity tracking
@@ -40,6 +47,17 @@
    - Admin details: user_id `0000000001`, role `admin`, email `systemsample13@gmail.com`
    - Password stored as secure hash for "Counselign@2025"; user marked verified
    - Executed seeder with `php spark db:seed AdminSeeder`
+
+- **COMPLETED**: Admin resource creation reliability fix
+  - **Issue**: Adding a resource triggered a 500 error because `uploaded_by` used the numeric users.id, violating the FK to `users.user_id`.
+  - **Resolution**: `Resources::create()` now stores the alphanumeric `user_id_display`, `ResourceModel` validation accepts alphanumeric IDs, and joins reference `users.user_id`.
+  - **Result**: Admins can add resources without FK violations; uploader metadata loads correctly in list views.
+  - **Files Updated**: `app/Controllers/Admin/Resources.php`, `app/Models/ResourceModel.php`, `memory-bank/activeContext.md`, `memory-bank/progress.md`
+- **COMPLETED**: Admin resource maintenance UX polish
+  - **Fix**: Update/Delete actions failed validation because `resource_type`/`uploaded_by` were omitted; controller now preserves these fields during updates.
+  - **UI**: Included shared modal markup on `admin/resources` view and upgraded modal utilities to prevent stacking overlays.
+  - **Interactions**: Resource JS now provides loading spinners on save/delete, keeps edit modal open on validation errors, and refreshes list with interim spinners.
+  - **Files Updated**: `app/Controllers/Admin/Resources.php`, `app/Views/admin/resources.php`, `public/js/modals/student_dashboard_modals.js`, `public/js/admin/resources_management.js`, `memory-bank/activeContext.md`
 
 - **COMPLETED**: Counselor Personal Info Default Values and INSERT Function
   - **Feature**: Fixed counselor personal info default values and INSERT functionality for first-time users

@@ -3,6 +3,14 @@
 - Keep counselor IDs unchanged (>=3 alphanumeric still valid).
 
 ## Recent Changes
+- Admin resource management:
+  - Fixed 500 error when adding resources by storing the correct uploader identifier (`user_id_display`) and aligning model validation to accept alphanumeric IDs with proper joins to `users.user_id`.
+  - Update/Delete operations now persist validation requirements by reusing existing `resource_type` and `uploaded_by` values during updates.
+  - Enhanced admin resource modals with shared Bootstrap markup, non-overlapping alert/confirmation flows, and button loading states for create/update/delete.
+- Student Dashboard experience refreshed:
+  - Added an auto-advancing "Upcoming Events" carousel using the `student/events/all` API with graceful empty-state handling.
+  - Replaced the legacy compact quotes carousel with a welcome quotes section that rotates through approved quotes from `student/quotes/approved-quotes`.
+  - Updated `app/Views/student/dashboard.php`, `public/js/student/student_dashboard.js`, and `public/css/student/student_dashboard.css` to support the new layout.
 - Frontend:
   - `public/js/landing.js`: Updated student signup validation to `^\d{1,10}$`, updated resend reset code validator to accept 1–10 digit numeric IDs, and updated placeholders/titles accordingly.
   - `app/Views/landing.php`: Signup input `pattern` set to `[0-9]{1,10}` and updated title to “1 to 10 digits.”

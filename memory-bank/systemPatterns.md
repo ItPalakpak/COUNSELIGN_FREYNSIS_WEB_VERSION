@@ -1,3 +1,31 @@
+## Student Dashboard Events & Quotes Pattern
+
+**Purpose**: Deliver a welcoming dashboard experience that highlights upcoming counseling events and rotates inspirational quotes for students.
+
+**Components**:
+- **Events Carousel**: Auto-advancing slider that surfaces the next approved events with date, time, and location details.
+- **Quotes Showcase**: Three-card layout that cycles through approved quotes to reinforce supportive messaging.
+- **Empty States**: Friendly fallback messaging when no events or quotes are available.
+
+**Data Sources**:
+- Events fetched from `student/events/all`, filtered to future dates and sorted chronologically.
+- Quotes fetched from `student/quotes/approved-quotes`, with graceful degradation to curated defaults.
+
+**Interactions**:
+- Carousel navigation supports dots and previous/next controls with keyboard and mouse support.
+- Quote cards fade between entries every six seconds with staggered timing per column.
+- Sections refresh on a schedule (events: every 10 minutes, quotes: every 5 minutes) for up-to-date content.
+
+**Implementation Files**:
+- `app/Views/student/dashboard.php` – Added event carousel and welcome quotes markup with accessible placeholders.
+- `public/js/student/student_dashboard.js` – Integrated data fetching, rotation logic, and resilient state management.
+- `public/css/student/student_dashboard.css` – Styled the new sections with responsive behaviour and consistent branding.
+
+**Quality Notes**:
+- Uses `escapeHtml` sanitisation before rendering dynamic content.
+- Rotations clear intervals/timeouts before reinitialising to prevent leaks.
+- Maintains type-safe, descriptive JavaScript and avoids modifying unrelated dashboard logic.
+
 ## Resend Reset Code Modal Pattern
 
 **Purpose**: Professional modal interface for resending password reset codes with improved user experience

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 11, 2025 at 06:02 AM
+-- Generation Time: Nov 12, 2025 at 04:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -230,6 +230,32 @@ CREATE TABLE `counselor_availability` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `daily_quotes`
+--
+
+CREATE TABLE `daily_quotes` (
+  `id` int(11) NOT NULL,
+  `quote_text` text NOT NULL,
+  `author_name` varchar(255) NOT NULL,
+  `category` varchar(100) DEFAULT 'Inspirational',
+  `source` varchar(255) DEFAULT NULL,
+  `submitted_by_id` varchar(50) NOT NULL,
+  `submitted_by_name` varchar(255) NOT NULL,
+  `submitted_by_role` enum('counselor','admin') DEFAULT 'counselor',
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('pending','approved','rejected') DEFAULT 'pending',
+  `moderated_by` varchar(50) DEFAULT NULL,
+  `moderated_at` timestamp NULL DEFAULT NULL,
+  `rejection_reason` text DEFAULT NULL,
+  `times_displayed` int(11) DEFAULT 0,
+  `last_displayed_date` date DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `events`
 --
 
@@ -357,6 +383,33 @@ CREATE TABLE `password_resets` (
   `reset_code` varchar(10) NOT NULL,
   `reset_expires_at` datetime NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `resources`
+--
+
+CREATE TABLE `resources` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `resource_type` enum('file','link') NOT NULL,
+  `file_name` varchar(255) DEFAULT NULL,
+  `file_path` varchar(500) DEFAULT NULL,
+  `file_type` varchar(100) DEFAULT NULL,
+  `file_size` bigint(20) DEFAULT NULL,
+  `external_url` varchar(1000) DEFAULT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `tags` text DEFAULT NULL,
+  `uploaded_by` varchar(10) NOT NULL,
+  `visibility` enum('all','students','counselors') DEFAULT 'all',
+  `is_active` tinyint(1) DEFAULT 1,
+  `view_count` int(11) DEFAULT 0,
+  `download_count` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -638,6 +691,16 @@ ALTER TABLE `counselor_availability`
   ADD KEY `idx_counselor_availability_day` (`counselor_id`,`available_days`);
 
 --
+-- Indexes for table `daily_quotes`
+--
+ALTER TABLE `daily_quotes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_category` (`category`),
+  ADD KEY `idx_submitted_by` (`submitted_by_id`),
+  ADD KEY `idx_last_displayed` (`last_displayed_date`);
+
+--
 -- Indexes for table `events`
 --
 ALTER TABLE `events`
@@ -695,6 +758,17 @@ ALTER TABLE `password_resets`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_reset_code` (`reset_code`),
   ADD KEY `password_resets_fk2` (`user_id`);
+
+--
+-- Indexes for table `resources`
+--
+ALTER TABLE `resources`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `uploaded_by` (`uploaded_by`),
+  ADD KEY `idx_category` (`category`),
+  ADD KEY `idx_resource_type` (`resource_type`),
+  ADD KEY `idx_visibility` (`visibility`),
+  ADD KEY `idx_is_active` (`is_active`);
 
 --
 -- Indexes for table `student_academic_info`
@@ -820,6 +894,12 @@ ALTER TABLE `counselor_availability`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `daily_quotes`
+--
+ALTER TABLE `daily_quotes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `events`
 --
 ALTER TABLE `events`
@@ -859,6 +939,12 @@ ALTER TABLE `notification_reads`
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `resources`
+--
+ALTER TABLE `resources`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -976,6 +1062,12 @@ ALTER TABLE `messages`
 --
 ALTER TABLE `password_resets`
   ADD CONSTRAINT `password_resets_fk2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `resources`
+--
+ALTER TABLE `resources`
+  ADD CONSTRAINT `resources_ibfk_1` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `student_academic_info`

@@ -117,6 +117,13 @@ public/js/user/user_dashboard.js      → JavaScript functions only
 - **Team Collaboration**: Clear file responsibilities
 - **Debugging**: Easier to isolate and fix issues
 
+### Student Dashboard UX Refresh
+- `app/Views/student/dashboard.php` renders an events carousel and welcome quotes section that welcome students on login.
+- `public/js/student/student_dashboard.js` fetches `student/events/all` and `student/quotes/approved-quotes`, rotates content on timers, and sanitises all injected text.
+- `public/css/student/student_dashboard.css` provides responsive styling, gradients, and accessible control states for the new sections.
+- Auto-refresh cadence keeps content current (events reload every 10 minutes, quotes every 5 minutes).
+- Defensive guards clear timers before reinitialisation and fall back to curated quotes when APIs return empty or error responses.
+
 ### PDS (Personal Data Sheet) System
 
 #### Architecture:

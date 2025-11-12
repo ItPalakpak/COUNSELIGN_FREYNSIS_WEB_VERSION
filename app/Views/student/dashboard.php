@@ -63,7 +63,7 @@
                 $userInfo = $userDisplayHelper->getUserDisplayInfo(session()->get('user_id_display'), session()->get('role'));
                 ?>
                 <div class="fs-12 fw-bold" style="color: #003366;">
-                    Hello! 
+                    Hello!
                     <span class="text-primary">
                         <i><?= $userInfo['display_name'] ?></i>
                     </span>
@@ -71,16 +71,18 @@
                         <span class="small text-muted" style="display: none;" id="user-id-display"><?= $userInfo['user_id_display'] ?></span>
                     <?php endif; ?>
                 </div>
-                <div class="small text-secondary">Last login: <?php 
-                    $lastLogin = session()->get('last_login');
-                    if ($lastLogin) {
-                        $dateTime = new \DateTime($lastLogin);
-                        echo $dateTime->format('M j, g:i A');
-                    } else {
-                        echo 'N/A';
-                    }
-                ?></div>
+                <div class="small text-secondary">Last login: <?php
+                                                                $lastLogin = session()->get('last_login');
+                                                                if ($lastLogin) {
+                                                                    $dateTime = new \DateTime($lastLogin);
+                                                                    echo $dateTime->format('M j, g:i A');
+                                                                } else {
+                                                                    echo 'N/A';
+                                                                }
+                                                                ?></div>
             </div>
+
+
             <div class="ml-auto flex items-center space-x-6">
 
                 <a href="<?= base_url('student/messages') ?>" title="Messages" style="text-decoration:none;">
@@ -97,15 +99,67 @@
             </div>
         </div>
 
-        <!-- Content Panel -->
-        <div class="content-panel mt-4">
-            <h3 class="text-2xl font-extrabold mb-4">Welcome to Your Safe Space</h3>
-            <p class="text-lg italic mb-8">
-                "At our University Guidance Counseling, we understand that opening up can be challenging. However, we
-                want to assure you that you are not alone. We are here to listen and support you without
-                judgment."
-            </p>
-            <div class="wave"></div>
+        <div class="dashboard-enhanced-content">
+            <!-- Events Carousel -->
+            <section class="carousel-section" id="eventsCarouselSection">
+                <div class="carousel-header">
+                    <h4 class="carousel-title">Upcoming Events</h4>
+                    <a href="<?= base_url('student/announcements') ?>" class="view-all">View All →</a>
+                </div>
+
+                <div class="carousel-wrapper">
+                    <div class="carousel-track" id="eventsCarouselTrack">
+                        <!-- Slides rendered via JS -->
+                    </div>
+                </div>
+
+                <div class="carousel-controls" id="eventsCarouselControls">
+                    <button class="carousel-btn" id="eventsCarouselPrev" type="button" aria-label="Previous event">‹</button>
+                    <div class="carousel-dots" id="eventsCarouselDots"></div>
+                    <button class="carousel-btn" id="eventsCarouselNext" type="button" aria-label="Next event">›</button>
+                </div>
+
+                <div class="carousel-empty-state" id="eventsCarouselEmpty" hidden>
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No upcoming events available right now.</p>
+                </div>
+            </section>
+
+            <!-- Welcome Section with Quotes -->
+            <section class="welcome-section" id="quotesSection">
+                <h3 class=" welcome-title text-2xl font-extrabold mb-4">Welcome to Your Safe Space</h3>
+
+                <div class="main-message">
+                    <span class="quote-marks open">"</span>
+                    <p>
+                        At our University Guidance Counseling, we understand that opening up can be challenging. However, we
+                        want to assure you that you are not alone. We are here to listen and support you without judgment.
+                    </p>
+                    <span class="quote-marks close">"</span>
+                </div>
+
+                <div class="quotes-container" id="quoteCards">
+                    <div class="quote-card" data-quote-group="0">
+                        <div class="quote-icon" aria-hidden="true">🌱</div>
+                        <p class="quote-text">Loading inspirational messages...</p>
+                        <p class="quote-author"></p>
+                    </div>
+
+                    <div class="quote-card" data-quote-group="1">
+                        <div class="quote-icon" aria-hidden="true">💪</div>
+                        <p class="quote-text">Please wait while we prepare something uplifting.</p>
+                        <p class="quote-author"></p>
+                    </div>
+
+                    <div class="quote-card" data-quote-group="2">
+                        <div class="quote-icon" aria-hidden="true">🌟</div>
+                        <p class="quote-text">Your safe space quotes are on the way.</p>
+                        <p class="quote-author"></p>
+                    </div>
+                </div>
+
+                <div class="wave-decoration" aria-hidden="true"></div>
+            </section>
         </div>
 
         <!-- Notifications Dropdown -->
@@ -122,9 +176,9 @@
         </div>
     </main>
 
-    
 
-    
+
+
 
     <footer>
         <div class="footer-content">
