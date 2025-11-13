@@ -97,7 +97,7 @@
                             <i class="fa-solid fa-bullhorn me-1"></i><span class="btn-text">Announcements</span>
                         </a>
 
-                        <button type="button" class="btn btn-info action-btn" id="openQuotesModalBtnMobile" title="Manage Quotes">
+                        <button type="button" class="btn btn-primary action-btn" id="openQuotesModalBtnMobile" title="Manage Quotes">
                             <i class="fas fa-quote-right me-1"></i><span class="btn-text">Quotes</span>
                         </button>
 
@@ -124,7 +124,7 @@
                         <a href="<?= base_url('admin/announcements') ?>" class="ms-3" title="Manage Announcements">
                             <i class="fa-solid fa-bullhorn announcement-dashboard-icon"></i>
                         </a>
-                        <button type="button" class="btn btn-info ms-3" id="openQuotesModalBtn" title="Manage Quotes">
+                        <button type="button" class="btn btn-primary ms-3" id="openQuotesModalBtn" title="Manage Quotes">
                             <i class="fas fa-quote-right me-1"></i>
                         </button>
                        

@@ -179,6 +179,8 @@ $routes->group('student', ['namespace' => 'App\Controllers\Student'], function (
     $routes->get('follow-up-sessions/sessions', 'FollowUpSessions::getFollowUpSessions');
 
     $routes->get('quotes/approved-quotes', 'Dashboard::getApprovedQuotes');
+    $routes->get('resources/get', 'Dashboard::getResources');
+    $routes->get('resources/download/(:num)', 'Admin\Resources::download/$1');
 });
 
 // Counselor routes
@@ -258,4 +260,6 @@ $routes->group('counselor', ['namespace' => 'App\Controllers\Counselor'], functi
     $routes->get('quotes/approved-quotes', 'Dashboard::getApprovedQuotes');
     $routes->put('quotes/update/(:num)', 'Dashboard::updateQuote/$1');
     $routes->delete('quotes/delete/(:num)', 'Dashboard::deleteQuote/$1');
+    $routes->get('resources/get', 'Dashboard::getResources');
+    $routes->get('resources/download/(:num)', 'Admin\Resources::download/$1');
 });

@@ -2029,9 +2029,169 @@ footer {
     transform: none;
 }
 
+
+
 /* Quote icon active state */
 #openQuoteModalBtn.active {
     color: #0A1875 !important;
     transform: scale(1.1);
+}
+
+/* Resources Accordion Styles */
+.resources-section {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+#resourcesParentAccordion {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#resourcesParentAccordion .accordion-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+#resourcesParentAccordion .accordion-button {
+    background-color: #f8f9fa;
+    color: #003366;
+    font-weight: 700;
+    padding: 1.25rem 1.5rem;
+    border: none;
+    box-shadow: none;
+    font-size: 1.25rem;
+}
+
+#resourcesParentAccordion .accordion-button:not(.collapsed) {
+    background-color: #e3f2fd;
+    color: #003366;
+    box-shadow: none;
+}
+
+#resourcesParentAccordion .accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 51, 102, 0.25);
+    border-color: #003366;
+}
+
+#resourcesParentAccordion .accordion-body {
+    padding: 1.5rem;
+    background-color: #ffffff;
+}
+
+#resourcesAccordion {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: none;
+    border: none;
+}
+
+#resourcesAccordion .accordion-item {
+    border: 1px solid #e0e0e0;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #ffffff;
+    transition: box-shadow 0.3s ease;
+}
+
+#resourcesAccordion .accordion-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#resourcesAccordion .accordion-button {
+    background-color: #f8f9fa;
+    color: #003366;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    border: none;
+    box-shadow: none;
+}
+
+#resourcesAccordion .accordion-button:not(.collapsed) {
+    background-color: #e3f2fd;
+    color: #003366;
+    box-shadow: none;
+}
+
+#resourcesAccordion .accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 51, 102, 0.25);
+    border-color: #003366;
+}
+
+#resourcesAccordion .accordion-body {
+    padding: 1.5rem;
+    background-color: #ffffff;
+}
+
+.resource-file-info,
+.resource-link-info {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+.resource-file-info .d-flex.align-items-center {
+    margin-bottom: 1rem;
+}
+
+.resource-file-info i.fa-2x {
+    margin-right: 0.75rem;
+}
+
+.resource-link-info a {
+    text-decoration: none;
+}
+
+.resource-link-info a:hover {
+    text-decoration: underline;
+}
+
+#resourcesAccordion .badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+    font-weight: 500;
+}
+
+#resourcesAccordion .text-muted {
+    color: #6c757d !important;
+}
+
+@media (max-width: 768px) {
+    .resources-section {
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    #resourcesParentAccordion .accordion-button {
+        padding: 1rem 1.25rem;
+        font-size: 1.1rem;
+    }
+
+    #resourcesParentAccordion .accordion-body {
+        padding: 1rem;
+    }
+
+    #resourcesAccordion .accordion-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    #resourcesAccordion .accordion-body {
+        padding: 1rem;
+    }
+
+    #resourcesAccordion .accordion-button .d-flex {
+        flex-wrap: wrap;
+    }
+
+    #resourcesAccordion .accordion-button .text-muted {
+        width: 100%;
+        margin-top: 0.5rem;
+        text-align: left;
+    }
 }
 

@@ -170,6 +170,36 @@
                 <!-- Notifications will be dynamically populated here -->
             </div>
         </div>
+
+        <!-- Resources Accordion Section -->
+        <section class="resources-section mt-5 mb-4">
+            <div class="container-fluid px-0">
+                <div class="accordion" id="resourcesParentAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="resourcesParentHeading">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#resourcesParentCollapse" aria-expanded="true" aria-controls="resourcesParentCollapse">
+                                <i class="fas fa-folder-open me-2"></i>
+                                <span class="fw-bold">Resources</span>
+                            </button>
+                        </h2>
+                        <div id="resourcesParentCollapse" class="accordion-collapse collapse show" aria-labelledby="resourcesParentHeading" data-bs-parent="#resourcesParentAccordion">
+                            <div class="accordion-body">
+                                <div class="accordion" id="resourcesAccordion">
+                                    <div id="resourcesAccordionContent">
+                                        <div class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading resources...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Loading resources...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Chat Popup -->
