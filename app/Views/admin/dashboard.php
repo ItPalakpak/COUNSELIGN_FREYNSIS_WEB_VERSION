@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" href="<?= base_url('Photos/counselign.ico') ?>" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="<?= base_url('css/admin/sidebar_dashboard.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('css/utils/sidebar.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/admin/admin_dashboard.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/admin/view_all_appointments.css') ?>">
 
@@ -23,7 +23,7 @@
 
 <body>
     <!-- Sidebar -->
-    <aside class="sidebar" id="adminSidebar">
+    <aside class="sidebar" id="uniSidebar">
         <div class="sidebar-content">
             <!-- Logo/Toggle Button -->
             <button class="sidebar-toggle-btn" id="sidebarToggle" title="Toggle Sidebar">
@@ -91,14 +91,14 @@
                 <div class="profile-dropdown">
                     <button class="top-bar-btn profile-btn" id="profileDropdownBtn">
                         <img id="profile-img-top" src="<?= base_url('Photos/UGC-Logo.png') ?>" alt="Profile" class="profile-img-small">
-                        <span class="btn-label" id="adminNameTop">Admin</span>
+                        <span class="btn-label" id="uniNameTop">Admin</span>
                     </button>
 
                     <div class="profile-dropdown-menu" id="profileDropdownMenu">
                         <div class="profile-dropdown-header">
                             <img id="profile-img-dropdown" src="<?= base_url('Photos/UGC-Logo.png') ?>" alt="Profile" class="profile-img-large">
                             <div class="profile-info">
-                                <div class="profile-name" id="adminNameDropdown">Admin</div>
+                                <div class="profile-name" id="uniNameDropdown">Admin</div>
                                 <div class="profile-subtitle" id="lastLoginDropdown">Loading...</div>
                             </div>
                         </div>
@@ -765,7 +765,7 @@
     <script>
         window.BASE_URL = "<?= base_url() ?>";
     </script>
-    <script src="<?= base_url('js/admin/sidebar.js') ?>"></script>
+    <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
     <script src="<?= base_url('js/admin/admin_dashboard.js') ?>"></script>
     <script src="<?= base_url('js/admin/profile_sync.js') ?>"></script>
     <script src="<?= base_url('js/admin/view_all_appointments.js') ?>"></script>

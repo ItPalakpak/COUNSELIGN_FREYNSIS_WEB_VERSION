@@ -12,12 +12,12 @@
     <link rel="icon" href="<?= base_url('Photos/counselign.ico') ?>" sizes="16x16 32x32" type="image/x-icon">
     <link rel="stylesheet" href="<?= base_url('css/admin/admins_management.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/admin/header.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('css/admin/sidebar_dashboard.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('css/utils/sidebar.css') ?>">
 </head>
 
 <body>
     <!-- Sidebar -->
-    <aside class="sidebar" id="adminSidebar">
+    <aside class="sidebar" id="uniSidebar">
         <div class="sidebar-content">
             <!-- Logo/Toggle Button -->
             <button class="sidebar-toggle-btn" id="sidebarToggle" title="Toggle Sidebar">
@@ -94,14 +94,14 @@
                 <div class="profile-dropdown">
                     <button class="top-bar-btn profile-btn" id="profileDropdownBtn">
                         <img id="profile-img-top" src="<?= base_url('Photos/UGC-Logo.png') ?>" alt="Profile" class="profile-img-small">
-                        <span class="btn-label" id="adminNameTop">Admin</span>
+                        <span class="btn-label" id="uniNameTop">Admin</span>
                     </button>
 
                     <div class="profile-dropdown-menu" id="profileDropdownMenu">
                         <div class="profile-dropdown-header">
                             <img id="profile-img-dropdown" src="<?= base_url('Photos/UGC-Logo.png') ?>" alt="Profile" class="profile-img-large">
                             <div class="profile-info">
-                                <div class="profile-name" id="adminNameDropdown">Admin</div>
+                                <div class="profile-name" id="uniNameDropdown">Admin</div>
                                 <div class="profile-subtitle" id="lastLoginDropdown">Loading...</div>
                             </div>
                         </div>
@@ -209,7 +209,7 @@
     <script src="<?= base_url('js/admin/logout.js') ?>" defer></script>
     <script src="<?= base_url('js/admin/admins_management.js') ?>"></script>
     <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
-    <script src="<?= base_url('js/admin/sidebar.js') ?>"></script>
+    <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
 </body>
 
 </html>

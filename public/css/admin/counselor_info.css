@@ -205,6 +205,18 @@
     max-height: calc(100vh - 104px);
 }
 
+
+/* Form Container - FIXED: Now has proper left margin for sidebar */
+.sidebar.collapsed ~ .main-wrapper .counselor-form-container {
+    flex: 1;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    padding: 32px;
+    margin: 24px 24px 24px 304px !important; /* Left margin: 280px sidebar + 24px spacing */
+    overflow-y: auto;
+    max-height: calc(100vh - 104px);
+}
 /* Profile Image */
 .profile-image-container {
     margin-bottom: 32px;

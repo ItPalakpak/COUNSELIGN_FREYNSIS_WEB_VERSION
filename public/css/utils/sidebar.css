@@ -710,7 +710,7 @@ footer {
 @media (max-width: 991.98px) {
 
     /* Ensure sidebar and overlay are above all content */
-    #adminSidebar {
+    #uniSidebar {
         z-index: 2000 !important;
     }
 
