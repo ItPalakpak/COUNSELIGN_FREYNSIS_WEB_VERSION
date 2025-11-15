@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="<?= base_url('css/student/student_dashboard.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/student/header.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('css/utils/resources.css') ?>">
 </head>
 
 <body>
@@ -282,6 +283,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Preview Modal -->
+    <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalTitle">Resource Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="previewModalBody" style="min-height: 400px;">
+                    <!-- Preview content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- ADDED: Shared Resource Preview Module -->
+    <script src="<?= base_url('js/utils/resource-preview.js') ?>"></script>
 
     <?php echo view('modals/student_dashboard_modals'); ?>
     <script src="<?= base_url('js/modals/student_dashboard_modals.js') ?>"></script>

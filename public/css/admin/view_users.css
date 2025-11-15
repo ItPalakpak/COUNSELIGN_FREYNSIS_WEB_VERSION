@@ -621,10 +621,14 @@ footer {
     border: none;
     border-radius: 6px;
     color: white;
-    font-weight: 500;
-    padding: 0.2rem 0.5rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem; /* Increased padding */
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 51, 102, 0.2);
+    display: inline-flex; /* Use flexbox */
+    align-items: center; /* Vertically center content */
+    white-space: nowrap; /* Prevent wrapping */
+    gap: 0.2rem; /* Space between icon and text */
 }
 
 .action-btn:hover {
@@ -640,7 +644,11 @@ footer {
 }
 
 .action-btn i {
-    margin-right: 0.25rem;
+    margin-right: 0; /* Remove margin since we're using gap */
+}
+
+.action-btn .btn-text {
+    font-size: 0.9rem;
 }
 
 /* Responsive Design for PDS Modal */
@@ -756,9 +764,7 @@ footer {
 }
 
 /* Enhanced button styling */
-.action-btn .btn-text {
-    font-size: 0.9rem;
-}
+
 
 @media (max-width: 480px) {
     .action-btn {

@@ -9,7 +9,7 @@
     <link rel="icon" href="<?= base_url('Photos/counselign.ico') ?>" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('css/admin/header.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('css/admin/resources.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('css/utils/resources.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/admin/admin_dashboard.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/admin/sidebar_dashboard.css') ?>">
 
@@ -282,7 +282,7 @@
         </div>
     </div>
 
-    <!-- ====== ADDED: Alert Modal ====== -->
+    <!-- Alert Modal -->
     <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -305,7 +305,7 @@
         </div>
     </div>
 
-    <!-- ====== ADDED: Confirmation Modal ====== -->
+    <!-- Confirmation Modal -->
     <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -327,7 +327,7 @@
         </div>
     </div>
 
-    <!-- ====== ADDED: Notice Modal (optional but good to have) ====== -->
+    <!-- Notice Modal -->
     <div class="modal fade" id="noticeModal" tabindex="-1" aria-labelledby="noticeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -350,12 +350,20 @@
         </div>
     </div>
 
-
-
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- ADDED: Mammoth.js for DOCX preview -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    
+    <!-- ADDED: SheetJS for Excel preview -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Your Scripts -->
     <script>
         window.BASE_URL = "<?= base_url() ?>";
     </script>
+    <script src="<?= base_url('js/utils/resource-preview.js') ?>"></script>
     <script src="<?= base_url('js/admin/admin_drawer.js') ?>"></script>
     <script src="<?= base_url('js/modals/student_dashboard_modals.js') ?>"></script>
     <script src="<?= base_url('js/admin/resources_management.js') ?>"></script>

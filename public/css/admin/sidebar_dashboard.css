@@ -296,12 +296,12 @@ body {
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(6, 14, 87, 0.4);
+    box-shadow: 0 8px 24px rgba(6, 14, 87, 0.4);
     transition: box-shadow 0.3s ease;
 }
 
 .profile-btn:hover .profile-img-small {
-    box-shadow: 0 6px 16px rgba(6, 14, 87, 0.5);
+    box-shadow: 0 12px 32px rgba(6, 14, 87, 0.5);
 }
 
 .profile-btn .btn-label {
