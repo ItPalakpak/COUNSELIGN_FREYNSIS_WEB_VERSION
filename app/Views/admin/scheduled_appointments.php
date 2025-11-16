@@ -87,6 +87,18 @@
             </div>
 
             <div class="top-bar-right">
+
+                <div class="search-container">
+                    <div class="input-group" style="max-width: 300px;">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" id="appointmentsSearchInput" placeholder="Search appointments..." aria-label="Search appointments">
+                        <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
                 <!-- Quote Modal Button -->
                 <button class="top-bar-btn" onclick="window.location.href='<?= base_url('admin/appointments') ?>'" title="Appointments">
                     <i class="fas fa-list-alt"></i>
@@ -124,20 +136,6 @@
         </header>
         <main class="bg-light p-4">
             <div class="container-fluid px-4">
-                <div class="d-flex justify-content-end align-items-center mb-4">
-                    
-                    <div class="search-container">
-                        <div class="input-group" style="max-width: 300px;">
-                            <span class="input-group-text bg-white border-end-0">
-                                <i class="fas fa-search text-muted"></i>
-                            </span>
-                            <input type="text" class="form-control border-start-0" id="appointmentsSearchInput" placeholder="Search appointments..." aria-label="Search appointments">
-                            <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="csq-layout">
                     <div class="csq-left">

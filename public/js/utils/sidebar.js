@@ -10,7 +10,7 @@
     const ROLE_ENDPOINTS = {
         admin: 'admin/dashboard/data',
         counselor: 'counselor/profile/get',
-        student: 'student/profile/get'
+        student: 'student/dashboard/get-profile-data'
     };
 
     // Global state
