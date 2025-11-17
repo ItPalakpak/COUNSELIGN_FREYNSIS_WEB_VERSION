@@ -387,12 +387,19 @@ class CustomCalendarPicker {
 
     /**
      * Check if a specific date has availability
+     * Supports both student and counselor roles
      */
     async checkDateAvailability(date) {
         const dateString = this.formatDate(date);
         const dayOfWeek = this.getDayOfWeek(date);
 
         try {
+            // Counselor role - check their own availability
+            if (this.userRole === 'counselor') {
+                return await this.checkCounselorOwnAvailability(dateString, dayOfWeek);
+            }
+
+            // Student role - check counselor schedules
             // 1. Check if any counselors are scheduled for this day of week
             const schedulesRes = await fetch(
                 (window.BASE_URL || '/') + 'student/get-counselor-schedules',
@@ -415,11 +422,137 @@ class CustomCalendarPicker {
                 return { hasCounselors: false, fullyBooked: false };
             }
 
-            // 2. Check if all time slots are booked for this specific date
+            // 2. Check if ALL counselors have ALL their slots booked for this specific date
+            // We need to check each counselor individually - only mark as fully booked if ALL counselors are fully booked
+            
+            // If filtering by specific counselor, check only that counselor
+            if (this.counselorId && this.counselorId !== 'No preference') {
+                const bookedRes = await fetch(
+                    (window.BASE_URL || '/') + `student/appointments/booked-times?date=${dateString}` +
+                    `&counselor_id=${this.counselorId}` +
+                    (this.consultationType ? `&consultation_type=${this.consultationType}` : ''),
+                    {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: { 'Accept': 'application/json' }
+                    }
+                );
+
+                if (!bookedRes.ok) {
+                    return { hasCounselors: true, fullyBooked: false };
+                }
+
+                const bookedData = await bookedRes.json();
+                const bookedSlots = bookedData?.booked || [];
+                const availableSlots = this.generateTimeSlotsFromSchedules(daySchedules);
+                const allBooked = availableSlots.length > 0 && availableSlots.every(slot => bookedSlots.includes(slot));
+
+                return {
+                    hasCounselors: true,
+                    fullyBooked: allBooked,
+                    availableSlots: availableSlots.length,
+                    bookedSlots: bookedSlots.length
+                };
+            }
+
+            // Check each counselor individually - only fully booked if ALL counselors are fully booked
+            let allCounselorsFullyBooked = true;
+            let totalAvailableSlots = 0;
+            let totalBookedSlots = 0;
+
+            // Group schedules by counselor_id to avoid counting duplicates
+            const counselorSchedulesMap = new Map();
+            daySchedules.forEach(schedule => {
+                const counselorId = schedule.counselor_id;
+                if (!counselorSchedulesMap.has(counselorId)) {
+                    counselorSchedulesMap.set(counselorId, []);
+                }
+                counselorSchedulesMap.get(counselorId).push(schedule);
+            });
+
+            // Check each counselor's availability
+            for (const [counselorId, counselorSchedules] of counselorSchedulesMap) {
+                // Get booked times for this specific counselor
+                const bookedRes = await fetch(
+                    (window.BASE_URL || '/') + `student/appointments/booked-times?date=${dateString}` +
+                    `&counselor_id=${counselorId}` +
+                    (this.consultationType ? `&consultation_type=${this.consultationType}` : ''),
+                    {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: { 'Accept': 'application/json' }
+                    }
+                );
+
+                if (!bookedRes.ok) {
+                    // If we can't check, assume not fully booked (optimistic)
+                    allCounselorsFullyBooked = false;
+                    continue;
+                }
+
+                const bookedData = await bookedRes.json();
+                const bookedSlots = bookedData?.booked || [];
+                
+                // Generate slots for this counselor
+                const counselorSlots = this.generateTimeSlotsFromSchedules(counselorSchedules);
+                totalAvailableSlots += counselorSlots.length;
+                
+                // Check if this counselor has any available slots
+                const hasAvailableSlot = counselorSlots.some(slot => !bookedSlots.includes(slot));
+                
+                if (hasAvailableSlot) {
+                    // At least one counselor has availability - date is NOT fully booked
+                    allCounselorsFullyBooked = false;
+                }
+                
+                // Count booked slots for this counselor
+                const counselorBookedCount = counselorSlots.filter(slot => bookedSlots.includes(slot)).length;
+                totalBookedSlots += counselorBookedCount;
+            }
+
+            return {
+                hasCounselors: true,
+                fullyBooked: allCounselorsFullyBooked,
+                availableSlots: totalAvailableSlots,
+                bookedSlots: totalBookedSlots
+            };
+
+        } catch (error) {
+            console.error(`Error checking availability for ${dateString}:`, error);
+            return { hasCounselors: true, fullyBooked: false }; // Optimistic fallback
+        }
+    }
+
+    /**
+     * Check counselor's own availability for a specific date
+     * Used when userRole is 'counselor' to check their own schedule
+     */
+    async checkCounselorOwnAvailability(dateString, dayOfWeek) {
+        try {
+            // 1. Get counselor's own availability for this day of week
+            const availabilityRes = await fetch(
+                (window.BASE_URL || '/') + `counselor/follow-up/counselor-availability?date=${dateString}`,
+                {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                }
+            );
+
+            if (!availabilityRes.ok) {
+                return { hasCounselors: true, fullyBooked: false }; // Optimistic fallback
+            }
+
+            const availabilityData = await availabilityRes.json();
+            
+            if (availabilityData.status !== 'success' || !availabilityData.time_slots || availabilityData.time_slots.length === 0) {
+                // No schedule for this day
+                return { hasCounselors: false, fullyBooked: false };
+            }
+
+            // 2. Get booked times for this counselor on this date
             const bookedRes = await fetch(
-                (window.BASE_URL || '/') + `student/appointments/booked-times?date=${dateString}` +
-                (this.counselorId ? `&counselor_id=${this.counselorId}` : '') +
-                (this.consultationType ? `&consultation_type=${this.consultationType}` : ''),
+                (window.BASE_URL || '/') + `counselor/follow-up/booked-times?date=${dateString}`,
                 {
                     method: 'GET',
                     credentials: 'include',
@@ -434,10 +567,10 @@ class CustomCalendarPicker {
             const bookedData = await bookedRes.json();
             const bookedSlots = bookedData?.booked || [];
 
-            // Generate all possible 30-minute time slots from counselor schedules
-            const availableSlots = this.generateTimeSlotsFromSchedules(daySchedules);
+            // 3. Generate all possible 30-minute slots from counselor's time_scheduled
+            const availableSlots = this.generateTimeSlotsFromCounselorTimeScheduled(availabilityData.time_slots);
             
-            // Check if all slots are booked
+            // 4. Check if all slots are booked
             const allBooked = availableSlots.length > 0 && availableSlots.every(slot => bookedSlots.includes(slot));
 
             return {
@@ -448,9 +581,47 @@ class CustomCalendarPicker {
             };
 
         } catch (error) {
-            console.error(`Error checking availability for ${dateString}:`, error);
+            console.error(`Error checking counselor own availability for ${dateString}:`, error);
             return { hasCounselors: true, fullyBooked: false }; // Optimistic fallback
         }
+    }
+
+    /**
+     * Generate 30-minute time slots from counselor time_scheduled strings
+     * Used for counselor role - time_slots is array of strings like "8:00 AM - 12:00 PM"
+     */
+    generateTimeSlotsFromCounselorTimeScheduled(timeSlots) {
+        const slots = new Set();
+
+        timeSlots.forEach(timeScheduled => {
+            if (!timeScheduled) return;
+
+            // Split multiple time ranges (e.g., "8:00 AM - 12:00 PM, 1:00 PM - 5:00 PM")
+            const ranges = timeScheduled.split(',').map(r => r.trim());
+
+            ranges.forEach(range => {
+                if (range.includes('-')) {
+                    const [start, end] = range.split('-').map(t => t.trim());
+                    const startMinutes = this.parseTime12ToMinutes(start);
+                    const endMinutes = this.parseTime12ToMinutes(end);
+
+                    if (startMinutes !== null && endMinutes !== null && endMinutes > startMinutes) {
+                        // Generate 30-minute slots
+                        for (let t = startMinutes; t + 30 <= endMinutes; t += 30) {
+                            const slotStart = this.formatMinutesTo12h(t);
+                            const slotEnd = this.formatMinutesTo12h(t + 30);
+                            slots.add(`${slotStart} - ${slotEnd}`);
+                        }
+                    }
+                }
+            });
+        });
+
+        return Array.from(slots).sort((a, b) => {
+            const aStart = this.parseTime12ToMinutes(a.split('-')[0].trim());
+            const bStart = this.parseTime12ToMinutes(b.split('-')[0].trim());
+            return aStart - bStart;
+        });
     }
 
     /**
