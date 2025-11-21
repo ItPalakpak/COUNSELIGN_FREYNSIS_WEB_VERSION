@@ -71,7 +71,7 @@
                 <!-- Page Title Added Here -->
                 <h1 class="page-title-header">
                     <i class="fas fa-calendar-check me-2"></i>
-                    Follow-up Sessions - Admin View
+                    All Follow-up Sessions
                 </h1>
             </div>
 
@@ -118,7 +118,7 @@
                             <i class="fas fa-check-circle me-2"></i>
                             All Completed Appointments
                         </h3>
-                        <p class="section-description">View and manage follow-up sessions for all completed appointments</p>
+                        <p class="section-description">View follow-up sessions for all completed appointments</p>
                     </div>
                     <div class="search-container">
                         <div class="input-group search-wrapper">

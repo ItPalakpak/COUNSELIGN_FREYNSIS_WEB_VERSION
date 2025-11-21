@@ -72,7 +72,7 @@
             <div class="top-bar-left">
                 <h1 class="page-title-header">
                     <i class="fas fa-clipboard-list me-2"></i>
-                    Follow-up Sessions - Student View
+                    My Follow-up Sessions
                 </h1>
             </div>
 

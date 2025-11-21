@@ -998,9 +998,18 @@
                         </div>
                         <div class="mb-3">
                             <label for="update-picture" class="form-label">Profile Picture</label>
+
+                            <!-- Warning/Note Alert -->
+                            <div class="alert alert-warning profile-picture-warning d-flex align-items-start mb-2" role="alert">
+                                <i class="fas fa-exclamation-triangle warning-icon me-2"></i>
+                                <div class="warning-text">
+                                    <strong>Important:</strong> Please use PDS-friendly formats like 2x2 or 1x1 passport-style photos with a plain white or light background for official documentation.
+                                </div>
+                            </div>
+
                             <input type="file" class="form-control" id="update-picture" accept="image/*">
                             <div class="mt-2 text-center">
-                                <img id="update-picture-preview" src="<?= base_url('Photos/profile.png') ?>" alt="Preview" style="max-width:120px; max-height:120px; border-radius:50%; object-fit:cover; display:none;" />
+                                <img id="update-picture-preview" src="<?= base_url('Photos/profile.png') ?>" alt="Preview" class="picture-preview" />
                             </div>
                         </div>
                     </form>
