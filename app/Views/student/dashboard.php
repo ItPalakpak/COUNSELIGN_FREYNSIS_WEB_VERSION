@@ -81,14 +81,14 @@
                 <div class="message-icon-container">
                     <button class="top-bar-btn" onclick="window.location.href='<?= base_url('student/messages') ?>'" title="Messages">
 
-                        <i class="fas fa-comments text-2xl" style="cursor: pointer;"></i>
+                        <i class="fas fa-comments text-2xl"></i>
                         <span id="messageBadge" class="message-badge hidden"></span>
 
                     </button>
                 </div>
                 <div class="relative notification-icon-container">
                     <button class="top-bar-btn" id="notificationIcon" title="Notifications">
-                        <i class="fas fa-bell text-2xl" style="cursor: pointer;"></i>
+                        <i class="fas fa-bell text-2xl"></i>
                         <span id="notificationBadge" class="notification-badge">0</span>
                     </button>
                 </div>

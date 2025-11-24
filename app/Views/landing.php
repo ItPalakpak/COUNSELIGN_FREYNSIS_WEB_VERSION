@@ -19,7 +19,7 @@
 </head>
 
 <body>
-    <header class="landing-header text-white p-1" style="background-color: #060E57;">
+    <header class="landing-header text-white p-1">
         <div class="container-fluid px-4">
             <div class="row align-items-center">
                 <div class="d-flex align-items-center">

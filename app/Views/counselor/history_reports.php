@@ -73,7 +73,7 @@
             <div class="top-bar-right">
 
                 <button class="top-bar-btn" onclick="window.location.href='<?= base_url('counselor/appointments/view-all') ?>'" title="Current Reports">
-                    <i class="fa fa-chart-line text-2xl" style="cursor: pointer;"></i>
+                    <i class="fa fa-chart-line text-2xl"></i>
                     <span class="btn-label">Current Reports</span>
                 </button>
 

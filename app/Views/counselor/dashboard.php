@@ -74,11 +74,11 @@
             <div class="top-bar-right">
 
                 <button class="top-bar-btn" id="openQuoteModalBtn" title="Quotes">
-                    <i class="fas fa-quote-right text-2xl" style="cursor: pointer;"></i>
+                    <i class="fas fa-quote-right text-2xl"></i>
                 </button>
                 <div class="relative notification-icon-container">
                     <button class="top-bar-btn" id="notificationIcon" title="Notifications">
-                        <i class="fas fa-bell text-2xl" style="cursor: pointer;"></i>
+                        <i class="fas fa-bell text-2xl"></i>
                         <span id="notificationBadge" class="notification-badge">0</span>
                     </button>
                 </div>

@@ -122,6 +122,24 @@
             <!-- Sidebar -->
             <div class="counselor-sidebar">
                 <h2>Counselors</h2>
+
+                <!-- Search Bar -->
+                <div class="counselor-search-container">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text"
+                            id="counselorSearchInput"
+                            class="counselor-search-input"
+                            placeholder="Search counselors...">
+                        <button type="button"
+                            id="clearSearchBtn"
+                            class="clear-search-btn"
+                            style="display: none;"
+                            title="Clear search">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
                 <div class="counselor-list">
                     <!-- Counselors will be dynamically loaded here -->
                 </div>
@@ -183,7 +201,7 @@
     <!-- Overlay for Counselor Sidebar (Small Screens) -->
     <div class="counselor-sidebar-overlay d-lg-none" id="counselorSidebarOverlay"></div>
 
-    
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -194,7 +212,6 @@
     <script src="<?= base_url('js/admin/logout.js') ?>" defer></script>
     <script src="<?= base_url('js/admin/admin_drawer.js') ?>"></script>
     <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
-    <script src="<?= base_url('js/admin/counselor_info_mobile.js') . '?v=' . @filemtime(FCPATH . 'js/admin/counselor_info_mobile.js') ?>"></script>
     <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
 </body>
 

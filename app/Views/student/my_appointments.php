@@ -82,7 +82,7 @@
             <div class="top-bar-right">
 
                 <button class="top-bar-btn" onclick="window.location.href='<?= base_url('student/schedule-appointment') ?>'" title="Schedule an Appointment">
-                    <i class="fas fa-plus-circle text-2xl" style="cursor: pointer;"></i>
+                    <i class="fas fa-plus-circle text-2xl"></i>
                     <span class="btn-label">Schedule an Appointment</span>
                 </button>
 

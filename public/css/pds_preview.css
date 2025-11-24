@@ -10,12 +10,15 @@ body {
     background-color: #f5f5f5;
     padding: 20px;
     line-height: 1.2;
-    overflow-x: auto; /* Allow horizontal scrolling if needed */
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
 }
 
 /* Responsive Container for PDS Pages */
 .pds-container {
-    width: 100%;
+    width: 8.5in;
     max-width: 8.5in;
     margin: 0 auto;
     position: relative;
@@ -23,6 +26,10 @@ body {
 
 /* Responsive scaling for smaller screens */
 @media screen and (max-width: 900px) {
+    body {
+        padding: 10px;
+    }
+    
     .pds-container {
         transform-origin: top center;
         transform: scale(0.85);
@@ -30,24 +37,46 @@ body {
 }
 
 @media screen and (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+    
     .pds-container {
+        transform-origin: top center;
         transform: scale(0.7);
     }
 }
 
 @media screen and (max-width: 600px) {
-    .pds-container {
-        transform: scale(0.55);
+    body {
+        padding: 5px;
     }
     
-    body {
-        padding: 10px;
+    .pds-container {
+        transform-origin: top center;
+        transform: scale(0.55);
     }
 }
 
 @media screen and (max-width: 480px) {
+    body {
+        padding: 2px;
+    }
+    
     .pds-container {
+        transform-origin: top center;
         transform: scale(0.45);
+    }
+}
+
+@media screen and (max-width: 400px) {
+    body {
+        padding: 2px;
+    }
+    
+    .pds-container {
+        transform-origin: top center;
+        transform: scale(0.38);
     }
 }
 
@@ -65,6 +94,34 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
+@media screen and (max-width: 768px) {
+    .print-controls {
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+    }
+    
+    .btn-print,
+    .btn-download {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .print-controls {
+        top: 5px;
+        right: 5px;
+        padding: 8px;
+    }
+    
+    .btn-print,
+    .btn-download {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+}
+
 .btn-print,
 .btn-download {
     padding: 10px 20px;
@@ -77,7 +134,7 @@ body {
 }
 
 .btn-print {
-    display: none; /* HIDE PRINT BUTTON */
+    display: none;
 }
 
 .btn-print:hover {
@@ -191,7 +248,6 @@ body {
     display: block;
 }
 
-/* NEW: Scale new USTP logo to match height of original logo */
 .ustp-logo-image:nth-child(2) {
     max-width: none;
     height: 80px;
@@ -200,8 +256,8 @@ body {
 
 .university-name {
     font-family: 'Times New Roman', Times, serif;
-    font-size: 10px;
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: 400;
     color: #021221;
     margin-bottom: 3px;
     line-height: 1.2;
@@ -210,7 +266,7 @@ body {
 
 .campuses {
     font-family: 'Arial', 'Helvetica', sans-serif;
-    font-size: 7.5px;
+    font-size: 8px;
     color: #000;
     margin-bottom: 6px;
     letter-spacing: 0.3px;
@@ -343,6 +399,19 @@ body {
     gap: 4px;
 }
 
+/* Specific form field width adjustments */
+.form-field-age {
+    max-width: 60px;
+}
+
+.form-field-name-wide {
+    flex: 2;
+}
+
+.form-field-age-narrow {
+    max-width: 60px;
+}
+
 .form-field.full-width {
     flex: 1 1 100%;
 }
@@ -354,7 +423,6 @@ body {
     font-size: 13px;
     flex-shrink: 0;
 }
-
 
 .field-value {
     display: inline-block;
@@ -479,6 +547,21 @@ body {
 .gcs-activities .section-title {
     font-size: 9px;
     padding: 6px 8px;
+}
+
+.gcs-activities-list {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.gcs-activities-heading {
+    text-decoration: underline;
+    margin-bottom: 5px;
+}
+
+.gcs-activity-item {
+    margin-bottom: 3px;
+    font-weight: bold;
 }
 
 .activities-list {

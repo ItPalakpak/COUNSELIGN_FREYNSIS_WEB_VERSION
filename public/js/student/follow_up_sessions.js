@@ -79,7 +79,7 @@ async function loadCompletedAppointments(searchTerm = '') {
 // Display completed appointments in card format
 function displayCompletedAppointments(appointments, searchTerm = '') {
     const container = document.getElementById('completedAppointmentsContainer');
-    const pendingContainer = document.getElementById('pendingFollowUpContainer');
+    
     const pendingSection = document.getElementById('pendingFollowUpSection');
     const noDataMessage = document.getElementById('noCompletedAppointments');
     const noSearchResults = document.getElementById('noSearchResults');
@@ -97,14 +97,7 @@ function displayCompletedAppointments(appointments, searchTerm = '') {
     SecureLogger.info('Pending appointments:', pendingAppointments.length);
     SecureLogger.info('Appointments data:', appointments);
 
-    // Handle pending appointments section
-    if (pendingAppointments.length > 0 && !searchTerm) {
-        pendingSection.style.display = 'block';
-        pendingContainer.innerHTML = pendingAppointments.map(appointment => createAppointmentCard(appointment)).join('');
-    } else {
-        pendingSection.style.display = 'none';
-    }
-
+    
     // Show all completed appointments regardless of pending status
     if (appointments.length === 0) {
         container.style.display = 'none';

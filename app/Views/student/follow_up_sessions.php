@@ -108,63 +108,44 @@
             </div>
         </header>
 
+        <div class="container py-5">
+            <!-- Removed section-header div - title now in top bar -->
 
-        <main class="bg-light p-4">
-            <div class="container-fluid px-4">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="follow-up-container">
-                            <div class="section-header">
-                                <p class="section-subtitle">View your completed appointments and their follow-up sessions</p>
-                            </div>
-
-                            <!-- Pending Follow-up Appointments Section -->
-                            <div class="pending-follow-up-section" id="pendingFollowUpSection" style="display: none;">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h3 class="subsection-title mb-0">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>
-                                        Appointment with a Pending Follow-up
-                                    </h3>
-                                </div>
-                                <div id="pendingFollowUpContainer" class="appointments-grid">
-                                    <!-- Pending follow-up appointments will be loaded here -->
-                                </div>
-                            </div>
-
-                            <!-- Completed Appointments Section -->
-                            <div class="completed-appointments-section">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h3 class="subsection-title mb-0">
-                                        <i class="fas fa-check-circle me-2"></i>
-                                        My Completed Appointments
-                                    </h3>
-                                    <div class="search-container">
-                                        <div class="input-group" style="max-width: 300px;">
-                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                            <input type="text" class="form-control" id="searchInput" placeholder="Search appointments...">
-                                            <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="completedAppointmentsContainer" class="appointments-grid">
-                                    <!-- Completed appointments will be loaded here -->
-                                </div>
-                                <div id="noCompletedAppointments" class="no-data-message" style="display: none;">
-                                    <i class="fas fa-info-circle"></i>
-                                    <p>No completed appointments found. Complete some appointments to view follow-up sessions.</p>
-                                </div>
-                                <div id="noSearchResults" class="no-data-message" style="display: none;">
-                                    <i class="fas fa-search"></i>
-                                    <p>No appointments found matching your search criteria.</p>
-                                </div>
-                            </div>
+            <!-- Completed Appointments Section -->
+            <div class="completed-appointments-section">
+                <div class="section-header-bar">
+                    <div class="section-title-wrapper">
+                        <h3 class="subsection-title mb-0">
+                            <i class="fas fa-check-circle me-2"></i>
+                            My Completed Appointments
+                        </h3>
+                        <p class="section-description">View your completed appointments and their follow-up sessions</p>
+                    </div>
+                    <div class="search-container">
+                        <div class="input-group search-wrapper">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search appointments...">
+                            <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
+                <div id="completedAppointmentsContainer" class="appointments-grid">
+                    <!-- Completed appointments will be loaded here -->
+                </div>
+                <div id="noCompletedAppointments" class="no-data-message" style="display: none;">
+                    <i class="fas fa-info-circle"></i>
+                    <p>No completed appointments found.</p>
+                </div>
+                <div id="noSearchResults" class="no-data-message" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <p>No appointments found matching your search criteria.</p>
+                </div>
             </div>
-        </main>
+        </div>
+
+        
     </div>
 
     <!-- Follow-up Sessions Modal (Read-Only) -->

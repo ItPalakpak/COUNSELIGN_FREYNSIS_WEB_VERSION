@@ -78,7 +78,7 @@
             <div class="top-bar-right">
 
                 <button class="top-bar-btn" onclick="window.location.href='<?= base_url('student/my-appointments') ?>'" title="My Appointments">
-                    <i class="fa fa-list-alt text-2xl" style="cursor: pointer;"></i>
+                    <i class="fa fa-list-alt text-2xl"></i>
                     <span class="btn-label">My Appointments</span>
                 </button>
 

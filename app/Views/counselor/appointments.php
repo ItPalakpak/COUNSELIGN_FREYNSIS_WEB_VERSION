@@ -70,7 +70,7 @@
             <div class="top-bar-right">
 
                 <button class="top-bar-btn" onclick="window.location.href='<?= base_url('counselor/appointments/scheduled') ?>'" title="Scheduled Appointments">
-                    <i class="fa fa-calendar-alt text-2xl" style="cursor: pointer;"></i>
+                    <i class="fa fa-calendar-alt text-2xl"></i>
                     <span class="btn-label">Scheduled Appointments</span>
                 </button>
 

@@ -91,7 +91,7 @@
                 </div>
 
                 <button class="top-bar-btn" onclick="window.location.href='<?= base_url('counselor/appointments') ?>'" title="Appointments">
-                    <i class="fa fa-list-alt text-2xl" style="cursor: pointer;"></i>
+                    <i class="fa fa-list-alt text-2xl"></i>
                     <span class="btn-label">Appointments</span>
                 </button>
 

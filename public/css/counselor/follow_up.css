@@ -749,6 +749,14 @@ h1 { margin: 0 0 0 8px; font-size: 1.1rem; }
 
 
 
+.header-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+
 .pending-follow-up-indicator {
     background: linear-gradient(135deg, #ff6b35, #ff8e53);
     color: white;

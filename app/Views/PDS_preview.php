@@ -7,13 +7,6 @@
     <title>PDS Preview - <?= esc($user_info['user_id']) ?></title>
     <link rel="icon" href="<?= base_url('Photos/counselign.ico') ?>" sizes="16x16 32x32" type="image/x-icon">
     <link rel="stylesheet" href="<?= base_url('css/pds_preview.css') . '?v=' . @filemtime(FCPATH . 'css/pds_preview.css') ?>">
-    <style>
-        @media print {
-            .print-controls {
-                display: none !important;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -118,9 +111,9 @@
         $residenceType = $resMap[$residence['residence_type']] ?? $residence['residence_type'];
         if (!empty($residence['residence_other_specify'])) {
             if (!empty($residenceType)) {
-                $residenceType .= ', others, pls. specify: ' . $residence['residence_other_specify'];
+                $residenceType .= ', others:' . $residence['residence_other_specify'];
             } else {
-                $residenceType = 'others, pls. specify: ' . $residence['residence_other_specify'];
+                $residenceType = 'others: ' . $residence['residence_other_specify'];
             }
         }
     }
@@ -138,7 +131,7 @@
     if (!empty($other['physical_health_condition'])) {
         $healthValue = strtolower($other['physical_health_condition']);
         if (($healthValue === 'yes') && !empty($other['physical_health_condition_specify'])) {
-            $healthCondition = 'Yes, pls. specify: ' . $other['physical_health_condition_specify'];
+            $healthCondition = 'Yes, ' . $other['physical_health_condition_specify'];
         } elseif ($healthValue === 'no') {
             $healthCondition = 'No';
         } else {
@@ -199,7 +192,7 @@
         <button onclick="downloadPDF()" class="btn-download">📥 Download as PDF</button>
     </div>
 
-    <!-- ADDED: Responsive Container Wrapper -->
+    <!-- Responsive Container Wrapper -->
     <div class="pds-container">
         <!-- Page 1 -->
         <div class="pds-page page-1">
@@ -285,7 +278,7 @@
                         <label>Date of Birth:</label>
                         <span class="field-value"><?= formatDateShort($personal['date_of_birth'] ?? '') ?></span>
                     </div>
-                    <div class="form-field" style="max-width: 60px;">
+                    <div class="form-field form-field-age">
                         <label>Age:</label>
                         <span class="field-value"><?= $age ?></span>
                     </div>
@@ -367,11 +360,11 @@
                 <h3 class="section-title">FAMILY BACKGROUND</h3>
 
                 <div class="form-row">
-                    <div class="form-field" style="flex: 2;">
+                    <div class="form-field form-field-name-wide">
                         <label>Name of Father:</label>
                         <span class="field-value"><?= formatValue($family['father_name'] ?? '') ?></span>
                     </div>
-                    <div class="form-field" style="max-width: 60px;">
+                    <div class="form-field form-field-age-narrow">
                         <label>Age:</label>
                         <span class="field-value"><?= formatValue($family['father_age'] ?? '') ?></span>
                     </div>
@@ -379,7 +372,6 @@
                         <label>Contact No:</label>
                         <span class="field-value"><?= formatValue($family['father_contact_number'] ?? '') ?></span>
                     </div>
-
                 </div>
 
                 <div class="form-row">
@@ -394,11 +386,11 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-field" style="flex: 2;">
+                    <div class="form-field form-field-name-wide">
                         <label>Name of Mother:</label>
                         <span class="field-value"><?= formatValue($family['mother_name'] ?? '') ?></span>
                     </div>
-                    <div class="form-field" style="max-width: 60px;">
+                    <div class="form-field form-field-age-narrow">
                         <label>Age:</label>
                         <span class="field-value"><?= formatValue($family['mother_age'] ?? '') ?></span>
                     </div>
@@ -406,7 +398,6 @@
                         <label>Contact No:</label>
                         <span class="field-value"><?= formatValue($family['mother_contact_number'] ?? '') ?></span>
                     </div>
-
                 </div>
 
                 <div class="form-row">
@@ -428,7 +419,7 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-field" style="flex: 2;">
+                    <div class="form-field form-field-name-wide">
                         <label>Husband/Wife (If Married):</label>
                         <span class="field-value"><?= formatValue($family['spouse'] ?? '') ?></span>
                     </div>
@@ -436,7 +427,6 @@
                         <label>Contact No:</label>
                         <span class="field-value"><?= formatValue($family['spouse_contact_number'] ?? '') ?></span>
                     </div>
-
                 </div>
 
                 <div class="form-row">
@@ -451,11 +441,11 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-field" style="flex: 2;">
+                    <div class="form-field form-field-name-wide">
                         <label>Name of Guardian (if applicable):</label>
                         <span class="field-value"><?= formatValue($family['guardian_name'] ?? '') ?></span>
                     </div>
-                    <div class="form-field" style="max-width: 60px;">
+                    <div class="form-field form-field-age-narrow">
                         <label>Age:</label>
                         <span class="field-value"><?= formatValue($family['guardian_age'] ?? '') ?></span>
                     </div>
@@ -537,7 +527,6 @@
                 <div class="form-row">
                     <div class="form-field full-width">
                         <label>2. How would you describe your family?</label>
-
                         <span class="field-value"><?= $familyDesc ?></span>
                     </div>
                 </div>
@@ -545,7 +534,6 @@
                 <div class="form-row">
                     <div class="form-field full-width">
                         <label>3. Where do you live right now?</label>
-
                         <span class="field-value"><?= $residenceType ?></span>
                     </div>
                 </div>
@@ -553,7 +541,6 @@
                 <div class="form-row">
                     <div class="form-field full-width">
                         <label>4. Describe your living condition.</label>
-
                         <span class="field-value"><?= $livingCondition ?></span>
                     </div>
                 </div>
@@ -561,7 +548,6 @@
                 <div class="form-row">
                     <div class="form-field full-width">
                         <label>5. Do you have any physical/health condition/s?</label>
-
                         <span class="field-value"><?= $healthCondition ?></span>
                     </div>
                 </div>
@@ -569,7 +555,6 @@
                 <div class="form-row">
                     <div class="form-field full-width">
                         <label>6. Have you undergone intervention/treatment with a psychologist/psychiatrist?</label>
-
                         <span class="field-value"><?= $psychTreatment ?></span>
                     </div>
                 </div>
@@ -580,10 +565,10 @@
                 <h3 class="section-title">SEMINARS/ACTIVITIES YOU WANT TO AVAIL FROM THE GUIDANCE SERVICES UNIT</h3>
 
                 <?php if (!empty($gcsActivitiesList)): ?>
-                    <div style="margin-top: 10px; font-size: 13px; ">
-                        <div style="text-decoration: underline; margin-bottom: 5px;">Selected Activities:</div>
+                    <div class="gcs-activities-list">
+                        <div class="gcs-activities-heading">Selected Activities:</div>
                         <?php foreach ($gcsActivitiesList as $activity): ?>
-                            <div style="margin-bottom: 3px; font-weight: bold;">• <?= esc($activity) ?></div>
+                            <div class="gcs-activity-item">• <?= esc($activity) ?></div>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
