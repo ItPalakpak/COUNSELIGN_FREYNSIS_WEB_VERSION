@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const appointmentsList = document.getElementById('appointmentsList');
     const statusFilter = document.getElementById('statusFilter');
     const dateRangeFilter = document.getElementById('dateRangeFilter');
+    const viewToggleBtn = document.getElementById('viewToggleBtn');
     
     // Status count elements
     const pendingCountEl = document.getElementById('pendingCount');
@@ -20,6 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let appointments = [];
     // Current selected appointment ID
     let currentAppointmentId = null;
+    let viewAllMode = false;
+
+    if (statusFilter) {
+        statusFilter.value = 'pending';
+    }
     
     // Load appointments data
     function loadAppointments() {
@@ -216,15 +222,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Display appointments based on filters
     function displayAppointments(appointmentsData) {
-        const selectedStatus = statusFilter.value;
         const selectedDateRange = dateRangeFilter.value;
-        
-        // Filter appointments based on selected filters
-        const filteredAppointments = appointmentsData.filter(app => {
-            const statusMatch = selectedStatus === 'all' || app.status === selectedStatus;
-            const dateMatch = isDateInRange(app.preferred_date, selectedDateRange);
-            return statusMatch && dateMatch;
-        });
+        let filteredAppointments = appointmentsData.filter(app => isDateInRange(app.preferred_date, selectedDateRange));
+
+        if (!viewAllMode) {
+            const selectedStatus = statusFilter.value;
+            filteredAppointments = filteredAppointments.filter(app => selectedStatus === 'all' || app.status === selectedStatus);
+        }
         
         // Show no appointments message if no appointments found
         if (filteredAppointments.length === 0) {
@@ -232,22 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Sort appointments based on status and timestamp
-        // For pending appointments, sort by created_at (when received)
-        // For approved/rejected/completed, sort by updated_at (when status was changed)
-        const sortedAppointments = filteredAppointments.sort((a, b) => {
-            // Determine which timestamp to use based on status
-            const aTimestamp = a.status === 'pending' ? 
-                new Date(a.created_at).getTime() : 
-                new Date(a.updated_at || a.created_at).getTime();
-            
-            const bTimestamp = b.status === 'pending' ? 
-                new Date(b.created_at).getTime() : 
-                new Date(b.updated_at || b.created_at).getTime();
-            
-            // Sort in descending order (latest first)
-            return bTimestamp - aTimestamp;
-        });
+        const sortedAppointments = filteredAppointments.sort(compareAppointmentsChronologically);
         
         // Clear appointments list
         appointmentsList.innerHTML = '';
@@ -307,16 +296,21 @@ document.addEventListener('DOMContentLoaded', function() {
         noAppointmentsMessage.classList.remove('d-none');
         
         // Update message based on filter
-        const selectedStatus = statusFilter.value;
         const selectedDateRange = dateRangeFilter.value;
-        
         let message = 'No appointments found';
         
-        if (selectedStatus !== 'all' || selectedDateRange !== 'all') {
-            message += ' with the selected filters';
+        if (viewAllMode) {
+            if (selectedDateRange !== 'all') {
+                message += ' for the selected date filter';
+            }
+        } else {
+            const selectedStatus = statusFilter.value;
+            if (selectedStatus !== 'all' || selectedDateRange !== 'all') {
+                message += ' with the selected filters';
+            }
         }
         
-        noAppointmentsMessage.querySelector('p').textContent = message + '.';
+        noAppointmentsMessage.querySelector('p').textContent = `${message}.`;
     }
     
     // Open appointment details modal
@@ -849,11 +843,76 @@ document.addEventListener('DOMContentLoaded', function() {
                 return 'bg-secondary';
         }
     }
+
+    function compareAppointmentsChronologically(a, b) {
+        const aIsPending = a.status === 'pending';
+        const bIsPending = b.status === 'pending';
+        if (aIsPending && !bIsPending) return -1;
+        if (!aIsPending && bIsPending) return 1;
+
+        const aChrono = getChronologicalTimestamp(a);
+        const bChrono = getChronologicalTimestamp(b);
+        if (aChrono !== bChrono) return aChrono - bChrono;
+
+        const aCreated = new Date(a.created_at).getTime();
+        const bCreated = new Date(b.created_at).getTime();
+        return aCreated - bCreated;
+    }
+
+    function getChronologicalTimestamp(appointment) {
+        const dateValue = new Date(appointment.preferred_date);
+        if (Number.isNaN(dateValue.getTime())) {
+            return new Date(appointment.created_at).getTime();
+        }
+        const minutesOffset = extractStartMinutes(appointment.preferred_time);
+        return dateValue.getTime() + (minutesOffset * 60000);
+    }
+
+    function extractStartMinutes(preferredTime) {
+        if (!preferredTime || typeof preferredTime !== 'string') return 0;
+        const startSegment = preferredTime.split('-')[0]?.trim();
+        if (!startSegment) return 0;
+        const normalized = startSegment.replace(/\s+/g, ' ').toUpperCase();
+        const meridiemMatch = normalized.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/);
+        if (meridiemMatch){
+            let hours = parseInt(meridiemMatch[1], 10) % 12;
+            const minutes = parseInt(meridiemMatch[2], 10) || 0;
+            if (meridiemMatch[3] === 'PM') hours += 12;
+            return (hours * 60) + minutes;
+        }
+        const twentyFourMatch = normalized.match(/^(\d{1,2}):(\d{2})$/);
+        if (twentyFourMatch){
+            const hours = parseInt(twentyFourMatch[1], 10) || 0;
+            const minutes = parseInt(twentyFourMatch[2], 10) || 0;
+            return (hours * 60) + minutes;
+        }
+        return 0;
+    }
+
+    function updateViewToggleState(){
+        if (!viewToggleBtn) return;
+        if (viewAllMode){
+            viewToggleBtn.textContent = 'Show Pending Only';
+            viewToggleBtn.classList.remove('btn-outline-primary');
+            viewToggleBtn.classList.add('btn-primary');
+            if (statusFilter){
+                statusFilter.disabled = true;
+            }
+        } else {
+            viewToggleBtn.textContent = 'View All Appointments';
+            viewToggleBtn.classList.remove('btn-primary');
+            viewToggleBtn.classList.add('btn-outline-primary');
+            if (statusFilter){
+                statusFilter.disabled = false;
+                statusFilter.value = 'pending';
+            }
+        }
+    }
     
     // Filter functions
     function filterAppointments() {
         const dateFilter = document.getElementById('dateRangeFilter').value;
-        const statusFilter = document.getElementById('statusFilter').value;
+        const statusFilterValue = document.getElementById('statusFilter').value;
         const now = new Date();
         
         return appointments.filter(appointment => {
@@ -879,8 +938,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })();
 
-            const meetsStatusFilter = statusFilter === 'all' || 
-                                   appointment.status.toLowerCase() === statusFilter.toLowerCase();
+            const meetsStatusFilter = viewAllMode || statusFilterValue === 'all' || 
+                                   appointment.status.toLowerCase() === statusFilterValue.toLowerCase();
 
             return meetsDateFilter && meetsStatusFilter;
         });
@@ -937,9 +996,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('statusFilter').addEventListener('change', function() {
+        if (viewAllMode) {
+            return;
+        }
         const filteredAppointments = filterAppointments();
         displayAppointments(filteredAppointments);
     });
+
+    if (viewToggleBtn){
+        updateViewToggleState();
+        viewToggleBtn.addEventListener('click', function(){
+            viewAllMode = !viewAllMode;
+            updateViewToggleState();
+            displayAppointments(appointments);
+        });
+    }
 
     // Add event delegation for modal buttons
     document.getElementById('appointmentDetailsModal').addEventListener('click', function(event) {

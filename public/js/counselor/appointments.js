@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const appointmentsList = document.getElementById('appointmentsList');
     const statusFilter = document.getElementById('statusFilter');
     const dateRangeFilter = document.getElementById('dateRangeFilter');
+    const viewToggleBtn = document.getElementById('viewToggleBtn');
 
     const pendingCountEl = document.getElementById('pendingCount');
     const approvedCountEl = document.getElementById('approvedCount');
@@ -15,6 +16,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let appointments = [];
     let currentAppointmentId = null;
+    let viewAllMode = false;
+
+    if (statusFilter) {
+        statusFilter.value = 'pending';
+    }
 
     function loadAppointments() {
         const timestamp = new Date().getTime();
@@ -75,20 +81,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function displayAppointments(data) {
-        const selectedStatus = statusFilter.value;
         const selectedDateRange = dateRangeFilter.value;
-        const filtered = data.filter(app => {
-            const statusMatch = selectedStatus === 'all' || app.status === selectedStatus;
-            const dateMatch = isDateInRange(app.preferred_date, selectedDateRange);
-            return statusMatch && dateMatch;
-        });
+        let filtered = data.filter(app => isDateInRange(app.preferred_date, selectedDateRange));
+
+        if (!viewAllMode) {
+            const selectedStatus = statusFilter.value;
+            filtered = filtered.filter(app => selectedStatus === 'all' || app.status === selectedStatus);
+        }
+
         if (filtered.length === 0) { showNoAppointmentsMessage(); return; }
         appointmentsList.innerHTML = '';
-        filtered.sort((a,b)=>{
-            const at = a.status==='pending'? new Date(a.created_at).getTime(): new Date(a.updated_at||a.created_at).getTime();
-            const bt = b.status==='pending'? new Date(b.created_at).getTime(): new Date(b.updated_at||b.created_at).getTime();
-            return bt-at;
-        }).forEach(app=>appointmentsList.appendChild(createAppointmentCard(app)));
+        filtered.sort(compareAppointmentsChronologically)
+            .forEach(app=>appointmentsList.appendChild(createAppointmentCard(app)));
         appointmentsList.classList.remove('d-none');
         noAppointmentsMessage.classList.add('d-none');
     }
@@ -118,10 +122,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function showNoAppointmentsMessage(){
         appointmentsList.classList.add('d-none');
         noAppointmentsMessage.classList.remove('d-none');
-        const selectedStatus = statusFilter.value; const selectedDateRange = dateRangeFilter.value;
+        const selectedDateRange = dateRangeFilter.value;
         let message = 'No appointments found';
-        if (selectedStatus !== 'all' || selectedDateRange !== 'all') { message += ' with the selected filters'; }
-        noAppointmentsMessage.querySelector('p').textContent = message + '.';
+        if (viewAllMode) {
+            if (selectedDateRange !== 'all') {
+                message += ' for the selected date filter';
+            }
+        } else {
+            const selectedStatus = statusFilter.value;
+            if (selectedStatus !== 'all' || selectedDateRange !== 'all') { message += ' with the selected filters'; }
+        }
+        noAppointmentsMessage.querySelector('p').textContent = `${message}.`;
     }
 
     function openAppointmentDetails(appointment){
@@ -225,14 +236,92 @@ document.addEventListener('DOMContentLoaded', function() {
         button.innerHTML = `<i class="fas fa-check me-1"></i>${originalText}`;
     }
 
+    function compareAppointmentsChronologically(a, b){
+        const aIsPending = a.status === 'pending';
+        const bIsPending = b.status === 'pending';
+        if (aIsPending && !bIsPending) return -1;
+        if (!aIsPending && bIsPending) return 1;
+
+        const aChrono = getChronologicalTimestamp(a);
+        const bChrono = getChronologicalTimestamp(b);
+        if (aChrono !== bChrono) return aChrono - bChrono;
+
+        const aCreated = new Date(a.created_at).getTime();
+        const bCreated = new Date(b.created_at).getTime();
+        return aCreated - bCreated;
+    }
+
+    function getChronologicalTimestamp(appointment){
+        const dateValue = new Date(appointment.preferred_date);
+        if (Number.isNaN(dateValue.getTime())) {
+            return new Date(appointment.created_at).getTime();
+        }
+        const minutesOffset = extractStartMinutes(appointment.preferred_time);
+        return dateValue.getTime() + (minutesOffset * 60000);
+    }
+
+    function extractStartMinutes(preferredTime){
+        if (!preferredTime || typeof preferredTime !== 'string') return 0;
+        const startSegment = preferredTime.split('-')[0]?.trim();
+        if (!startSegment) return 0;
+        const normalized = startSegment.replace(/\s+/g, ' ').toUpperCase();
+        const meridiemMatch = normalized.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/);
+        if (meridiemMatch){
+            let hours = parseInt(meridiemMatch[1], 10) % 12;
+            const minutes = parseInt(meridiemMatch[2], 10) || 0;
+            if (meridiemMatch[3] === 'PM') hours += 12;
+            return (hours * 60) + minutes;
+        }
+        const twentyFourMatch = normalized.match(/^(\d{1,2}):(\d{2})$/);
+        if (twentyFourMatch){
+            const hours = parseInt(twentyFourMatch[1], 10) || 0;
+            const minutes = parseInt(twentyFourMatch[2], 10) || 0;
+            return (hours * 60) + minutes;
+        }
+        return 0;
+    }
+
     function formatDate(d){ return new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}); }
     function formatDateTime(dt){ return new Date(dt).toLocaleString(undefined,{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
     function capitalizeFirstLetter(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
     function getStatusBadgeClass(status){ switch(status){ case 'pending': return 'bg-warning text-dark'; case 'approved': return 'bg-success'; case 'rejected': return 'bg-danger'; case 'completed': return 'bg-info'; case 'cancelled': return 'bg-secondary'; default: return 'bg-secondary'; } }
 
+    function updateViewToggleState(){
+        if (!viewToggleBtn) return;
+        if (viewAllMode){
+            viewToggleBtn.textContent = 'Show Pending Only';
+            viewToggleBtn.classList.remove('btn-outline-primary');
+            viewToggleBtn.classList.add('btn-primary');
+            if (statusFilter){
+                statusFilter.disabled = true;
+            }
+        } else {
+            viewToggleBtn.textContent = 'View All Appointments';
+            viewToggleBtn.classList.remove('btn-primary');
+            viewToggleBtn.classList.add('btn-outline-primary');
+            if (statusFilter){
+                statusFilter.disabled = false;
+                statusFilter.value = 'pending';
+            }
+        }
+    }
+
     // Filter event listeners
     document.getElementById('dateRangeFilter').addEventListener('change', function(){ displayAppointments(appointments); });
-    document.getElementById('statusFilter').addEventListener('change', function(){ displayAppointments(appointments); });
+    document.getElementById('statusFilter').addEventListener('change', function(){ 
+        if (!viewAllMode) {
+            displayAppointments(appointments); 
+        }
+    });
+
+    if (viewToggleBtn){
+        updateViewToggleState();
+        viewToggleBtn.addEventListener('click', function(){
+            viewAllMode = !viewAllMode;
+            updateViewToggleState();
+            displayAppointments(appointments);
+        });
+    }
 
     // Appointment details modal event delegation for approve/reject buttons
     document.getElementById('appointmentDetailsModal').addEventListener('click', function(event){

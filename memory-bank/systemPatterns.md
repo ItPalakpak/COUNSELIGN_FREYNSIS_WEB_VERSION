@@ -151,6 +151,18 @@
 - **Data Flow**: Automatic student/counselor information retrieval for email content
 - **Loading States**: Professional loading animations for all modal interactions
 
+## Admin User Management Filters
+
+**Purpose**: Keep the `admin/view-users` table searchable and filterable even while the page polls for updated activity statuses.
+
+**Data Source**:
+- `GET admin/users/api` → `Admin\UsersApi::getAllUsers` (includes `is_online`, `activity_status`, and nested student data)
+
+**Key Behaviours**:
+- `public/js/admin/view_users.js` normalizes `is_online` values from the API into strict booleans before rendering.
+- Search input now inspects student first, middle, and last names alongside IDs, usernames, emails, and course/year codes for broader matching.
+- The status filter uses the normalized boolean to separate active vs inactive rows reliably, and the current filter/search criteria are re-applied every time the background refresh runs so the list no longer snaps back to the unfiltered state.
+
 ## Follow-up Session Management Pattern
 
 **Purpose**: Comprehensive follow-up session management with edit functionality and email notifications
@@ -400,6 +412,24 @@ Rejection Flow (Counselor Appointments):
   2. Enter reason → click `#confirmRejectionBtn` → open `#confirmationModal` with action `reject` and carry `data-reason`.
   3. Click `#confirmActionBtn` → call `updateAppointmentStatus(id, 'rejected', reason)`.
 - Direct auto-reject from footer click is removed to prevent bypassing reason capture.
+
+## Appointment List Prioritisation Pattern
+
+**Purpose**: Ensure counselors and admins see the most urgent appointments first while keeping chronological context for all records.
+
+**Key Behaviours**:
+- Appointment filters default to `Pending` so newly submitted requests are surfaced immediately.
+- A dedicated `View All Appointments` toggle beside the status select lifts the status filter (while keeping the date filter) so every status appears without manual dropdown changes.
+- When the toggle is active the button label switches to `Show Pending Only`, the status select is disabled, and the list reverts to pending-only when toggled back.
+- Sorting logic always places pending entries before other statuses and orders every entry chronologically using the appointment’s preferred date/time (with safe fallbacks to `created_at`).
+
+**Implementation Files**:
+- Counselor: `app/Views/counselor/appointments.php`, `public/js/counselor/appointments.js`
+- Admin: `app/Views/admin/appointments.php`, `public/js/admin/appointments.js`
+
+**Notes**:
+- Time parsing extracts the first segment of the preferred time range and supports both 12-hour (AM/PM) and 24-hour strings.
+- The toggle deliberately disables the status select to avoid conflicting filters while in “view all” mode.
 
 Admin Scheduled Appointments Calendar:
 - Updated `app/Views/admin/scheduled_appointments.php` to use a two-column layout `csq-layout` with a right sidebar mini-calendar identical to the counselor view.

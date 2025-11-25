@@ -194,68 +194,70 @@ document.addEventListener("DOMContentLoaded", function () {
     const notificationsDropdown = document.getElementById(
       "notificationsDropdown"
     );
-    const notificationBadge = document.getElementById("notificationBadge");
 
-    if (notificationIcon && notificationsDropdown) {
-      notificationsDropdown.style.display = "none";
-
-      notificationIcon.addEventListener("click", function (e) {
-        e.stopPropagation();
-        if (
-          notificationsDropdown.style.display === "none" ||
-          !notificationsDropdown.style.display
-        ) {
-          const iconRect = notificationIcon.getBoundingClientRect();
-          const dropdownWidth = Math.min(320, window.innerWidth - 20);
-          let right = window.innerWidth - iconRect.right;
-          // Ensure fully visible horizontally
-          if (right + dropdownWidth > window.innerWidth) {
-            right = 10; // fallback padding from right edge
-          }
-          notificationsDropdown.style.top =
-            Math.min(
-              iconRect.bottom + window.scrollY + 10,
-              window.scrollY +
-                window.innerHeight -
-                notificationsDropdown.offsetHeight -
-                10
-            ) + "px";
-          notificationsDropdown.style.right = right + "px";
-          notificationsDropdown.style.display = "block";
-          loadNotifications();
-        } else {
-          notificationsDropdown.style.display = "none";
-        }
-      });
-
-      document.addEventListener("click", function (e) {
-        if (
-          notificationsDropdown.style.display === "block" &&
-          !notificationsDropdown.contains(e.target) &&
-          e.target !== notificationIcon
-        ) {
-          notificationsDropdown.style.display = "none";
-        }
-      });
-
-      // Reposition on resize/scroll to keep it on screen
-      window.addEventListener("resize", function () {
-        if (notificationsDropdown.style.display === "block") {
-          const iconRect = notificationIcon.getBoundingClientRect();
-          const dropdownWidth = Math.min(320, window.innerWidth - 20);
-          let right = window.innerWidth - iconRect.right;
-          if (right + dropdownWidth > window.innerWidth) {
-            right = 10;
-          }
-          notificationsDropdown.style.right = right + "px";
-          notificationsDropdown.style.width = dropdownWidth + "px";
-        }
-      });
-
-      notificationsDropdown.addEventListener("click", function (e) {
-        e.stopPropagation();
-      });
+    if (!notificationIcon || !notificationsDropdown) {
+      return;
     }
+
+    notificationsDropdown.style.display = "none";
+
+    const positionDropdown = () => {
+      if (notificationsDropdown.style.display !== "block") {
+        return;
+      }
+
+      const iconRect = notificationIcon.getBoundingClientRect();
+      const dropdownWidth = Math.min(320, window.innerWidth - 20);
+      notificationsDropdown.style.width = dropdownWidth + "px";
+      notificationsDropdown.style.right = "auto";
+
+      const dropdownHeight = notificationsDropdown.offsetHeight || 0;
+      const desiredTop = iconRect.bottom + 10;
+      const maxTop = window.innerHeight - dropdownHeight - 10;
+      const top = Math.max(10, Math.min(desiredTop, maxTop));
+      notificationsDropdown.style.top = top + "px";
+
+      let left = iconRect.right - dropdownWidth;
+      left = Math.min(left, window.innerWidth - dropdownWidth - 10);
+      left = Math.max(left, 10);
+      notificationsDropdown.style.left = left + "px";
+    };
+
+    const closeDropdown = () => {
+      notificationsDropdown.style.display = "none";
+    };
+
+    const openDropdown = () => {
+      notificationsDropdown.style.display = "block";
+      positionDropdown();
+      loadNotifications();
+    };
+
+    notificationIcon.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (notificationsDropdown.style.display === "block") {
+        closeDropdown();
+      } else {
+        openDropdown();
+      }
+    });
+
+    notificationsDropdown.addEventListener("click", function (e) {
+      e.stopPropagation();
+    });
+
+    document.addEventListener("click", function (e) {
+      if (
+        notificationsDropdown.style.display === "block" &&
+        !notificationsDropdown.contains(e.target) &&
+        e.target !== notificationIcon
+      ) {
+        closeDropdown();
+      }
+    });
+
+    window.addEventListener("resize", positionDropdown);
+    window.addEventListener("scroll", positionDropdown);
   }
 
   function updateNotificationCounter(count) {

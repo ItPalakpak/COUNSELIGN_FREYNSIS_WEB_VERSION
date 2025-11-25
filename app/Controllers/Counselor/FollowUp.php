@@ -481,7 +481,7 @@ public function createFollowUp()
             // Update last_activity for creating follow-up appointment
             $activityHelper = new UserActivityHelper();
             $activityHelper->updateCounselorActivity($counselorId, 'create_follow_up');
-            $activityHelper->updateStudentActivity($studentId, 'follow_up_created');
+            //$activityHelper->updateStudentActivity($studentId, 'follow_up_created');
             
             // Restore original timezone
             $this->restoreTimezone($originalTimezone);
@@ -560,7 +560,7 @@ public function createFollowUp()
             // Update last_activity for completing follow-up
             $activityHelper = new UserActivityHelper();
             $activityHelper->updateCounselorActivity($counselorId, 'complete_follow_up');
-            $activityHelper->updateStudentActivity($sessionRow['student_id'], 'follow_up_completed');
+            //$activityHelper->updateStudentActivity($sessionRow['student_id'], 'follow_up_completed');
 
             // Restore original timezone
             $this->restoreTimezone($originalTimezone);
@@ -638,7 +638,7 @@ public function createFollowUp()
             // Update last_activity for cancelling follow-up
             $activityHelper = new UserActivityHelper();
             $activityHelper->updateCounselorActivity($counselorId, 'cancel_follow_up');
-            $activityHelper->updateStudentActivity($sessionRow['student_id'], 'follow_up_cancelled');
+            //$activityHelper->updateStudentActivity($sessionRow['student_id'], 'follow_up_cancelled');
 
             // Restore original timezone
             $this->restoreTimezone($originalTimezone);
@@ -735,7 +735,7 @@ public function createFollowUp()
                 // Update last_activity for editing follow-up
                 $activityHelper = new UserActivityHelper();
                 $activityHelper->updateCounselorActivity($counselorId, 'edit_follow_up');
-                $activityHelper->updateStudentActivity($sessionRow['student_id'], 'follow_up_edited');
+                //$activityHelper->updateStudentActivity($sessionRow['student_id'], 'follow_up_edited');
 
                 // Restore original timezone
                 $this->restoreTimezone($originalTimezone);

@@ -106,14 +106,7 @@
         </header>
 
         <main>
-            <div class="container-fluid px-4">
-                <div class="dashboard-header my-4">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h2 class="page-title"><i class="fas fa-boxes me-2"></i>Appointments Management</h2>
-                        </div>
-                    </div>
-                </div>
+            <div class="container py-5">
 
                 <div class="row status-cards mb-4">
                     <div class="col-md-2 col-sm-6 mb-3">
@@ -197,7 +190,7 @@
                     <div class="appointments-header">
                         <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Appointments List</h5>
                         <div class="filter-controls d-flex align-items-center">
-                            <label for="dateRangeFilter" class="me-2">Date:</label>
+                        
                             <select class="form-select" id="dateRangeFilter">
                                 <option value="all">All Dates</option>
                                 <option value="today">Today</option>
@@ -206,15 +199,22 @@
                                 <option value="nextMonth">Next Month</option>
                                 <option value="past">Past Appointments</option>
                             </select>
-                            <label for="statusFilter" class="me-2">Status:</label>
-                            <select id="statusFilter" class="form-select form-select-sm">
-                                <option value="all">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
+    
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <select id="statusFilter" class="form-select form-select-sm">
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending" selected>Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+
+                            </div>
+
+                            <button type="button" id="viewToggleBtn" class="btn btn-outline-primary btn-sm">
+                                View All
+                            </button>
                         </div>
                     </div>
 
@@ -425,14 +425,6 @@
             </div>
         </div>
     </div>
-
-    <footer>
-        <div class="footer-content">
-            <div class="copyright">
-                <b>© 2025 Counselign Team. All rights reserved.</b>
-            </div>
-        </div>
-    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

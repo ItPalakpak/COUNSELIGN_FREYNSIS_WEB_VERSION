@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="<?= base_url('css/counselor/header.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/utils/sidebar.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/utils/customCalendarPicker.css') ?>">
-        </head>
+</head>
 
 <body>
     <aside class="sidebar" id="uniSidebar">
@@ -103,49 +103,52 @@
         </header>
 
 
-        <main>
-            <div class="container-fluid px-2">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="follow-up-container">
-
-                            <!-- Completed Appointments Section -->
-                            <div class="completed-appointments-section">
-                                <div class="section-header-bar">
-                                    <div class="section-title-wrapper">
-                                        <h3 class="subsection-title mb-0">
-                                            <i class="fas fa-check-circle me-2"></i>
-                                            Completed Appointments
-                                        </h3>
-                                        <p class="section-description">View and manage follow-up sessions for completed appointments</p>
-                                    </div>
-                                    <div class="search-container">
-                                        <div class="input-group search-wrapper">
-                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                            <input type="text" class="form-control" id="searchInput" placeholder="Search appointments...">
-                                            <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="completedAppointmentsContainer" class="appointments-grid">
-                                    <!-- Completed appointments will be loaded here -->
-                                </div>
-                                <div id="noCompletedAppointments" class="no-data-message" style="display: none;">
-                                    <i class="fas fa-info-circle"></i>
-                                    <p>No completed appointments found. Complete some appointments to create follow-up sessions.</p>
-                                </div>
-                                <div id="noSearchResults" class="no-data-message" style="display: none;">
-                                    <i class="fas fa-search"></i>
-                                    <p>No appointments found matching your search criteria.</p>
+        
+            <div class="container py-5">
+                <!-- Completed Appointments Section -->
+                <div class="completed-appointments-section">
+                    <div class="section-header-bar">
+                        <div class="section-title-wrapper">
+                            <h3 class="subsection-title mb-0">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Completed Appointments
+                            </h3>
+                            <p class="section-description">View and manage follow-up sessions for completed appointments</p>
+                        </div>
+                        <div class="section-actions">
+                            <div class="search-container">
+                                <div class="input-group search-wrapper">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control" id="searchInput" placeholder="Search appointments...">
+                                    <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
+                            <button type="button"
+                                class="btn btn-outline-primary view-all-toggle-btn d-none"
+                                id="toggleCompletedAppointmentsBtn"
+                                aria-expanded="false"
+                                aria-controls="completedAppointmentsContainer">
+                                <i class="fas fa-layer-group me-2"></i>
+                                View All
+                            </button>
                         </div>
+                    </div>
+                    <div id="completedAppointmentsContainer" class="appointments-grid">
+                        <!-- Completed appointments will be loaded here -->
+                    </div>
+                    <div id="noCompletedAppointments" class="no-data-message" style="display: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <p>No completed appointments found. Complete some appointments to create follow-up sessions.</p>
+                    </div>
+                    <div id="noSearchResults" class="no-data-message" style="display: none;">
+                        <i class="fas fa-search"></i>
+                        <p>No appointments found matching your search criteria.</p>
                     </div>
                 </div>
             </div>
-        </main>
+        
     </div>
 
     <!-- Follow-up Sessions Modal -->
@@ -157,7 +160,13 @@
                         <i class="fas fa-calendar-alt me-2"></i>
                         Follow-up Sessions
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-header-actions">
+                    <button type="button" class="btn btn-warning me-2" id="createNewFollowUpBtn">
+                        <i class="fas fa-plus me-2"></i>
+                        Create New Follow-up
+                    </button>
+                    <button type="button" class="btn btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
                 </div>
                 <div class="modal-body">
                     <div id="followUpSessionsContainer">
@@ -169,10 +178,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="createNewFollowUpBtn">
-                        <i class="fas fa-plus me-2"></i>
-                        Create New Follow-up
-                    </button>
+                    
                 </div>
             </div>
         </div>

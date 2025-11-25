@@ -326,12 +326,7 @@
 
                                     <!-- Additional Filters -->
                                     <div class="row g-3 mb-4">
-                                        <div class="col-md-4">
-                                            <label for="exportStudentFilter" class="form-label">Student</label>
-                                            <select class="form-select" id="exportStudentFilter">
-                                                <option value="">All Students</option>
-                                            </select>
-                                        </div>
+
                                         <div class="col-md-4">
                                             <label for="exportCourseFilter" class="form-label">Course</label>
                                             <select class="form-select" id="exportCourseFilter">
@@ -359,7 +354,14 @@
                                                 <option value="IV">IV</option>
                                             </select>
                                         </div>
+                                        <div class="col-md-4">
+                                            <label for="exportStudentFilter" class="form-label">Student</label>
+                                            <select class="form-select" id="exportStudentFilter">
+                                                <option value="">All Students</option>
+                                            </select>
+                                        </div>
                                     </div>
+
                                 </div>
                                 <div class="modal-footer">
                                     <button class="btn btn-outline-secondary" id="clearAllFilters">
@@ -526,7 +528,7 @@
     </div>
 
 
-    
+
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

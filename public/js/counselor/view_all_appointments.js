@@ -545,6 +545,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const exportStudentFilter = document.getElementById('exportStudentFilter');
     const exportCourseFilter = document.getElementById('exportCourseFilter');
     const exportYearLevelFilter = document.getElementById('exportYearLevelFilter');
+    const studentFilterState = {
+        students: [],
+        academicMap: {}
+    };
     const clearAllFiltersBtn = document.getElementById('clearAllFilters');
     const clearDateRangeBtn = document.getElementById('clearDateRange');
     const applyFiltersBtn = document.getElementById('applyFilters');
@@ -553,6 +557,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (clearAllFiltersBtn) clearAllFiltersBtn.addEventListener('click', clearAllFilters);
     if (clearDateRangeBtn) clearDateRangeBtn.addEventListener('click', clearDateRange);
     if (applyFiltersBtn) applyFiltersBtn.addEventListener('click', applyFilters);
+    if (exportCourseFilter) exportCourseFilter.addEventListener('change', handleCourseYearFilterChange);
+    if (exportYearLevelFilter) exportYearLevelFilter.addEventListener('change', handleCourseYearFilterChange);
 
     // Load filter data on page load
     loadFilterData();
@@ -823,42 +829,84 @@ document.addEventListener('DOMContentLoaded', function () {
     function clearAllFilters() {
         if (exportStartDate) exportStartDate.value = '';
         if (exportEndDate) exportEndDate.value = '';
-        if (exportStudentFilter) exportStudentFilter.value = '';
         if (exportCourseFilter) exportCourseFilter.value = '';
         if (exportYearLevelFilter) exportYearLevelFilter.value = '';
+        if (exportStudentFilter) exportStudentFilter.value = '';
+        updateStudentFilterOptions();
+    }
+
+    function handleCourseYearFilterChange() {
+        updateStudentFilterOptions();
+    }
+
+    function shouldIncludeStudentByFilters(studentId) {
+        const courseFilter = exportCourseFilter ? exportCourseFilter.value : '';
+        const yearFilter = exportYearLevelFilter ? exportYearLevelFilter.value : '';
+        const academic = studentFilterState.academicMap[String(studentId)] || {};
+
+        if (courseFilter && academic.course !== courseFilter) {
+            return false;
+        }
+        if (yearFilter && academic.year_level !== yearFilter) {
+            return false;
+        }
+        return true;
+    }
+
+    function updateStudentFilterOptions() {
+        if (!exportStudentFilter) return;
+
+        const previouslySelected = exportStudentFilter.value;
+        exportStudentFilter.innerHTML = '<option value="">All Students</option>';
+
+        const filteredStudents = studentFilterState.students.filter(student =>
+            shouldIncludeStudentByFilters(student.student_id)
+        );
+
+        filteredStudents.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student.student_id;
+            option.textContent = student.full_name;
+            exportStudentFilter.appendChild(option);
+        });
+
+        const stillValid = filteredStudents.some(student => String(student.student_id) === previouslySelected);
+        exportStudentFilter.value = stillValid ? previouslySelected : '';
     }
 
     function loadFilterData() {
-        // Load students
-        fetch((window.BASE_URL || '/') + 'counselor/filter-data/students')
+        const studentsPromise = fetch((window.BASE_URL || '/') + 'counselor/filter-data/students')
             .then(response => response.json())
             .then(data => {
-                if (data.success && exportStudentFilter) {
-                    exportStudentFilter.innerHTML = '<option value="">All Students</option>';
-                    data.data.forEach(student => {
-                        const option = document.createElement('option');
-                        option.value = student.student_id;
-                        option.textContent = student.full_name;
-                        exportStudentFilter.appendChild(option);
-                    });
+                if (data && data.success) {
+                    studentFilterState.students = data.data || [];
+                } else {
+                    studentFilterState.students = [];
                 }
             })
-            .catch(error => console.error('Error loading students:', error));
+            .catch(error => {
+                console.error('Error loading students:', error);
+                studentFilterState.students = [];
+            });
 
-        // Load academic map for course/year filtering in exports (by student_id)
-        fetch((window.BASE_URL || '/') + 'counselor/filter-data/student-academic-map')
+        const academicMapPromise = fetch((window.BASE_URL || '/') + 'counselor/filter-data/student-academic-map')
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (data && data.success) {
+                    studentFilterState.academicMap = data.data || {};
                     window.__studentAcademicMap = data.data || {};
                 } else {
+                    studentFilterState.academicMap = {};
                     window.__studentAcademicMap = {};
                 }
             })
             .catch(error => {
                 console.error('Error loading academic map:', error);
+                studentFilterState.academicMap = {};
                 window.__studentAcademicMap = {};
             });
+
+        Promise.allSettled([studentsPromise, academicMapPromise]).then(updateStudentFilterOptions);
     }
 
     async function applyFilters() {

@@ -120,14 +120,24 @@
                         </h3>
                         <p class="section-description">View follow-up sessions for all completed appointments</p>
                     </div>
-                    <div class="search-container">
-                        <div class="input-group search-wrapper">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" class="form-control" id="searchInput" placeholder="Search appointments...">
-                            <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
-                                <i class="fas fa-times"></i>
-                            </button>
+                    <div class="section-actions">
+                        <div class="search-container">
+                            <div class="input-group search-wrapper">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search appointments...">
+                                <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
+                        <button type="button"
+                            class="btn btn-outline-primary view-all-toggle-btn d-none"
+                            id="toggleCompletedAppointmentsBtn"
+                            aria-expanded="false"
+                            aria-controls="completedAppointmentsContainer">
+                            <i class="fas fa-layer-group me-2"></i>
+                            View All
+                        </button>
                     </div>
                 </div>
                 <div id="completedAppointmentsContainer" class="appointments-grid">

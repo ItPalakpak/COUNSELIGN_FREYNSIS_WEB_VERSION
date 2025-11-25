@@ -3,6 +3,37 @@
 - Keep counselor IDs unchanged (>=3 alphanumeric still valid).
 
 ## Recent Changes
+- **2025-11-27 – Admin user table filter reliability**
+  - Normalized the `is_online` flag returned by `admin/users/api` and re-used the current search/status criteria after every background refresh so rows no longer jump back to the unfiltered list.
+  - Search now inspects student first/last names in addition to IDs, username, email, and course/year, while the status filter properly distinguishes active vs inactive users even when the API returns string values.
+  - File: `public/js/admin/view_users.js`.
+- **2025-11-25 – Pending appointment edit UX fix**
+  - Repaired `public/js/student/my_appointments.js` so that enabling edit immediately repopulates the Preferred Time select with all available slots for the current date/counselor while keeping the student's existing slot pinned as `current`.
+  - Ensures students can pick alternative slots again without first toggling the date, restoring pre-regression behaviour and keeping the preserved-time safeguards that prevent accidental clearing.
+  - Added chronological sorting for refreshed time slot options so drop-downs always list the earliest slots first while retaining the current value at the top.
+- **2025-11-25 – Counselor/Admin appointment list prioritisation**
+  - Both counselor and admin appointment dashboards now default to a pending-only view with a dedicated “View All Appointments” toggle located beside the status filter.
+  - Card lists sort pending items first and respect chronological order (preferred date/time) across all statuses to keep urgent work visible without losing temporal context.
+  - Files: `app/Views/counselor/appointments.php`, `app/Views/admin/appointments.php`, `public/js/counselor/appointments.js`, `public/js/admin/appointments.js`.
+- **2025-11-25 – PDS contact row width allocation**
+  - Ensured the religion, contact number, and email fields inside the personal background row follow a 35% / 20% / 45% width split so long email addresses stay on a single line.
+  - Added targeted classes in `app/Views/PDS_preview.php` plus supporting flex rules in `public/css/pds_preview.css` to keep the layout predictable without affecting other sections.
+- **2025-11-25 – Follow-up completed list collapse**
+  - Counselor and admin follow-up pages now load completed appointment cards in a single-row preview with a `View All` toggle beside the search field.
+  - New JS helpers hide/show rows responsively so counselors/admins can quickly scan the most recent completions before expanding the full grid.
+  - Files: `app/Views/counselor/follow_up.php`, `app/Views/admin/follow_up_sessions.php`, `public/js/counselor/follow_up.js`, `public/js/admin/follow_up_sessions.js`, `public/css/counselor/follow_up.css`, `public/css/admin/follow_up_sessions.css`.
+- **2025-11-26 – Student follow-up preview toggle**
+  - Students now see just the first four completed appointment cards with a shared `View All / View Less` button aligned beside the search field.
+  - CSS adds responsive section actions while JS mirrors the counselor/admin collapse helpers to keep the list scannable on load without losing access to the full history.
+  - Files: `app/Views/student/follow_up_sessions.php`, `public/js/student/follow_up_sessions.js`, `public/css/student/follow_up_sessions.css`.
+- **2025-11-25 – Counselor export filters tightened**
+  - `public/js/counselor/view_all_appointments.js` now filters the Export modal student dropdown based on the currently selected course and year level.
+  - Student options refresh whenever course/year filters change, and selections persist only when they still match both criteria to avoid invalid exports.
+  - The PDF/Excel generators continue to honor the same course/year constraints via the shared academic map so exported data mirrors the on-screen filters.
+- **2025-11-27 – Admin export filters aligned with counselor flow**
+  - `public/js/admin/view_all_appointments.js` now shares the same dependent student filter logic so admins only see students whose course/year match the active Export filters.
+  - Student options update reactively, and Clear All restores the full roster before counselors/year filters are reconsidered, preventing mismatched exports.
+  - The export pipeline continues to rely on the academic map, ensuring PDF/Excel output respects the combined filters in the modal.
 - Admin resource management:
   - Fixed 500 error when adding resources by storing the correct uploader identifier (`user_id_display`) and aligning model validation to accept alphanumeric IDs with proper joins to `users.user_id`.
   - Update/Delete operations now persist validation requirements by reusing existing `resource_type` and `uploaded_by` values during updates.
@@ -1592,6 +1623,10 @@ Next Steps
 - **ESTABLISHED CODING STANDARD**: Always separate HTML, CSS, and JavaScript into their respective files and folders for all future frontend development.
 
 ### Newly fixed
+- Counselor follow-up calendar now respects availability data:
+  - `public/js/utils/customCalendarPicker.js` switches to the existing `counselor/follow-up/availability` endpoint and uses booked-time data to detect full days.
+  - Follow-up create/edit modals once again disable days without schedules or with fully booked slots, matching the student scheduling behavior.
+- Student and counselor dashboard notification dropdowns now track the viewport rather than document scroll (`public/js/student/student_dashboard.js`, `public/js/counselor/counselor_dashboard.js`), keeping the panel anchored under the bell icon even when the page scrolls or resizes.
 - Counselor rejection reason modal auto-close and auto-reject bug:
   - Root cause: `public/js/counselor/appointments.js` attached a footer click handler in `updateModalButtons()` that directly invoked `updateAppointmentStatus(..., 'rejected')` when clicking `#rejectAppointmentBtn`, bypassing the rejection-reason flow.
   - Fix: Removed the auto-reject click binding from the pending-state footer; rejection now routes exclusively through the `rejectionReasonModal` → confirmation modal flow, preserving user input for the rejection reason.

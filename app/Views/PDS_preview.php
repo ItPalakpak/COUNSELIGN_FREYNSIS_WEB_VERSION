@@ -306,16 +306,16 @@
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-field">
+                <div class="form-row contact-email-row">
+                    <div class="form-field religion-field">
                         <label>Religion:</label>
                         <span class="field-value"><?= formatValue($personal['religion'] ?? '') ?></span>
                     </div>
-                    <div class="form-field">
+                    <div class="form-field contact-number-field">
                         <label>Contact Number:</label>
                         <span class="field-value"><?= formatValue($personal['contact_number'] ?? '') ?></span>
                     </div>
-                    <div class="form-field">
+                    <div class="form-field email-field">
                         <label>E-mail Address:</label>
                         <span class="field-value"><?= formatValue($personal['email_address'] ?? $user_info['email'] ?? '') ?></span>
                     </div>

@@ -126,7 +126,7 @@
 
         <main class="main-content">
             <div class="container py-5">
-                
+
 
                 <!-- Status Categories Cards -->
                 <div class="row status-cards mb-4">
@@ -212,7 +212,7 @@
                     <div class="appointments-header">
                         <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Appointments List</h5>
                         <div class="filter-controls d-flex align-items-center">
-                            <label for="dateRangeFilter" class="me-2">Date:</label>
+                            
                             <select class="form-select" id="dateRangeFilter">
                                 <option value="all">All Dates</option>
                                 <option value="today">Today</option>
@@ -222,15 +222,20 @@
                                 <option value="past">Past Appointments</option>
                             </select>
 
-                            <label for="statusFilter" class="me-2">Status:</label>
-                            <select id="statusFilter" class="form-select form-select-sm">
-                                <option value="all">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <select id="statusFilter" class="form-select form-select-sm">
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending" selected>Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+
+                            </div>
+                            <button type="button" id="viewToggleBtn" class="btn btn-outline-primary btn-sm">
+                                View All Appointments
+                            </button>
                         </div>
                     </div>
 

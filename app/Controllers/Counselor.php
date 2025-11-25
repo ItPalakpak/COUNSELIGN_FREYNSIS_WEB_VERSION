@@ -87,7 +87,6 @@ class Counselor extends BaseController
             'email' => $email,
             'contact_number' => $contactNumber,
             'address' => $address,
-            'profile_picture' => base_url('/Photos/profile.png')
         ];
 
         if (!empty($civilStatus)) {

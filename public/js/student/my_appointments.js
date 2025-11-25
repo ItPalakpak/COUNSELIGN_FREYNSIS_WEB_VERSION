@@ -429,16 +429,16 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     if (!container) return;
     container.innerHTML = "";
-
+  
     if (!appointments || appointments.length === 0) {
       container.innerHTML =
         '<div class="alert alert-info text-center">No pending appointments</div>';
       return;
     }
-
+  
     // Fetch counselors once
     const counselors = await fetchCounselors();
-
+  
     appointments.forEach((appointment) => {
       const form = document.createElement("form");
       form.className =
@@ -455,272 +455,331 @@ document.addEventListener("DOMContentLoaded", function () {
             : "";
         counselorOptions += `<option value="${counselor.counselor_id}"${selected}>${counselor.name}</option>`;
       });
+      
+      // CRITICAL FIX: Always include the current preferred_time as the ONLY option initially
+      const currentTimeOption = appointment.preferred_time 
+        ? `<option value="${appointment.preferred_time}" selected>${appointment.preferred_time}</option>`
+        : '<option value="">Select a time slot</option>';
+      
       form.innerHTML = `
-                <div class="row g-3 align-items-center">
-                    <div class="row g-3 align-items-center mt-1"><div class="col-md-4">
-                        <label class="form-label mb-1">Consultation Type</label>
-                        <select class="form-control" name="consultation_type" disabled>
-                            <option value="">Select consultation type</option>
-                            <option value="Individual Consultation"${
-                              appointment.consultation_type ===
-                              "Individual Consultation"
-                                ? " selected"
-                                : ""
-                            }>Individual Consultation</option>
-                            <option value="Group Consultation"${
-                              appointment.consultation_type ===
-                              "Group Consultation"
-                                ? " selected"
-                                : ""
-                            }>Group Consultation</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label mb-1">Preferred Date</label>
-                        <input type="date" class="form-control" name="preferred_date" value="${
-                          appointment.preferred_date
-                        }" disabled>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label mb-1">Counselor Preference</label>
-                        <select class="form-control" name="counselor_preference" disabled>${counselorOptions}</select>
-                    </div>
-                    
-                </div>
-                <div class="row g-3 align-items-center mt-1">
-
-                    <div class="col-md-4">
-                        <label class="form-label mb-1">Preferred Time</label>
-                        <select class="form-control" name="preferred_time" disabled>
-                            <option value="">Select a time slot</option>
-                            <option value="${
-                              appointment.preferred_time
-                            }" selected>${appointment.preferred_time}</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <label class="form-label mb-1">Method Type</label>
-                        <select class="form-control" name="method_type" disabled>
-                            <option value="">Select a method type</option>
-                            <option value="In-person"${
-                              appointment.method_type === "In-person"
-                                ? " selected"
-                                : ""
-                            }>In-person</option>
-                            <option value="Online (Video)"${
-                              appointment.method_type === "Online (Video)"
-                                ? " selected"
-                                : ""
-                            }>Online (Video)</option>
-                            <option value="Online (Audio only)"${
-                              appointment.method_type === "Online (Audio only)"
-                                ? " selected"
-                                : ""
-                            }>Online (Audio only)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label mb-1">Purpose</label>
-                        <select class="form-control" name="purpose" disabled>
-                            <option value="">Select purpose...</option>
-                            <option value="Counseling"${
-                              appointment.purpose === "Counseling"
-                                ? " selected"
-                                : ""
-                            }>Counseling</option>
-                            <option value="Psycho-Social Support"${
-                              appointment.purpose === "Psycho-Social Support"
-                                ? " selected"
-                                : ""
-                            }>Psycho-Social Support</option>
-                            <option value="Initial Interview"${
-                              appointment.purpose === "Initial Interview"
-                                ? " selected"
-                                : ""
-                            }>Initial Interview</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <label class="form-label mb-1">Brief Description(Optional)</label>
-                        <textarea class="form-control" name="description" rows="2" disabled>${
-                          appointment.description || ""
-                        }</textarea>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-12 text-end">
-                        <button type="button" class="btn btn-secondary btn-sm me-2 enable-edit-btn">Enable Edit</button>
-                        <button type="button" class="btn btn-primary btn-sm me-2 save-changes-btn" disabled>
-                            <i class="fas fa-edit"></i> Save Changes
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm cancel-btn">
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                    </div>
-                </div>
-            `;
-      setTimeout(() => {
-        const enableBtn = form.querySelector(".enable-edit-btn");
-        const saveBtn = form.querySelector(".save-changes-btn");
-        const deleteBtn = form.querySelector(".delete-btn");
-        const cancelBtn = form.querySelector(".cancel-btn");
-        const inputs = form.querySelectorAll("input, select, textarea");
-        const dateInput = form.querySelector('[name="preferred_date"]');
-        const timeSelect = form.querySelector('[name="preferred_time"]');
-        const counselorSelect = form.querySelector(
-          '[name="counselor_preference"]'
-        );
-        const consultationTypeSelect = form.querySelector(
-          '[name="consultation_type"]'
-        );
-
-        enableBtn.addEventListener("click", async function () {
-          const editing = enableBtn.dataset.editing === "true";
-          if (!editing) {
-            inputs.forEach((input) => {
-              // Keep counselor preference disabled - it cannot be changed for pending appointments
-              if (input.name === "counselor_preference") {
-                input.disabled = true;
-                input.readOnly = true;
-              } else if (input.name !== undefined && input.name !== "") {
-                input.disabled = false;
-                input.readOnly = false;
-              }
-            });
-            saveBtn.disabled = false;
-            enableBtn.textContent = "Cancel Edit";
-            enableBtn.dataset.editing = "true";
-
-            // Initialize custom calendar picker for this date input
-            if (dateInput && typeof CustomCalendarPicker !== 'undefined') {
-              // Wrap date input if not already wrapped
-              if (!dateInput.parentElement.classList.contains('custom-calendar-input-wrapper')) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'custom-calendar-input-wrapper';
-                dateInput.parentNode.insertBefore(wrapper, dateInput);
-                wrapper.appendChild(dateInput);
-              }
-
-              // Give input a unique ID if it doesn't have one
-              if (!dateInput.id) {
-                dateInput.id = `pending-date-${appointment.id}`;
-              }
-
-              // Initialize calendar picker
-              const pendingDatePicker = new CustomCalendarPicker({
-                inputId: dateInput.id,
-                userRole: 'student',
-                counselorId: appointment.counselor_preference,
-                consultationType: appointment.consultation_type,
-                onDateSelect: (dateString) => {
-                  // Trigger change event to refresh time slots
-                  const event = new Event('change', { bubbles: true });
-                  dateInput.dispatchEvent(event);
-                }
-              });
-
-              // Store picker instance to destroy later
-              form.dataset.calendarPicker = 'initialized';
-            }
-
-            // When entering edit mode, load time slots for the selected counselor only
-            if (
-              dateInput &&
-              timeSelect &&
-              counselorSelect &&
-              consultationTypeSelect
-            ) {
-              const currentDate = dateInput.value;
-              // Use the original appointment's counselor preference (cannot be changed)
-              const originalCounselor =
-                appointment.counselor_preference || counselorSelect.value;
-              const currentConsultationType =
-                appointment.consultation_type || consultationTypeSelect.value;
-              const currentTime = appointment.preferred_time;
-
-              // Load time slots with 30-minute intervals for the selected counselor only
-              await refreshPendingAppointmentTimeSlots(
-                form,
-                currentDate,
-                currentTime,
-                originalCounselor,
-                currentConsultationType
-              );
-
-              // Add event listeners for dynamic updates (date and consultation type only)
-              dateInput.addEventListener("change", async function () {
-                const date = dateInput.value;
-                const consultationType = consultationTypeSelect.value;
-                const time = timeSelect.value;
-                // Always use original counselor - cannot change
-                await refreshPendingAppointmentTimeSlots(
-                  form,
-                  date,
-                  time,
-                  originalCounselor,
-                  consultationType
+                  <div class="row g-3 align-items-center">
+                      <div class="row g-3 align-items-center mt-1"><div class="col-md-4">
+                          <label class="form-label mb-1">Consultation Type</label>
+                          <select class="form-control" name="consultation_type" disabled>
+                              <option value="">Select consultation type</option>
+                              <option value="Individual Consultation"${
+                                appointment.consultation_type ===
+                                "Individual Consultation"
+                                  ? " selected"
+                                  : ""
+                              }>Individual Consultation</option>
+                              <option value="Group Consultation"${
+                                appointment.consultation_type ===
+                                "Group Consultation"
+                                  ? " selected"
+                                  : ""
+                              }>Group Consultation</option>
+                          </select>
+                      </div>
+                      <div class="col-md-4">
+                          <label class="form-label mb-1">Preferred Date</label>
+                          <input type="date" class="form-control" name="preferred_date" value="${
+                            appointment.preferred_date
+                          }" disabled>
+                      </div>
+  
+                      <div class="col-md-4">
+                          <label class="form-label mb-1">Counselor Preference</label>
+                          <select class="form-control" name="counselor_preference" disabled>${counselorOptions}</select>
+                      </div>
+                      
+                  </div>
+                  <div class="row g-3 align-items-center mt-1">
+  
+                      <div class="col-md-4">
+                          <label class="form-label mb-1">Preferred Time</label>
+                          <select class="form-control" name="preferred_time" disabled>
+                              ${currentTimeOption}
+                          </select>
+                      </div>
+                      
+                      <div class="col-md-4">
+                          <label class="form-label mb-1">Method Type</label>
+                          <select class="form-control" name="method_type" disabled>
+                              <option value="">Select a method type</option>
+                              <option value="In-person"${
+                                appointment.method_type === "In-person"
+                                  ? " selected"
+                                  : ""
+                              }>In-person</option>
+                              <option value="Online (Video)"${
+                                appointment.method_type === "Online (Video)"
+                                  ? " selected"
+                                  : ""
+                              }>Online (Video)</option>
+                              <option value="Online (Audio only)"${
+                                appointment.method_type === "Online (Audio only)"
+                                  ? " selected"
+                                  : ""
+                              }>Online (Audio only)</option>
+                          </select>
+                      </div>
+                      <div class="col-md-4">
+                          <label class="form-label mb-1">Purpose</label>
+                          <select class="form-control" name="purpose" disabled>
+                              <option value="">Select purpose...</option>
+                              <option value="Counseling"${
+                                appointment.purpose === "Counseling"
+                                  ? " selected"
+                                  : ""
+                              }>Counseling</option>
+                              <option value="Psycho-Social Support"${
+                                appointment.purpose === "Psycho-Social Support"
+                                  ? " selected"
+                                  : ""
+                              }>Psycho-Social Support</option>
+                              <option value="Initial Interview"${
+                                appointment.purpose === "Initial Interview"
+                                  ? " selected"
+                                  : ""
+                              }>Initial Interview</option>
+                          </select>
+                      </div>
+                  </div>
+                  
+                  <div class="row mt-3">
+                      <div class="col-md-12">
+                          <label class="form-label mb-1">Brief Description(Optional)</label>
+                          <textarea class="form-control" name="description" rows="2" disabled>${
+                            appointment.description || ""
+                          }</textarea>
+                      </div>
+                  </div>
+                  <div class="row mt-3">
+                      <div class="col-md-12 text-end">
+                          <button type="button" class="btn btn-secondary btn-sm me-2 enable-edit-btn">Enable Edit</button>
+                          <button type="button" class="btn btn-primary btn-sm me-2 save-changes-btn" disabled>
+                              <i class="fas fa-edit"></i> Save Changes
+                          </button>
+                          <button type="button" class="btn btn-danger btn-sm cancel-btn">
+                              <i class="fas fa-times"></i> Cancel
+                          </button>
+                      </div>
+                  </div>
+              `;
+              setTimeout(() => {
+                const enableBtn = form.querySelector(".enable-edit-btn");
+                const saveBtn = form.querySelector(".save-changes-btn");
+                const deleteBtn = form.querySelector(".delete-btn");
+                const cancelBtn = form.querySelector(".cancel-btn");
+                let inputs = form.querySelectorAll("input, select, textarea");
+                let dateInput = form.querySelector('[name="preferred_date"]');
+                let timeSelect = form.querySelector('[name="preferred_time"]');
+                const counselorSelect = form.querySelector(
+                  '[name="counselor_preference"]'
                 );
-              });
+                let consultationTypeSelect = form.querySelector(
+                  '[name="consultation_type"]'
+                );
+              
+                // Store the original time value - CRITICAL
+                const originalTimeValue = appointment.preferred_time;
+                
+                // Store it as a data attribute on the form for persistence
+                form.dataset.originalTime = originalTimeValue;
+              
+                let dateChangeHandler = null;
+                let consultationChangeHandler = null;
+              
+                enableBtn.addEventListener("click", async function () {
+                  const editing = enableBtn.dataset.editing === "true";
+                  if (!editing) {
+                    // Enable editing mode
+                    inputs.forEach((input) => {
+                      // Keep counselor preference disabled - it cannot be changed for pending appointments
+                      if (input.name === "counselor_preference") {
+                        input.disabled = true;
+                        input.readOnly = true;
+                      } else if (input.name !== undefined && input.name !== "") {
+                        input.disabled = false;
+                        input.readOnly = false;
+                      }
+                    });
+                    saveBtn.disabled = false;
+                    enableBtn.textContent = "Cancel Edit";
+                    enableBtn.dataset.editing = "true";
+              
+                    // Initialize custom calendar picker for this date input
+                    if (dateInput && typeof CustomCalendarPicker !== 'undefined') {
+                      // Wrap date input if not already wrapped
+                      if (!dateInput.parentElement.classList.contains('custom-calendar-input-wrapper')) {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'custom-calendar-input-wrapper';
+                        dateInput.parentNode.insertBefore(wrapper, dateInput);
+                        wrapper.appendChild(dateInput);
+                      }
+              
+                      // Give input a unique ID if it doesn't have one
+                      if (!dateInput.id) {
+                        dateInput.id = `pending-date-${appointment.id}`;
+                      }
+              
+                      // Initialize calendar picker
+                      const pendingDatePicker = new CustomCalendarPicker({
+                        inputId: dateInput.id,
+                        userRole: 'student',
+                        counselorId: appointment.counselor_preference,
+                        consultationType: appointment.consultation_type,
+                        onDateSelect: (dateString) => {
+                          // Manually trigger the date change handler
+                          if (dateChangeHandler) {
+                            dateChangeHandler();
+                          }
+                        }
+                      });
+              
+                      // Store picker instance to destroy later
+                      form.dataset.calendarPicker = 'initialized';
+                    }
+              
+                    // CRITICAL: Preserve the current time when enabling edit
+                    // Just keep it as-is, don't refresh anything
+                    const initialTimeSelect = form.querySelector('[name="preferred_time"]');
+                    if (initialTimeSelect && originalTimeValue) {
+                      // Make sure the original time is the only option and is selected
+                      initialTimeSelect.innerHTML = `<option value="${originalTimeValue}" selected>${originalTimeValue}</option>`;
+                    }
+              
+                    // Set up event handlers (but don't call them immediately!)
+                    const originalCounselor = appointment.counselor_preference || counselorSelect.value;
+                    
+                    dateChangeHandler = async function() {
+                      const currentDateInput = form.querySelector('[name="preferred_date"]');
+                      const currentTimeSelect = form.querySelector('[name="preferred_time"]');
+                      const currentConsultationTypeSelect = form.querySelector('[name="consultation_type"]');
+                      
+                      const date = currentDateInput.value;
+                      const consultationType = currentConsultationTypeSelect.value;
+                      const time = currentTimeSelect.value || originalTimeValue;
+                      
+                      await refreshPendingAppointmentTimeSlots(
+                        form,
+                        date,
+                        time,
+                        originalCounselor,
+                        consultationType
+                      );
+                    };
+              
+                    consultationChangeHandler = async function() {
+                      const currentDateInput = form.querySelector('[name="preferred_date"]');
+                      const currentTimeSelect = form.querySelector('[name="preferred_time"]');
+                      const currentConsultationTypeSelect = form.querySelector('[name="consultation_type"]');
+                      
+                      const date = currentDateInput.value;
+                      const consultationType = currentConsultationTypeSelect.value;
+                      const time = currentTimeSelect.value || originalTimeValue;
+                      
+                      await refreshPendingAppointmentTimeSlots(
+                        form,
+                        date,
+                        time,
+                        originalCounselor,
+                        consultationType
+                      );
+                    };
+              
+                    // Attach event listeners
+                    const currentDateInput = form.querySelector('[name="preferred_date"]');
+                    const currentConsultationTypeSelect = form.querySelector('[name="consultation_type"]');
+                    
+                    if (currentDateInput) {
+                      currentDateInput.addEventListener("change", dateChangeHandler);
+                    }
+                    
+                    if (currentConsultationTypeSelect) {
+                      currentConsultationTypeSelect.addEventListener("change", consultationChangeHandler);
+                    }
 
-              consultationTypeSelect.addEventListener(
-                "change",
-                async function () {
-                  const date = dateInput.value;
-                  const consultationType = consultationTypeSelect.value;
-                  const time = timeSelect.value;
-                  // Always use original counselor - cannot change
-                  await refreshPendingAppointmentTimeSlots(
-                    form,
-                    date,
-                    time,
-                    originalCounselor,
-                    consultationType
+                    // Immediately refresh available time slots while preserving the original selection
+                    const currentTimeSelect = form.querySelector('[name="preferred_time"]');
+                    const pendingDateValue = currentDateInput ? currentDateInput.value : "";
+                    if (pendingDateValue) {
+                      const pendingConsultationType = currentConsultationTypeSelect
+                        ? currentConsultationTypeSelect.value
+                        : "";
+                      const preservedTimeValue =
+                        (currentTimeSelect && currentTimeSelect.value) ||
+                        originalTimeValue ||
+                        "";
+                      await refreshPendingAppointmentTimeSlots(
+                        form,
+                        pendingDateValue,
+                        preservedTimeValue,
+                        originalCounselor,
+                        pendingConsultationType
+                      );
+                    }
+              
+                  } else {
+                    // Disable editing mode
+                    inputs = form.querySelectorAll("input, select, textarea");
+                    inputs.forEach((input) => {
+                      if (input.name !== undefined && input.name !== "") {
+                        input.disabled = true;
+                        input.readOnly = true;
+                      }
+                    });
+                    saveBtn.disabled = true;
+                    enableBtn.textContent = "Enable Edit";
+                    enableBtn.dataset.editing = "false";
+              
+                    // Remove event listeners
+                    const currentDateInput = form.querySelector('[name="preferred_date"]');
+                    const currentConsultationTypeSelect = form.querySelector('[name="consultation_type"]');
+                    
+                    if (currentDateInput && dateChangeHandler) {
+                      currentDateInput.removeEventListener("change", dateChangeHandler);
+                    }
+                    
+                    if (currentConsultationTypeSelect && consultationChangeHandler) {
+                      currentConsultationTypeSelect.removeEventListener("change", consultationChangeHandler);
+                    }
+              
+                    // Clean up calendar picker button if exists
+                    const currentDateInputForCleanup = form.querySelector('[name="preferred_date"]');
+                    if (currentDateInputForCleanup) {
+                      const calendarBtn = currentDateInputForCleanup.parentElement?.querySelector('.custom-calendar-btn');
+                      if (calendarBtn) {
+                        calendarBtn.remove();
+                      }
+                    }
+              
+                    // Restore the original time value when canceling edit
+                    const timeSelectAfterCancel = form.querySelector('[name="preferred_time"]');
+                    if (timeSelectAfterCancel && originalTimeValue) {
+                      timeSelectAfterCancel.innerHTML = `<option value="${originalTimeValue}" selected>${originalTimeValue}</option>`;
+                    }
+                  }
+                });
+                
+                saveBtn.addEventListener("click", function () {
+                  pendingSaveContext = { appointmentId: appointment.id, form };
+                  const saveModal = new bootstrap.Modal(
+                    document.getElementById("saveChangesModal")
                   );
-                }
-              );
-            }
-          } else {
-            inputs.forEach((input) => {
-              if (input.name !== undefined && input.name !== "") {
-                input.disabled = true;
-                input.readOnly = true;
-              }
-            });
-            saveBtn.disabled = true;
-            enableBtn.textContent = "Enable Edit";
-            enableBtn.dataset.editing = "false";
-
-            // Clean up calendar picker button if exists
-            if (dateInput) {
-              const calendarBtn = dateInput.parentElement?.querySelector('.custom-calendar-btn');
-              if (calendarBtn) {
-                calendarBtn.remove();
-              }
-            }
-          }
-        });
-        saveBtn.addEventListener("click", function () {
-          pendingSaveContext = { appointmentId: appointment.id, form };
-          const saveModal = new bootstrap.Modal(
-            document.getElementById("saveChangesModal")
-          );
-          saveModal.show();
-        });
-
-        cancelBtn.addEventListener("click", function () {
-          pendingCancelContext = { appointmentId: appointment.id };
-          document.getElementById("cancellationReason").value = "";
-          const cancelModal = new bootstrap.Modal(
-            document.getElementById("cancellationReasonModal")
-          );
-          cancelModal.show();
-        });
-      }, 0);
+                  saveModal.show();
+                });
+              
+                cancelBtn.addEventListener("click", function () {
+                  pendingCancelContext = { appointmentId: appointment.id };
+                  document.getElementById("cancellationReason").value = "";
+                  const cancelModal = new bootstrap.Modal(
+                    document.getElementById("cancellationReasonModal")
+                  );
+                  cancelModal.show();
+                });
+              }, 0);
       container.appendChild(form);
     });
   }
@@ -2478,18 +2537,24 @@ async function refreshPendingAppointmentTimeSlots(
   const timeSelect = form.querySelector('[name="preferred_time"]');
   if (!timeSelect || !dateStr) return;
 
-  timeSelect.disabled = true;
-  const originalValue = timeSelect.value;
-  timeSelect.innerHTML = '<option value="">Loading time slots...</option>';
-
+  // Store the current value BEFORE any changes
+  const preservedValue = selectedTime || timeSelect.value || form.dataset.originalTime;
+  
+  // Don't disable or clear - just show loading in a temporary way
+  const originalHTML = timeSelect.innerHTML;
+  
   try {
     const dayOfWeek = getDayOfWeek(dateStr);
     // For pending appointments, we only get slots for the specific counselor (cannot change counselor)
     const currentCounselorId = counselorId;
 
     if (!currentCounselorId || currentCounselorId === "No preference") {
-      timeSelect.innerHTML = '<option value="">No counselor selected</option>';
-      timeSelect.disabled = false;
+      // Keep the original value even if no counselor
+      if (preservedValue) {
+        timeSelect.innerHTML = `<option value="${preservedValue}" selected>${preservedValue}</option>`;
+      } else {
+        timeSelect.innerHTML = '<option value="">No counselor selected</option>';
+      }
       return;
     }
 
@@ -2512,12 +2577,15 @@ async function refreshPendingAppointmentTimeSlots(
         : [];
       const ranges = generateHalfHourRangeUnion(slotStrings);
       availableRanges = ranges;
-      availableRanges.sort();
+    sortTimeRangesAscending(availableRanges);
     } catch (e) {
       console.error("Error fetching counselor availability:", e);
-      timeSelect.innerHTML =
-        '<option value="">Error loading counselor availability</option>';
-      timeSelect.disabled = false;
+      // On error, keep the preserved value
+      if (preservedValue) {
+        timeSelect.innerHTML = `<option value="${preservedValue}" selected>${preservedValue}</option>`;
+      } else {
+        timeSelect.innerHTML = originalHTML;
+      }
       return;
     }
 
@@ -2551,63 +2619,71 @@ async function refreshPendingAppointmentTimeSlots(
       }
     }
 
-    // Build options
+    // Build options - ALWAYS include preserved value first
     const fragment = document.createDocumentFragment();
+    
+    // Add placeholder
     const placeholder = document.createElement("option");
     placeholder.value = "";
     placeholder.textContent = "Select a time slot";
     fragment.appendChild(placeholder);
 
     const bookedSet = new Set(booked);
-    let availableCount = 0;
+    let hasPreservedValue = false;
+
+    // FIRST: Add the preserved/selected time (this is their current appointment time)
+    if (preservedValue && preservedValue !== '') {
+      const preservedOpt = document.createElement("option");
+      preservedOpt.value = preservedValue;
+      preservedOpt.textContent = preservedValue + " (Current)";
+      preservedOpt.selected = true;
+      fragment.appendChild(preservedOpt);
+      hasPreservedValue = true;
+    }
+
+    // THEN: Add all other available slots (excluding the preserved one to avoid duplicates)
     for (const slot of availableRanges) {
+      // Skip if this is the preserved value (already added above)
+      if (preservedValue && slot === preservedValue) {
+        continue;
+      }
+      
+      // Only add if not booked
       if (!bookedSet.has(slot)) {
         const opt = document.createElement("option");
         opt.value = slot;
         opt.textContent = slot;
-        if (
-          (selectedTime && slot === selectedTime) ||
-          (originalValue && slot === originalValue)
-        ) {
-          opt.selected = true;
-        }
         fragment.appendChild(opt);
-        availableCount++;
       }
     }
 
+    // Update the select
     timeSelect.innerHTML = "";
     timeSelect.appendChild(fragment);
 
-    if (availableCount === 0) {
-      const none = document.createElement("option");
-      none.value = "";
-      none.textContent = "No available time slots for this date";
-      none.disabled = true;
-      timeSelect.appendChild(none);
-    } else {
-      // Restore selected time if it's still available
-      if (
-        (selectedTime &&
-          timeSelect.querySelector(`option[value="${selectedTime}"]`)) ||
-        (originalValue &&
-          timeSelect.querySelector(`option[value="${originalValue}"]`))
-      ) {
-        timeSelect.value = selectedTime || originalValue;
+    // Ensure the preserved value is selected
+    if (preservedValue && timeSelect.querySelector(`option[value="${preservedValue}"]`)) {
+      timeSelect.value = preservedValue;
+    }
+
+    // Show message if no other slots available
+    if (availableRanges.length === 0 || (availableRanges.length === 1 && availableRanges[0] === preservedValue)) {
+      if (!hasPreservedValue) {
+        const none = document.createElement("option");
+        none.value = "";
+        none.textContent = "No available time slots for this date";
+        none.disabled = true;
+        timeSelect.appendChild(none);
       }
     }
   } catch (error) {
     console.error("Error refreshing time slots:", error);
-    timeSelect.innerHTML = '<option value="">Error loading time slots</option>';
-    if (selectedTime) {
-      const opt = document.createElement("option");
-      opt.value = selectedTime;
-      opt.textContent = selectedTime;
-      opt.selected = true;
-      timeSelect.appendChild(opt);
+    // On error, restore the preserved value
+    if (preservedValue) {
+      timeSelect.innerHTML = `<option value="${preservedValue}" selected>${preservedValue}</option>`;
+    } else {
+      timeSelect.innerHTML = originalHTML;
     }
-  } finally {
-    timeSelect.disabled = false;
   }
 }
 
@@ -2744,7 +2820,7 @@ async function refreshEditModalTimeSlots(
         }
         // Remove duplicates
         availableRanges = Array.from(new Set(availableRanges));
-        availableRanges.sort();
+        sortTimeRangesAscending(availableRanges);
       }
     }
 
@@ -3030,6 +3106,24 @@ function generateHalfHourRangeUnion(slotStrings) {
   return arr;
 }
 
+function sortTimeRangesAscending(ranges) {
+  if (!Array.isArray(ranges)) return ranges;
+  ranges.sort((a, b) => {
+    if (a === b) return 0;
+    const [aFrom] = String(a || "")
+      .split("-")
+      .map((x) => x.trim());
+    const [bFrom] = String(b || "")
+      .split("-")
+      .map((x) => x.trim());
+    const aMinutes = parseTime12ToMinutes_student(aFrom);
+    const bMinutes = parseTime12ToMinutes_student(bFrom);
+    if (aMinutes === null || bMinutes === null) return 0;
+    return aMinutes - bMinutes;
+  });
+  return ranges;
+}
+
 function parseTime12ToMinutes_student(t) {
   if (!t) return null;
   const m = String(t)
@@ -3056,15 +3150,15 @@ function formatMinutesTo12h_student(total) {
 
 // Initialize custom calendar picker for edit modal
 function initializeEditModalCalendarPicker() {
-  if (typeof CustomCalendarPicker === 'undefined') {
-    console.warn('CustomCalendarPicker not loaded');
+  if (typeof CustomCalendarPicker === "undefined") {
+    console.warn("CustomCalendarPicker not loaded");
     return;
   }
 
   // Initialize when edit modal is shown
-  const editModal = document.getElementById('editAppointmentModal');
+  const editModal = document.getElementById("editAppointmentModal");
   if (editModal) {
-    editModal.addEventListener('shown.bs.modal', () => {
+    editModal.addEventListener("shown.bs.modal", () => {
       // Destroy existing picker if any
       if (editDatePicker) {
         editDatePicker.destroy();
@@ -3072,23 +3166,34 @@ function initializeEditModalCalendarPicker() {
 
       // Create new picker for edit modal
       editDatePicker = new CustomCalendarPicker({
-        inputId: 'editDate',
-        userRole: 'student',
+        inputId: "editDate",
+        userRole: "student",
         onDateSelect: (dateString) => {
           // Refresh time slots when date is selected from calendar
-          const counselorId = document.getElementById('editCounselorPreference')?.value || '';
-          const consultationType = document.getElementById('editConsultationType')?.value || '';
-          const currentTime = document.getElementById('editTime')?.value || '';
-          refreshEditModalTimeSlots(dateString, currentTime, counselorId, consultationType);
-        }
+          const counselorId =
+            document.getElementById("editCounselorPreference")?.value || "";
+          const consultationType =
+            document.getElementById("editConsultationType")?.value || "";
+          const currentTime = document.getElementById("editTime")?.value || "";
+          refreshEditModalTimeSlots(
+            dateString,
+            currentTime,
+            counselorId,
+            consultationType
+          );
+        },
       });
 
       // Update calendar when counselor or consultation type changes
-      const counselorSelect = document.getElementById('editCounselorPreference');
-      const consultationTypeSelect = document.getElementById('editConsultationType');
+      const counselorSelect = document.getElementById(
+        "editCounselorPreference"
+      );
+      const consultationTypeSelect = document.getElementById(
+        "editConsultationType"
+      );
 
       if (counselorSelect) {
-        counselorSelect.addEventListener('change', () => {
+        counselorSelect.addEventListener("change", () => {
           if (editDatePicker) {
             editDatePicker.updateCounselorId(counselorSelect.value);
           }
@@ -3096,7 +3201,7 @@ function initializeEditModalCalendarPicker() {
       }
 
       if (consultationTypeSelect) {
-        consultationTypeSelect.addEventListener('change', () => {
+        consultationTypeSelect.addEventListener("change", () => {
           if (editDatePicker) {
             editDatePicker.updateConsultationType(consultationTypeSelect.value);
           }
@@ -3105,7 +3210,7 @@ function initializeEditModalCalendarPicker() {
     });
 
     // Clean up when modal is hidden
-    editModal.addEventListener('hidden.bs.modal', () => {
+    editModal.addEventListener("hidden.bs.modal", () => {
       if (editDatePicker) {
         editDatePicker.destroy();
         editDatePicker = null;

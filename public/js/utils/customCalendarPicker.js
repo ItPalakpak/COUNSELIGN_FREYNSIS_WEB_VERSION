@@ -396,7 +396,7 @@ class CustomCalendarPicker {
         try {
             // Counselor role - check their own availability
             if (this.userRole === 'counselor') {
-                return await this.checkCounselorOwnAvailability(dateString, dayOfWeek);
+                return await this.checkCounselorOwnAvailability(dateString);
             }
 
             // Student role - check counselor schedules
@@ -527,11 +527,11 @@ class CustomCalendarPicker {
      * Check counselor's own availability for a specific date
      * Used when userRole is 'counselor' to check their own schedule
      */
-    async checkCounselorOwnAvailability(dateString, dayOfWeek) {
+    async checkCounselorOwnAvailability(dateString) {
         try {
-            // 1. Get counselor's own availability for this day of week
+            // 1. Get counselor's availability for the requested date using the existing API
             const availabilityRes = await fetch(
-                (window.BASE_URL || '/') + `counselor/follow-up/counselor-availability?date=${dateString}`,
+                (window.BASE_URL || '/') + `counselor/follow-up/availability?date=${dateString}`,
                 {
                     method: 'GET',
                     credentials: 'include',
@@ -544,9 +544,11 @@ class CustomCalendarPicker {
             }
 
             const availabilityData = await availabilityRes.json();
-            
-            if (availabilityData.status !== 'success' || !availabilityData.time_slots || availabilityData.time_slots.length === 0) {
-                // No schedule for this day
+            const hasValidResponse = availabilityData?.status === 'success' && Array.isArray(availabilityData.time_slots);
+            const timeSlots = hasValidResponse ? availabilityData.time_slots : [];
+
+            if (!hasValidResponse || timeSlots.length === 0) {
+                // Counselor has no schedule for this weekday
                 return { hasCounselors: false, fullyBooked: false };
             }
 
@@ -565,13 +567,19 @@ class CustomCalendarPicker {
             }
 
             const bookedData = await bookedRes.json();
-            const bookedSlots = bookedData?.booked || [];
+            const bookedSlots = bookedData?.status === 'success' && Array.isArray(bookedData.booked)
+                ? bookedData.booked
+                : [];
 
             // 3. Generate all possible 30-minute slots from counselor's time_scheduled
-            const availableSlots = this.generateTimeSlotsFromCounselorTimeScheduled(availabilityData.time_slots);
+            const availableSlots = this.generateTimeSlotsFromCounselorTimeScheduled(timeSlots);
             
+            if (availableSlots.length === 0) {
+                return { hasCounselors: false, fullyBooked: false };
+            }
+
             // 4. Check if all slots are booked
-            const allBooked = availableSlots.length > 0 && availableSlots.every(slot => bookedSlots.includes(slot));
+            const allBooked = availableSlots.every(slot => bookedSlots.includes(slot));
 
             return {
                 hasCounselors: true,

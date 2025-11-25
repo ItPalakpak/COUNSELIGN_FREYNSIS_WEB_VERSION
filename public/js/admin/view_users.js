@@ -30,9 +30,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                allUsers = data.users;
+                allUsers = normalizeUsers(data.users);
                 updateUserStats(data.activeCount);
-                displayUsers(allUsers);
+                filterUsers();
             } else {
                 showError(data.message || 'Failed to fetch users');
             }
@@ -48,42 +48,59 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (activeUsersElement) {
-            activeUsersElement.textContent = activeCount || 0;
+            const computedActiveCount = allUsers.reduce((count, user) => user.is_online ? count + 1 : count, 0);
+            const resolvedActiveCount = Number.isFinite(activeCount) ? activeCount : computedActiveCount;
+            activeUsersElement.textContent = resolvedActiveCount;
         }
     }
 
     function filterUsers() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = statusFilter.value;
+        displayUsers(getFilteredUsers());
+    }
 
-        let filtered = allUsers.filter(user => {
-            // Get course information from student data
+    function getFilteredUsers() {
+        const searchTerm = (searchInput?.value || '').trim().toLowerCase();
+        const statusValue = statusFilter?.value || 'all';
+
+        return allUsers.filter(user => {
             const courseInfo = user.student_data?.academic_info?.course && user.student_data?.academic_info?.year_level 
                 ? `${user.student_data.academic_info.course}-${user.student_data.academic_info.year_level}`
                 : 'Not specified';
-            
+
+            const personalInfo = user.student_data?.personal_info;
+            const names = personalInfo
+                ? [
+                    personalInfo.first_name,
+                    personalInfo.last_name,
+                    personalInfo.middle_name,
+                    `${personalInfo.first_name || ''} ${personalInfo.last_name || ''}`.trim()
+                ]
+                : [];
+
             const searchFields = [
                 user.user_id,
                 user.username,
                 user.email,
-                courseInfo
+                courseInfo,
+                ...names
             ];
-            
-            const matchesSearch = searchFields.some(field => 
-                String(field).toLowerCase().includes(searchTerm)
-            );
-            
+
+            const matchesSearch = searchTerm === '' || searchFields.some(field => {
+                if (field === undefined || field === null) {
+                    return false;
+                }
+                return String(field).toLowerCase().includes(searchTerm);
+            });
+
             let matchesStatus = true;
             if (statusValue === 'active') {
-                matchesStatus = user.is_online;
+                matchesStatus = Boolean(user.is_online);
             } else if (statusValue === 'inactive') {
-                matchesStatus = !user.is_online;
+                matchesStatus = !Boolean(user.is_online);
             }
-            
+
             return matchesSearch && matchesStatus;
         });
-
-        displayUsers(filtered);
     }
 
     function displayUsers(users) {
@@ -92,11 +109,15 @@ document.addEventListener('DOMContentLoaded', function() {
         usersTableBody.innerHTML = '';
         
         if (!users || users.length === 0) {
-            noUsersMessage.style.display = 'block';
+            if (noUsersMessage) {
+                noUsersMessage.style.display = 'block';
+            }
             return;
         }
 
-        noUsersMessage.style.display = 'none';
+        if (noUsersMessage) {
+            noUsersMessage.style.display = 'none';
+        }
         
         users.forEach(user => {
             const row = document.createElement('tr');
@@ -770,6 +791,17 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             credentials: 'include'
         });
+    }
+
+    function normalizeUsers(users) {
+        if (!Array.isArray(users)) {
+            return [];
+        }
+
+        return users.map(user => ({
+            ...user,
+            is_online: user.is_online === true || user.is_online === 1 || user.is_online === '1'
+        }));
     }
 
     // Update activity status every 4 minutes

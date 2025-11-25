@@ -388,14 +388,7 @@
                                                     <option value="">All Counselors</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label for="exportStudentFilter" class="form-label">Student</label>
-                                                <select class="form-select" id="exportStudentFilter">
-                                                    <option value="">All Students</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row g-3">
+
                                             <div class="col-md-6">
                                                 <label for="exportCourseFilter" class="form-label">Course</label>
                                                 <select class="form-select" id="exportCourseFilter">
@@ -413,6 +406,9 @@
                                                     <option value="DAT-BAT">DAT-BAT</option>
                                                 </select>
                                             </div>
+                                            
+                                        </div>
+                                        <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label for="exportYearLevelFilter" class="form-label">Year Level</label>
                                                 <select class="form-select" id="exportYearLevelFilter">
@@ -421,6 +417,12 @@
                                                     <option value="II">II</option>
                                                     <option value="III">III</option>
                                                     <option value="IV">IV</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="exportStudentFilter" class="form-label">Student</label>
+                                                <select class="form-select" id="exportStudentFilter">
+                                                    <option value="">All Students</option>
                                                 </select>
                                             </div>
                                         </div>

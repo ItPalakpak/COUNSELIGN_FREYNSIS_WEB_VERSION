@@ -1,6 +1,10 @@
 // Global variables for follow-up functionality
 let currentParentAppointmentId = null;
 let currentStudentId = null;
+let completedAppointmentsExpanded = false;
+let completedAppointmentsCollapseFrame = null;
+let completedAppointmentsResizeListenerAttached = false;
+const COMPLETED_APPOINTMENT_PREVIEW_LIMIT = 4;
 
 function navigateToHome() {
     window.location.href = (window.BASE_URL || '/') + 'student/dashboard';
@@ -40,6 +44,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Setup modal event listeners
     setupModalEventListeners();
+
+    // UI controls
+    initializeCompletedAppointmentsToggle();
 });
 
 // Load completed appointments for the logged-in student
@@ -84,6 +91,8 @@ function displayCompletedAppointments(appointments, searchTerm = '') {
     const noDataMessage = document.getElementById('noCompletedAppointments');
     const noSearchResults = document.getElementById('noSearchResults');
 
+    completedAppointmentsExpanded = false;
+
     if (!container) return;
 
     // Identify appointments with pending follow-ups (but still show ALL completed appointments below)
@@ -108,11 +117,13 @@ function displayCompletedAppointments(appointments, searchTerm = '') {
             noDataMessage.style.display = 'block';
             noSearchResults.style.display = 'none';
         }
+        hideCompletedAppointmentsToggle();
     } else {
         container.style.display = 'grid';
         noDataMessage.style.display = 'none';
         noSearchResults.style.display = 'none';
         container.innerHTML = appointments.map(appointment => createAppointmentCard(appointment)).join('');
+        queueCompletedAppointmentsCollapseRecalc();
     }
 }
 
@@ -392,6 +403,110 @@ function scrollToTop() {
         top: 0,
         behavior: 'smooth'
     });
+}
+
+function initializeCompletedAppointmentsToggle() {
+    const toggleBtn = document.getElementById('toggleCompletedAppointmentsBtn');
+    if (!toggleBtn) {
+        return;
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        completedAppointmentsExpanded = !completedAppointmentsExpanded;
+        applyCompletedAppointmentsCollapseState();
+    });
+
+    if (!completedAppointmentsResizeListenerAttached) {
+        window.addEventListener('resize', () => {
+            if (!completedAppointmentsExpanded) {
+                queueCompletedAppointmentsCollapseRecalc();
+            }
+        });
+        completedAppointmentsResizeListenerAttached = true;
+    }
+}
+
+function queueCompletedAppointmentsCollapseRecalc() {
+    if (typeof window.requestAnimationFrame !== 'function') {
+        applyCompletedAppointmentsCollapseState();
+        return;
+    }
+
+    if (completedAppointmentsCollapseFrame) {
+        cancelAnimationFrame(completedAppointmentsCollapseFrame);
+    }
+
+    completedAppointmentsCollapseFrame = requestAnimationFrame(() => {
+        completedAppointmentsCollapseFrame = null;
+        applyCompletedAppointmentsCollapseState();
+    });
+}
+
+function applyCompletedAppointmentsCollapseState() {
+    const container = document.getElementById('completedAppointmentsContainer');
+
+    if (!container) {
+        return;
+    }
+
+    const cards = Array.from(container.querySelectorAll('.appointment-card'));
+
+    if (cards.length === 0) {
+        hideCompletedAppointmentsToggle();
+        container.classList.remove('collapsed');
+        return;
+    }
+
+    if (cards.length <= COMPLETED_APPOINTMENT_PREVIEW_LIMIT) {
+        cards.forEach((card) => card.classList.remove('is-hidden-by-collapse'));
+        container.classList.remove('collapsed');
+        updateCompletedAppointmentsToggleButton(false);
+        return;
+    }
+
+    if (completedAppointmentsExpanded) {
+        cards.forEach((card) => card.classList.remove('is-hidden-by-collapse'));
+        container.classList.remove('collapsed');
+    } else {
+        cards.forEach((card, index) => {
+            if (index >= COMPLETED_APPOINTMENT_PREVIEW_LIMIT) {
+                card.classList.add('is-hidden-by-collapse');
+            } else {
+                card.classList.remove('is-hidden-by-collapse');
+            }
+        });
+        container.classList.add('collapsed');
+    }
+
+    updateCompletedAppointmentsToggleButton(true);
+}
+
+function hideCompletedAppointmentsToggle() {
+    updateCompletedAppointmentsToggleButton(false);
+    const container = document.getElementById('completedAppointmentsContainer');
+    if (container) {
+        container.classList.remove('collapsed');
+    }
+}
+
+function updateCompletedAppointmentsToggleButton(hasMoreRows) {
+    const toggleBtn = document.getElementById('toggleCompletedAppointmentsBtn');
+    if (!toggleBtn) {
+        return;
+    }
+
+    if (!hasMoreRows) {
+        toggleBtn.classList.add('d-none');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.innerHTML = '<i class="fas fa-layer-group me-2"></i>View All';
+        return;
+    }
+
+    toggleBtn.classList.remove('d-none');
+    toggleBtn.setAttribute('aria-expanded', String(completedAppointmentsExpanded));
+    toggleBtn.innerHTML = completedAppointmentsExpanded
+        ? '<i class="fas fa-chevron-up me-2"></i>View Less'
+        : '<i class="fas fa-layer-group me-2"></i>View All';
 }
 
 // Search functionality

@@ -687,25 +687,25 @@ header.sticky-header {
 
 /* Column width adjustments for better balance */
 .csq-table th:nth-child(1), /* Student ID */
-.csq-table td:nth-child(1) { width: 10%; }
+.csq-table td:nth-child(1) { width: 12%; }
 
 .csq-table th:nth-child(2), /* Name */
-.csq-table td:nth-child(2) { width: 11%; }
+.csq-table td:nth-child(2) { width: 15%; }
 
 .csq-table th:nth-child(3), /* Appointed Date */
-.csq-table td:nth-child(3) { width: 12%; }
+.csq-table td:nth-child(3) { width: 14%; }
 
 .csq-table th:nth-child(4), /* Time */
-.csq-table td:nth-child(4) { width: 9%; }
+.csq-table td:nth-child(4) { width: 10%; }
 
 .csq-table th:nth-child(5), /* Method */
 .csq-table td:nth-child(5) { width: 9%; }
 
 .csq-table th:nth-child(6), /* Consultation Type */
-.csq-table td:nth-child(6) { width: 13%; }
+.csq-table td:nth-child(6) { width: 16%; }
 
 .csq-table th:nth-child(7), /* Appointment Type */
-.csq-table td:nth-child(7) { width: 13%; }
+.csq-table td:nth-child(7) { width: 16%; }
 
 .csq-table th:nth-child(8), /* Purpose */
 .csq-table td:nth-child(8) { width: 10%; }
@@ -714,7 +714,7 @@ header.sticky-header {
 .csq-table td:nth-child(9) { width: 9%; }
 
 .csq-table th:nth-child(10), /* Action */
-.csq-table td:nth-child(10) { width: 16%; }
+.csq-table td:nth-child(10) { width: 18%; }
 
 /* Mini calendar styles */
 .mini-calendar-card { padding: 12px; }

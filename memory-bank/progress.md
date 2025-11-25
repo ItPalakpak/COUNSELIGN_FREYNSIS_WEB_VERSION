@@ -1,3 +1,41 @@
+- **COMPLETED (2025-11-27)**: Counselor follow-up calendar enforces availability
+  - Fixed `public/js/utils/customCalendarPicker.js` to use the existing `counselor/follow-up/availability` endpoint and booked-time data when counselors pick dates in follow-up modals.
+  - Custom picker now disables days with no schedules or fully booked slots, aligning counselor follow-up creation/editing with the student appointment experience.
+- **COMPLETED (2025-11-27)**: Admin user table filters stabilized
+  - `public/js/admin/view_users.js` now normalizes `is_online` flags, recomputes active user counts locally, and reapplies the current search/status filters after every auto-refresh so rows no longer jump back to the full list.
+  - Search covers student first/last names in addition to IDs, usernames, emails, and course/year strings, while the status filter properly distinguishes active vs inactive entries.
+- **COMPLETED (2025-11-25)**: Restored pending appointment edit time slot loading
+  - Fixed `public/js/student/my_appointments.js` so "Enable Edit" instantly reloads available time slots for the existing date/counselor, keeping the current selection marked as "(Current)".
+  - Students once again see all options without toggling inputs, while earlier safeguarding logic that preserves their original slot remains intact.
+  - Dropdown options are now chronologically sorted (earliest to latest) after refresh for clarity.
+- **COMPLETED (2025-11-26)**: Notification dropdown anchoring on dashboards
+  - Reworked student and counselor dashboard notification dropdown logic to rely on viewport coordinates instead of document scroll positions.
+  - Dropdown widths/positions clamp to the viewport and automatically reposition on scroll/resize so the panel always appears directly below the bell icon.
+  - Files updated: `public/js/student/student_dashboard.js`, `public/js/counselor/counselor_dashboard.js`, `memory-bank/activeContext.md`, `memory-bank/progress.md`.
+- **COMPLETED (2025-11-25)**: Follow-up completed appointments preview with View All toggle
+  - Counselor and admin follow-up dashboards now display only the first row of completed appointment cards by default with a `View All` button beside the search bar.
+  - Responsive JS helpers hide/show additional rows and update button text/state so the grid stays scannable on load while still allowing full expansion.
+  - Files updated: `app/Views/counselor/follow_up.php`, `app/Views/admin/follow_up_sessions.php`, `public/js/counselor/follow_up.js`, `public/js/admin/follow_up_sessions.js`, `public/css/counselor/follow_up.css`, `public/css/admin/follow_up_sessions.css`.
+- **COMPLETED (2025-11-25)**: PDS contact row width allocation
+  - Personal background row now dedicates 35%/20%/45% widths to Religion, Contact Number, and Email fields respectively to prevent overflow of long email addresses.
+  - Implemented by applying specific classes within `app/Views/PDS_preview.php` and the corresponding flex rules inside `public/css/pds_preview.css`.
+- **COMPLETED (2025-11-26)**: Student follow-up View All/View Less toggle
+  - Student follow-up sessions page now mirrors the counselor/admin experience with a four-card preview and dual-purpose toggle beside the search bar.
+  - Added responsive section actions styling plus shared collapse helpers so students can expand/collapse the grid without reloading the page.
+  - Files updated: `app/Views/student/follow_up_sessions.php`, `public/js/student/follow_up_sessions.js`, `public/css/student/follow_up_sessions.css`.
+- **COMPLETED (2025-11-25)**: Counselor export filters tightened
+  - The Export modal’s student dropdown now reacts to the selected course and year filters, preventing mismatched combinations.
+  - JS repopulates the student list whenever either filter changes and reuses the academic map to guarantee PDF/Excel outputs honor the same constraints.
+  - Files updated: `public/js/counselor/view_all_appointments.js`, `memory-bank/activeContext.md`, `memory-bank/progress.md`.
+- **COMPLETED (2025-11-27)**: Admin export filters aligned with counselor safeguards
+  - Admin export modals now filter the student dropdown by the currently selected course and year level, mirroring the counselor experience.
+  - Student options reload whenever course/year filters change, keep valid selections, and fall back to the full roster when filters clear.
+  - Files updated: `public/js/admin/view_all_appointments.js`, `memory-bank/activeContext.md`, `memory-bank/progress.md`.
+- **COMPLETED (2025-11-25)**: Counselor/Admin appointment list prioritisation
+  - Default status filter now loads pending appointments only, highlighting items awaiting action.
+  - Added a `View All Appointments` toggle beside the status select that disables the filter and shows every status while retaining the date filter.
+  - Lists sort pending entries first and order all appointments chronologically using their preferred date/time, with fallbacks to `created_at`.
+  - Updated files: `app/Views/{counselor,admin}/appointments.php`, `public/js/counselor/appointments.js`, `public/js/admin/appointments.js`.
 - **COMPLETED**: Student Dashboard Events & Quotes Refresh
   - **Feature**: Introduced a welcoming dashboard section featuring an auto-advancing events carousel and rotating inspirational quotes.
   - **Events Integration**: Carousel consumes `student/events/all`, filters for upcoming dates, and provides manual controls with graceful empty states.
