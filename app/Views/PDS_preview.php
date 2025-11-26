@@ -187,6 +187,18 @@
     }
     ?>
 
+    <!-- Floating Guide Button -->
+    <div class="guide-controls">
+        <button type="button"
+            class="btn-guide"
+            id="btnGuideModal"
+            aria-haspopup="dialog"
+            aria-controls="pdsGuideModal"
+            aria-expanded="false">
+            ❔ Download Guide
+        </button>
+    </div>
+
     <!-- Print Controls -->
     <div class="print-controls">
         <button onclick="downloadPDF()" class="btn-download">📥 Download as PDF</button>
@@ -669,6 +681,46 @@
         </div>
     </div>
     <!-- END: Responsive Container Wrapper -->
+
+    <!-- Download Guide Modal -->
+    <div id="pdsGuideModal" class="guide-modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="guide-modal__overlay" data-guide-close></div>
+        <div class="guide-modal__dialog" role="document" tabindex="-1">
+            <button type="button" class="guide-modal__close" aria-label="Close guide" data-guide-close>&times;</button>
+            <div class="guide-modal__header">
+                <p class="guide-eyebrow">Need help?</p>
+                <h2>How to download your PDS to your Mobile Device if you're on the Browser</h2>
+                <p class="guide-subtitle">Switch your browser to desktop view first so your PDS will be downloaded in a higher quality.</p>
+            </div>
+            <div class="guide-steps">
+                <article class="guide-step-card">
+                    <div class="guide-step-label">Step 1</div>
+                    <h3>Open the browser menu</h3>
+                    <p>Tap the three-dot menu in the upper-right corner of Chrome (or your mobile browser) while the PDS preview is open.</p>
+                    <div class="guide-step-image">
+                        <img src="<?= base_url('Misc/step1.png') ?>" alt="Chrome menu button highlighted" loading="lazy">
+                    </div>
+                </article>
+                <article class="guide-step-card">
+                    <div class="guide-step-label">Step 2</div>
+                    <h3>Enable Desktop site</h3>
+                    <p>Scroll down and check <strong>Desktop site</strong>. The page will reload with the desktop layout so every field stays visible.</p>
+                    <div class="guide-step-image">
+                        <img src="<?= base_url('Misc/step2.png') ?>" alt="Desktop site option checked" loading="lazy">
+                    </div>
+                </article>
+                <article class="guide-step-card">
+                    <div class="guide-step-label">Step 3</div>
+                    <h3>Download as PDF</h3>
+                    <p>Tap the green <strong>Download as PDF</strong> button at the top-right corner to save your Personal Data Sheet.</p>
+                    <div class="guide-step-image">
+                        <img src="<?= base_url('Misc/step3.png') ?>" alt="Download as PDF button highlighted" loading="lazy">
+                    </div>
+                </article>
+            </div>
+            <p class="guide-note">Tip: Keep your phone in landscape for a wider view of the screenshots. The steps are the same on most Android browsers.</p>
+        </div>
+    </div>
 
     <!-- Load jsPDF library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"

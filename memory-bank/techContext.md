@@ -139,6 +139,7 @@ public/js/user/user_dashboard.js      → JavaScript functions only
 - **File Upload**: PWD proof file upload (PDF, images, videos, documents)
 - **Services Handling**: Multiple selection for services needed and services availed
 - **Validation**: Comprehensive server-side validation with proper error messages
+- **Download Guide Modal**: `app/Views/PDS_preview.php`, `public/css/pds_preview.css`, and `public/js/pds_preview.js` now include a floating trigger plus modal walkthrough (with `public/Misc/step1-3.png` assets) that teaches mobile users how to switch to desktop mode before downloading the PDF.
 - **Partial Updates**: Handles partial updates with N/A defaults for empty fields
 
 #### Data Flow:

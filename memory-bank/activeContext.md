@@ -18,6 +18,10 @@
 - **2025-11-25 – PDS contact row width allocation**
   - Ensured the religion, contact number, and email fields inside the personal background row follow a 35% / 20% / 45% width split so long email addresses stay on a single line.
   - Added targeted classes in `app/Views/PDS_preview.php` plus supporting flex rules in `public/css/pds_preview.css` to keep the layout predictable without affecting other sections.
+- **2025-11-25 – PDS mobile download guide**
+  - Added a floating "Download Guide" pill on the top-left corner of the preview page that opens an accessible modal with step-by-step screenshots (`Misc/step1-3.png`) explaining how to enable Desktop Site and trigger the PDF download on mobile.
+  - Modal includes responsive grid cards so screenshots remain readable on narrow screens, prevents background scrolling while open, and restores focus to the trigger for accessibility.
+  - Files: `app/Views/PDS_preview.php`, `public/css/pds_preview.css`, `public/js/pds_preview.js`.
 - **2025-11-25 – Follow-up completed list collapse**
   - Counselor and admin follow-up pages now load completed appointment cards in a single-row preview with a `View All` toggle beside the search field.
   - New JS helpers hide/show rows responsively so counselors/admins can quickly scan the most recent completions before expanding the full grid.

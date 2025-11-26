@@ -19,6 +19,10 @@
 - **COMPLETED (2025-11-25)**: PDS contact row width allocation
   - Personal background row now dedicates 35%/20%/45% widths to Religion, Contact Number, and Email fields respectively to prevent overflow of long email addresses.
   - Implemented by applying specific classes within `app/Views/PDS_preview.php` and the corresponding flex rules inside `public/css/pds_preview.css`.
+- **COMPLETED (2025-11-25)**: PDS mobile download guide modal
+  - Added a floating “Download Guide” pill on the preview page that opens a three-step modal with annotated screenshots explaining how to enable Desktop Site and trigger the PDF download from mobile browsers.
+  - Modal locks body scrolling, supports overlay/escape dismissal, restores focus to the trigger, and keeps screenshots readable on narrow screens via responsive CSS grid cards.
+  - Files updated: `app/Views/PDS_preview.php`, `public/css/pds_preview.css`, `public/js/pds_preview.js`, `public/Misc/step1-3.png` assets referenced.
 - **COMPLETED (2025-11-26)**: Student follow-up View All/View Less toggle
   - Student follow-up sessions page now mirrors the counselor/admin experience with a four-card preview and dual-purpose toggle beside the search bar.
   - Added responsive section actions styling plus shared collapse helpers so students can expand/collapse the grid without reloading the page.

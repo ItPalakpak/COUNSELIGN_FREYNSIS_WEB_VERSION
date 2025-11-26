@@ -258,6 +258,59 @@ async function downloadPDF() {
 }
 
 /**
+ * Download Guide Modal Interactions
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const guideTrigger = document.getElementById('btnGuideModal');
+    const guideModal = document.getElementById('pdsGuideModal');
+
+    if (!guideTrigger || !guideModal) {
+        return;
+    }
+
+    const closeSelectors = guideModal.querySelectorAll('[data-guide-close]');
+    const modalDialog = guideModal.querySelector('.guide-modal__dialog');
+    let lastFocusedElement = null;
+
+    const openGuideModal = () => {
+        if (guideModal.classList.contains('is-visible')) {
+            return;
+        }
+        lastFocusedElement = document.activeElement;
+        guideModal.classList.add('is-visible');
+        guideModal.setAttribute('aria-hidden', 'false');
+        guideTrigger.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('guide-modal-open');
+        if (modalDialog) {
+            setTimeout(() => modalDialog.focus(), 120);
+        }
+    };
+
+    const closeGuideModal = () => {
+        if (!guideModal.classList.contains('is-visible')) {
+            return;
+        }
+        guideModal.classList.remove('is-visible');
+        guideModal.setAttribute('aria-hidden', 'true');
+        guideTrigger.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('guide-modal-open');
+        const focusTarget = lastFocusedElement instanceof HTMLElement ? lastFocusedElement : guideTrigger;
+        focusTarget.focus();
+    };
+
+    guideTrigger.addEventListener('click', openGuideModal);
+    closeSelectors.forEach((element) => {
+        element.addEventListener('click', closeGuideModal);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && guideModal.classList.contains('is-visible')) {
+            closeGuideModal();
+        }
+    });
+});
+
+/**
  * Library verification - Check if required libraries are loaded
  */
 window.addEventListener('load', function() {

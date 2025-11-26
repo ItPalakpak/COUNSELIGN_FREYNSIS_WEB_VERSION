@@ -101,6 +101,25 @@
 - **Accessibility**: Proper ARIA labels and keyboard navigation support
 - **Performance**: Efficient DOM manipulation and event handling
 
+## PDS Download Guide Modal
+
+**Purpose**: Provide in-app help for students trying to download their Personal Data Sheet on mobile browsers that require “Desktop site” view for the PDF generator to work reliably.
+
+**Key Elements**:
+- **Floating Trigger**: Rounded “Download Guide” button pinned to the top-left corner so it never collides with the existing download controls on the right.
+- **Overlay Dialog**: Full-screen modal that locks body scrolling, toggles `aria-hidden`, and restores the last focused element when closed.
+- **Step Cards**: Three responsive cards with descriptive text and screenshots sourced from `public/Misc/step1.png`, `step2.png`, and `step3.png`. Cards reorganize into a single column on very narrow screens to keep images legible.
+
+**Interactions & Accessibility**:
+- Trigger manages `aria-expanded` and uses focus management to keep keyboard users anchored.
+- Modal closes via overlay tap, close button, or `Escape` key, and auto-focuses the dialog container upon open.
+- Images use `object-fit: contain` plus generous padding so annotations remain visible even when scaled down.
+
+**Implementation Files**:
+- `app/Views/PDS_preview.php` – Added trigger button plus semantic modal markup with descriptive copy for each step.
+- `public/css/pds_preview.css` – Styled the floating button, overlay, dialog, and card grid with responsive rules and scroll locking.
+- `public/js/pds_preview.js` – Handles open/close logic, focus restoration, and keyboard shortcuts without touching the PDF generation flow.
+
 ## Automatic Email Notifications for Appointment Actions
 
 **Email Notification System:**
