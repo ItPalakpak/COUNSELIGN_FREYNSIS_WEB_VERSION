@@ -38,11 +38,12 @@ class Message extends BaseController
         try {
             switch ($action) {
                 case 'get_counselor_conversations':
-                    // Get all counselors with latest message data
+                    // Get only verified counselors with latest message data
                     $counselors = $db->table('counselors c')
                         ->select('c.counselor_id, c.name')
                         ->join('users u', 'u.user_id = c.counselor_id', 'left')
                         ->select('u.profile_picture, u.last_activity, u.last_login, u.logout_time')
+                        ->where('u.is_verified', 1)
                         ->orderBy('c.name', 'ASC')
                         ->get()
                         ->getResultArray();
@@ -207,12 +208,13 @@ class Message extends BaseController
                     break;
 
                 case 'get_unread_count':
-                    // Get total unread message count from all counselors
+                    // Get total unread message count from verified counselors only
                     $unreadCount = $db->table('messages')
                         ->where('receiver_id', $user_id)
                         ->where('is_read', 0)
                         ->join('users u', 'u.user_id = messages.sender_id', 'left')
                         ->where('u.role', 'counselor')
+                        ->where('u.is_verified', 1)
                         ->countAllResults();
                     // Ensure type-safe integer response
                     $response = ['success' => true, 'unread_count' => (int)$unreadCount];

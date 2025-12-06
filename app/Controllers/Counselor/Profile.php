@@ -126,7 +126,13 @@ class Profile extends BaseController
         if ($user) {
             // Fetch counselor details if exists
             $db = \Config\Database::connect();
-            $counselor = $db->table('counselors')->where('counselor_id', $user['user_id'])->get()->getRowArray();
+            $counselor = $db->table('counselors')
+                ->where('counselor_id', $user['user_id'])
+                ->get()
+                ->getRowArray() ?? [];
+
+            // Always trust users table for the canonical email address
+            $counselor['email'] = $user['email'];
             return $this->response->setJSON([
                 'success' => true,
                 'user_id' => $user['user_id'],
@@ -322,6 +328,25 @@ class Profile extends BaseController
 
                 // Use skipValidation to avoid unique email check since we manually checked above
                 $userModel->skipValidation(true)->update($user['id'], $data);
+                
+                // Keep counselors table email in sync with the canonical users table record
+                $db = \Config\Database::connect();
+                $counselorBuilder = $db->table('counselors');
+                $counselorRecord = $counselorBuilder
+                    ->where('counselor_id', $user_id)
+                    ->get()
+                    ->getRowArray();
+
+                if ($counselorRecord) {
+                    $db->table('counselors')
+                        ->where('counselor_id', $user_id)
+                        ->update(['email' => $email]);
+                } else {
+                    $db->table('counselors')->insert([
+                        'counselor_id' => $user_id,
+                        'email' => $email,
+                    ]);
+                }
                 
                 // Update last_activity for profile update
                 $activityHelper = new UserActivityHelper();

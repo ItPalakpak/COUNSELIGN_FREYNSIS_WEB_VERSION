@@ -1,9 +1,16 @@
 - **COMPLETED (2025-11-27)**: Counselor follow-up calendar enforces availability
   - Fixed `public/js/utils/customCalendarPicker.js` to use the existing `counselor/follow-up/availability` endpoint and booked-time data when counselors pick dates in follow-up modals.
   - Custom picker now disables days with no schedules or fully booked slots, aligning counselor follow-up creation/editing with the student appointment experience.
+- **COMPLETED (2025-11-27)**: Counselor profile email source corrected
+  - `app/Controllers/Counselor/Profile.php::getProfile()` now always injects the canonical `users.email` into the counselor payload, preventing stale or mismatched emails from the `counselors` table.
+- **COMPLETED (2025-11-27)**: Counselor profile updates now mirror emails into the `counselors` table, guaranteeing `users.user_id = counselors.counselor_id` joins always expose the latest address even if counselor rows existed without emails (`App\Controllers\Counselor\Profile::updateProfile`).
+- **COMPLETED (2025-11-27)**: Admin user table filters stabilized
 - **COMPLETED (2025-11-27)**: Admin user table filters stabilized
   - `public/js/admin/view_users.js` now normalizes `is_online` flags, recomputes active user counts locally, and reapplies the current search/status filters after every auto-refresh so rows no longer jump back to the full list.
   - Search covers student first/last names in addition to IDs, usernames, emails, and course/year strings, while the status filter properly distinguishes active vs inactive entries.
+- **COMPLETED (2025-11-26)**: Admin user course/year dropdown filters
+  - Added responsive course and year-level selects beside the search bar on `app/Views/admin/view_users.php` with matching layout updates in `public/css/admin/view_users.css`.
+  - `public/js/admin/view_users.js` now hydrates unique course/year options from the API, preserves selections across refreshes, and applies them alongside the existing search and status criteria.
 - **COMPLETED (2025-11-25)**: Restored pending appointment edit time slot loading
   - Fixed `public/js/student/my_appointments.js` so "Enable Edit" instantly reloads available time slots for the existing date/counselor, keeping the current selection marked as "(Current)".
   - Students once again see all options without toggling inputs, while earlier safeguarding logic that preserves their original slot remains intact.

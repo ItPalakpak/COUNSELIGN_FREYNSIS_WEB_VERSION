@@ -136,11 +136,21 @@
 
             <div class="search-filter-container">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search student users...">
+                    <input type="text" id="searchInput" placeholder="Search student users..." aria-label="Search student users">
                     <i class="fas fa-search"></i>
                 </div>
                 <div class="filter-box">
-                    <select id="statusFilter">
+                    <select id="courseFilter" aria-label="Filter by course">
+                        <option value="all">All Courses</option>
+                    </select>
+                </div>
+                <div class="filter-box">
+                    <select id="yearLevelFilter" aria-label="Filter by year level">
+                        <option value="all">All Year Levels</option>
+                    </select>
+                </div>
+                <div class="filter-box">
+                    <select id="statusFilter" aria-label="Filter by active status">
                         <option value="all">All Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
@@ -177,7 +187,7 @@
 
     <!-- Student PDS Modal -->
     <div class="modal fade" id="studentPDSModal" tabindex="-1" aria-labelledby="studentPDSModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="studentPDSModalLabel">
@@ -185,7 +195,7 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-0">
+                <div class="modal-body p-0 pds-modal-body">
                     <!-- Loading State -->
                     <div id="pdsLoadingState" class="text-center py-5">
                         <div class="spinner-border text-primary" role="status">
@@ -259,7 +269,7 @@
                                 </li>
                             </ul>
 
-                            <div class="tab-content p-4" id="pdsTabContent">
+                            <div class="tab-content p-4 pds-scrollable-tab-content" id="pdsTabContent">
                                 <!-- Personal Background Tab -->
                                 <div class="tab-pane fade show active" id="pds-personal-bg" role="tabpanel">
                                     <!-- Academic Information -->

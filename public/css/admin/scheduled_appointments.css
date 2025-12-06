@@ -696,13 +696,13 @@ header.sticky-header {
 .csq-table td:nth-child(4) { width: 11%; }
 
 .csq-table th:nth-child(5), /* Consultation Type */
-.csq-table td:nth-child(5) { width: 14%; }
+.csq-table td:nth-child(5) { width: 16%; }
 
 .csq-table th:nth-child(6), /* Purpose */
 .csq-table td:nth-child(6) { width: 13%; }
 
 .csq-table th:nth-child(7), /* Appointed Counselor */
-.csq-table td:nth-child(7) { width: 16%; }
+.csq-table td:nth-child(7) { width: 18%; }
 
 .csq-table th:nth-child(8), /* Status */
 .csq-table td:nth-child(8) { width: 11%; }

@@ -32,7 +32,6 @@ Make sure to avoid ambiguous and spaghetti coding as we here promote a type safe
 
 
 this is your focus and make sure to avoid changing or modifying existing functions that are not connected to this/these function/s we are trying to fix/modify/implement.
-
 Make sure to avoid ambiguous and spaghetti coding as we here promote a type safe coding project for easy debugging, and always scan for linter errors and warnings in the console so that you can fix them before confirming the changes  thank you.
 
 

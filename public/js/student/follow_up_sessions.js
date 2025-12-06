@@ -132,18 +132,19 @@ function createAppointmentCard(appointment) {
     return `
         <div class="appointment-card">
             <div class="appointment-header">
-                <div class="appointment-status">${appointment.status}</div>
+                <div class="appointment-status">
+                    <i class="fas fa-check-circle"></i>
+                </div>
                 <div class="header-indicators">
+                    ${appointment.pending_follow_up_count > 0 ? `
+                    <div class="pending-follow-up-indicator">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    ` : ''}
                     <div class="follow-up-count">
                         <i class="fas fa-calendar-plus"></i>
                         Follow-ups: ${appointment.follow_up_count || 0}
                     </div>
-                    ${appointment.pending_follow_up_count > 0 ? `
-                    <div class="pending-follow-up-indicator">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Pending
-                    </div>
-                    ` : ''}
                 </div>
             </div>
             <div class="appointment-details">
@@ -496,13 +497,15 @@ function updateCompletedAppointmentsToggleButton(hasMoreRows) {
     }
 
     if (!hasMoreRows) {
-        toggleBtn.classList.add('d-none');
+        toggleBtn.disabled = true;
+        toggleBtn.classList.add('is-disabled');
         toggleBtn.setAttribute('aria-expanded', 'false');
         toggleBtn.innerHTML = '<i class="fas fa-layer-group me-2"></i>View All';
         return;
     }
 
-    toggleBtn.classList.remove('d-none');
+    toggleBtn.disabled = false;
+    toggleBtn.classList.remove('is-disabled');
     toggleBtn.setAttribute('aria-expanded', String(completedAppointmentsExpanded));
     toggleBtn.innerHTML = completedAppointmentsExpanded
         ? '<i class="fas fa-chevron-up me-2"></i>View Less'

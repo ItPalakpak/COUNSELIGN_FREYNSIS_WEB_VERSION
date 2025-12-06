@@ -353,92 +353,87 @@
                             </div>
                         </div>
 
-                        <!-- Enhanced Export Filters Modal -->
-                        <div class="modal fade" id="exportFiltersModal" tabindex="-1" aria-labelledby="exportFiltersModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exportFiltersModalLabel"><i class="fas fa-filter me-2"></i>Export Filters</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <!-- Enhanced Export Filters Container -->
+                        <div class="export-filters-container" id="exportFiltersContainer" style="display: none;">
+                            <div class="export-filters-header">
+                                <h5 class="export-filters-title"><i class="fas fa-filter me-2"></i>Export Filters</h5>
+                            </div>
+                            <div class="export-filters-body">
+                                <!-- Date Range Filters -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-3">
+                                        <label for="exportStartDate" class="form-label">Start Date</label>
+                                        <input type="date" class="form-control" id="exportStartDate">
                                     </div>
-                                    <div class="modal-body">
-                                        <!-- Date Range Filters -->
-                                        <div class="row g-3 mb-4">
-                                            <div class="col-md-3">
-                                                <label for="exportStartDate" class="form-label">Start Date</label>
-                                                <input type="date" class="form-control" id="exportStartDate">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label for="exportEndDate" class="form-label">End Date</label>
-                                                <input type="date" class="form-control" id="exportEndDate">
-                                            </div>
-                                            <div class="col-md-6 d-flex align-items-end">
-                                                <small class="text-muted">
-                                                    <i class="fas fa-info-circle me-1"></i>
-                                                    Leave dates empty to export all appointments from the selected status tab.
-                                                </small>
-                                            </div>
-                                        </div>
-
-                                        <!-- Additional Filters -->
-                                        <div class="row g-3 mb-2">
-                                            <div class="col-md-6">
-                                                <label for="exportCounselorFilter" class="form-label">Counselor</label>
-                                                <select class="form-select" id="exportCounselorFilter">
-                                                    <option value="">All Counselors</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label for="exportCourseFilter" class="form-label">Course</label>
-                                                <select class="form-select" id="exportCourseFilter">
-                                                    <option value="">All Courses</option>
-                                                    <option value="BSIT">BSIT</option>
-                                                    <option value="BSABE">BSABE</option>
-                                                    <option value="BSEnE">BSEnE</option>
-                                                    <option value="BSHM">BSHM</option>
-                                                    <option value="BFPT">BFPT</option>
-                                                    <option value="BSA">BSA</option>
-                                                    <option value="BTHM">BTHM</option>
-                                                    <option value="BSSW">BSSW</option>
-                                                    <option value="BSAF">BSAF</option>
-                                                    <option value="BTLED">BTLED</option>
-                                                    <option value="DAT-BAT">DAT-BAT</option>
-                                                </select>
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label for="exportYearLevelFilter" class="form-label">Year Level</label>
-                                                <select class="form-select" id="exportYearLevelFilter">
-                                                    <option value="">All Year Levels</option>
-                                                    <option value="I">I</option>
-                                                    <option value="II">II</option>
-                                                    <option value="III">III</option>
-                                                    <option value="IV">IV</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="exportStudentFilter" class="form-label">Student</label>
-                                                <select class="form-select" id="exportStudentFilter">
-                                                    <option value="">All Students</option>
-                                                </select>
-                                            </div>
-                                        </div>
+                                    <div class="col-md-3">
+                                        <label for="exportEndDate" class="form-label">End Date</label>
+                                        <input type="date" class="form-control" id="exportEndDate">
                                     </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-outline-secondary" id="clearAllFilters">
-                                            <i class="fas fa-times me-1"></i>Clear All
-                                        </button>
-                                        <button class="btn btn-outline-primary" id="clearDateRange">
-                                            <i class="fas fa-calendar-times me-1"></i>Clear Dates
-                                        </button>
-                                        <button class="btn btn-primary" id="applyFilters">
-                                            <i class="fas fa-check me-1"></i>Apply Filters & Export
-                                        </button>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Leave dates empty to export all appointments from the selected status tab.
+                                        </small>
                                     </div>
                                 </div>
+
+                                <!-- Additional Filters -->
+                                <div class="row g-3 mb-2">
+                                    <div class="col-md-6">
+                                        <label for="exportCounselorFilter" class="form-label">Counselor</label>
+                                        <select class="form-select" id="exportCounselorFilter">
+                                            <option value="">All Counselors</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="exportCourseFilter" class="form-label">Course</label>
+                                        <select class="form-select" id="exportCourseFilter">
+                                            <option value="">All Courses</option>
+                                            <option value="BSIT">BSIT</option>
+                                            <option value="BSABE">BSABE</option>
+                                            <option value="BSEnE">BSEnE</option>
+                                            <option value="BSHM">BSHM</option>
+                                            <option value="BFPT">BFPT</option>
+                                            <option value="BSA">BSA</option>
+                                            <option value="BTHM">BTHM</option>
+                                            <option value="BSSW">BSSW</option>
+                                            <option value="BSAF">BSAF</option>
+                                            <option value="BTLED">BTLED</option>
+                                            <option value="DAT-BAT">DAT-BAT</option>
+                                        </select>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="exportYearLevelFilter" class="form-label">Year Level</label>
+                                        <select class="form-select" id="exportYearLevelFilter">
+                                            <option value="">All Year Levels</option>
+                                            <option value="I">I</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="exportStudentFilter" class="form-label">Student</label>
+                                        <select class="form-select" id="exportStudentFilter">
+                                            <option value="">All Students</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="export-filters-footer">
+                                <button class="btn btn-outline-secondary" id="clearAllFilters">
+                                    <i class="fas fa-times me-1"></i>Clear All
+                                </button>
+                                <button class="btn btn-outline-primary" id="clearDateRange">
+                                    <i class="fas fa-calendar-times me-1"></i>Clear Dates
+                                </button>
+                                <button class="btn btn-primary" id="applyFilters">
+                                    <i class="fas fa-check me-1"></i>Apply Filters & Export
+                                </button>
                             </div>
                         </div>
 

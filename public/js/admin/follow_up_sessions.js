@@ -114,18 +114,19 @@ function displayCompletedAppointments(appointments, searchTerm = '') {
     container.innerHTML = appointments.map(appointment => `
         <div class="appointment-card">
             <div class="appointment-header">
-                <div class="appointment-status">${appointment.status}</div>
+                <div class="appointment-status">
+                    <i class="fas fa-check-circle"></i>
+                </div>
                 <div class="header-indicators">
+                    ${appointment.pending_follow_up_count > 0 ? `
+                    <div class="pending-follow-up-indicator">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    ` : ''}
                     <div class="follow-up-count">
                         <i class="fas fa-calendar-plus"></i>
                         Follow-ups: ${appointment.follow_up_count || 0}
                     </div>
-                    ${appointment.pending_follow_up_count > 0 ? `
-                    <div class="pending-follow-up-indicator">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Pending
-                    </div>
-                    ` : ''}
                 </div>
             </div>
             <div class="appointment-student">

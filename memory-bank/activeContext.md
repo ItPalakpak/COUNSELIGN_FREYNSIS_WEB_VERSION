@@ -7,6 +7,10 @@
   - Normalized the `is_online` flag returned by `admin/users/api` and re-used the current search/status criteria after every background refresh so rows no longer jump back to the unfiltered list.
   - Search now inspects student first/last names in addition to IDs, username, email, and course/year, while the status filter properly distinguishes active vs inactive users even when the API returns string values.
   - File: `public/js/admin/view_users.js`.
+- **2025-11-26 – Admin user list course/year filters**
+  - Added course and year-level dropdown filters beside the search bar; options hydrate from the users API payload and keep prior selections whenever the table refreshes.
+  - Combined filters now drive the table rendering together with the search and status controls, and the layout stacks cleanly on smaller screens.
+  - Files: `app/Views/admin/view_users.php`, `public/css/admin/view_users.css`, `public/js/admin/view_users.js`.
 - **2025-11-25 – Pending appointment edit UX fix**
   - Repaired `public/js/student/my_appointments.js` so that enabling edit immediately repopulates the Preferred Time select with all available slots for the current date/counselor while keeping the student's existing slot pinned as `current`.
   - Ensures students can pick alternative slots again without first toggling the date, restoring pre-regression behaviour and keeping the preserved-time safeguards that prevent accidental clearing.
@@ -1631,6 +1635,8 @@ Next Steps
   - `public/js/utils/customCalendarPicker.js` switches to the existing `counselor/follow-up/availability` endpoint and uses booked-time data to detect full days.
   - Follow-up create/edit modals once again disable days without schedules or with fully booked slots, matching the student scheduling behavior.
 - Student and counselor dashboard notification dropdowns now track the viewport rather than document scroll (`public/js/student/student_dashboard.js`, `public/js/counselor/counselor_dashboard.js`), keeping the panel anchored under the bell icon even when the page scrolls or resizes.
+- Counselor legacy profile endpoint now always returns the canonical email from the `users` table, even when counselor details are missing or outdated in the `counselors` table (`app/Controllers/Counselor/Profile.php::getProfile`).
+- Counselor profile updates now synchronize the `counselors` table email with the canonical `users.email`, ensuring downstream joins stay consistent even if counselor records were created earlier without email data (`app/Controllers/Counselor/Profile.php::updateProfile`).
 - Counselor rejection reason modal auto-close and auto-reject bug:
   - Root cause: `public/js/counselor/appointments.js` attached a footer click handler in `updateModalButtons()` that directly invoked `updateAppointmentStatus(..., 'rejected')` when clicking `#rejectAppointmentBtn`, bypassing the rejection-reason flow.
   - Fix: Removed the auto-reject click binding from the pending-state footer; rejection now routes exclusively through the `rejectionReasonModal` → confirmation modal flow, preserving user input for the rejection reason.

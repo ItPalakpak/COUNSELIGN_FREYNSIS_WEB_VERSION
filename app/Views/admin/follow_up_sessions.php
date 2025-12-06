@@ -131,7 +131,7 @@
                             </div>
                         </div>
                         <button type="button"
-                            class="btn btn-outline-primary view-all-toggle-btn d-none"
+                            class="btn btn-outline-primary view-all-toggle-btn"
                             id="toggleCompletedAppointmentsBtn"
                             aria-expanded="false"
                             aria-controls="completedAppointmentsContainer">

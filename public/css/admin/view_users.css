@@ -133,17 +133,21 @@ body {
 /* Search and Filter Styles */
 .search-filter-container {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1.5rem;
+    align-items: stretch;
 }
 
 .search-box {
-    flex: 1;
+    flex: 1 1 280px;
+    min-width: 220px;
     position: relative;
 }
 
 .search-box input {
     width: 100%;
+    height: 100%;
     padding: 0.5rem 2.5rem 0.5rem 1rem;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -157,11 +161,47 @@ body {
     color: #666;
 }
 
+.filter-box {
+    flex: 0 1 180px;
+    min-width: 150px;
+}
+
 .filter-box select {
+    width: 100%;
+    height: 100%;
     padding: 0.5rem 1rem;
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: white;
+}
+
+.pds-modal-body {
+    overflow: hidden;
+}
+
+.pds-scrollable-tab-content {
+    max-height: 30vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.pds-scrollable-tab-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pds-scrollable-tab-content::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.pds-scrollable-tab-content::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+@media (max-width: 991.98px) {
+    .pds-scrollable-tab-content {
+        max-height: 55vh;
+    }
 }
 
 /* Table Styles */
@@ -283,13 +323,14 @@ footer {
     }
 
     .search-filter-container {
-        flex-direction: row !important;
-        align-items: center;
+        flex-direction: column;
         gap: 0.75rem;
     }
-    .search-filter-container .search-box { flex: 1 1 60%; min-width: 0; }
-    .search-filter-container .filter-box { flex: 0 1 40%; min-width: 120px; }
-    .filter-box select { width: 100%; }
+    .search-filter-container .search-box,
+    .search-filter-container .filter-box {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
 
     .footer-content {
         flex-direction: column;
@@ -347,14 +388,16 @@ footer {
 
     /* Search and filter responsive */
     .search-filter-container {
-        flex-direction: row !important;
+        flex-direction: column;
         gap: 10px;
         padding: 15px;
-        align-items: center;
     }
 
-    .search-box { flex: 1 1 60%; min-width: 0; }
-    .filter-box { flex: 0 1 40%; min-width: 140px; }
+    .search-box,
+    .filter-box {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
 
     .search-box input,
     .filter-box select {
@@ -451,6 +494,7 @@ footer {
 #studentPDSModal .modal-dialog {
     max-width: 95vw;
     margin: 1rem auto;
+    height: 100vh;
 }
 
 #studentPDSModal .modal-content {

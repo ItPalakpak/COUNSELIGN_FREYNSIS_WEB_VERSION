@@ -425,7 +425,9 @@ async function loadConversations() {
         const userList = document.querySelector('.conversations-list');
         if (!userList) return;
 
-        if (!userList.querySelector('.conversation-item')) {
+        const hasExistingConversations = userList.querySelector('.conversation-item') !== null;
+        
+        if (!hasExistingConversations) {
             userList.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i><span>Loading conversations...</span></div>';
         }
 
@@ -474,14 +476,32 @@ async function loadConversations() {
                     }
                 }
             } else {
+                // Only show error if there are no existing conversations
+                if (!hasExistingConversations) {
+                    throw new Error(data.message || 'Failed to load conversations');
+                } else {
+                    // If we have existing conversations but API returns empty, preserve them
+                    SecureLogger.info('API returned empty conversations, preserving existing list');
+                }
+            }
+        } else {
+            // Only show error if there are no existing conversations
+            if (!hasExistingConversations) {
                 throw new Error(data.message || 'Failed to load conversations');
+            } else {
+                SecureLogger.info('API returned unsuccessful response, preserving existing conversations');
             }
         }
     } catch (error) {
         console.error('Error:', error);
         const userList = document.querySelector('.conversations-list');
-        if (userList && !userList.querySelector('.conversation-item')) {
+        const hasExistingConversations = userList && userList.querySelector('.conversation-item') !== null;
+        
+        // Only show error if there are no existing conversations to preserve
+        if (userList && !hasExistingConversations) {
             userList.innerHTML = `<div class="error-message">${error.message}</div>`;
+        } else {
+            SecureLogger.info('Error loading conversations, but preserving existing list:', error.message);
         }
     }
 }
@@ -490,14 +510,18 @@ function updateConversations(conversations) {
     const userList = document.querySelector('.conversations-list');
     if (!userList) return;
 
+    const hasExistingConversations = userList.querySelector('.conversation-item') !== null;
+
     if (!Array.isArray(conversations) || conversations.length === 0) {
-        if (!userList.querySelector('.no-conversations')) {
+        // Only clear the list if there are no existing conversations
+        if (!hasExistingConversations && !userList.querySelector('.no-conversations')) {
             userList.innerHTML = `
             <div class="no-conversations">
                 <i class="fas fa-comments"></i>
                 <p>No conversations yet</p>
             </div>`;
         }
+        // If we have existing conversations but new data is empty, preserve them
         return;
     }
 
@@ -505,8 +529,19 @@ function updateConversations(conversations) {
     userList.querySelectorAll('.conversation-item').forEach(card => {
         existingCards.set(card.dataset.id, card);
     });
+    
+    // Capture original count before we start processing
+    const originalExistingCount = existingCards.size;
 
-    conversations.forEach(conv => {
+    // Sort conversations by last_message_time (most recent first) to ensure correct order
+    // This ensures the conversation with the latest message appears at the top
+    const sortedConversations = [...conversations].sort((a, b) => {
+        const timeA = a.last_message_time ? new Date(a.last_message_time).getTime() : 0;
+        const timeB = b.last_message_time ? new Date(b.last_message_time).getTime() : 0;
+        return timeB - timeA; // Descending order (newest first)
+    });
+
+    sortedConversations.forEach((conv, index) => {
         const otherUserId = conv.other_user_id || conv.user_id;
         const otherUserName = conv.other_username || conv.name || 'Unknown';
         const otherAvatar = resolveImageUrl(conv.other_profile_picture || 'Photos/profile.png');
@@ -605,15 +640,78 @@ function updateConversations(conversations) {
             existingCard.dataset.lastActivity = conv.last_activity || '';
             existingCard.dataset.lastLogin = conv.last_login || '';
             
-            existingCards.delete(conv.user_id);
+            // Store last_message_time in dataset for position comparison
+            existingCard.dataset.lastMessageTime = conv.last_message_time || '';
+            
+            // If this is the first conversation (most recent), move it to the top
+            // This ensures the conversation with the latest message appears at the top
+            if (index === 0) {
+                const firstCard = userList.querySelector('.conversation-item');
+                if (firstCard && firstCard !== existingCard) {
+                    userList.insertBefore(existingCard, firstCard);
+                }
+            }
+            
+            // Fix: Use otherUserId (the Map key) instead of conv.user_id
+            existingCards.delete(String(otherUserId));
         } else {
+            // New card - insert at the correct position based on sorted order
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = cardHtml;
-            userList.appendChild(tempDiv.firstElementChild);
+            const newCard = tempDiv.firstElementChild;
+            
+            // Store last_message_time in dataset for future position comparisons
+            newCard.dataset.lastMessageTime = conv.last_message_time || '';
+            
+            // If this is the first conversation (most recent), insert at the top
+            if (index === 0) {
+                const firstCard = userList.querySelector('.conversation-item');
+                if (firstCard) {
+                    userList.insertBefore(newCard, firstCard);
+                } else {
+                    userList.appendChild(newCard);
+                }
+            } else {
+                // For other positions, find the correct insertion point
+                const allCards = Array.from(userList.querySelectorAll('.conversation-item'));
+                const currentCardTime = conv.last_message_time 
+                    ? new Date(conv.last_message_time).getTime() 
+                    : 0;
+                
+                let insertBeforeCard = null;
+                for (let i = 0; i < allCards.length; i++) {
+                    const card = allCards[i];
+                    const cardTime = card.dataset.lastMessageTime 
+                        ? new Date(card.dataset.lastMessageTime).getTime() 
+                        : 0;
+                    if (currentCardTime > cardTime) {
+                        insertBeforeCard = card;
+                        break;
+                    }
+                }
+                
+                if (insertBeforeCard) {
+                    userList.insertBefore(newCard, insertBeforeCard);
+                } else {
+                    // Append to end if it's the oldest
+                    userList.appendChild(newCard);
+                }
+            }
         }
     });
 
-    existingCards.forEach(card => card.remove());
+    // Only remove cards that are truly not in the new list
+    // Be conservative: if we had existing conversations and API returns fewer, preserve them
+    // This prevents disappearing conversations when API hasn't updated yet after sending
+    const remainingCardsCount = existingCards.size;
+    if (remainingCardsCount === 0 || conversations.length >= originalExistingCount) {
+        // Safe to remove - either no remaining cards, or API returned same or more than we originally had
+        existingCards.forEach(card => card.remove());
+    } else {
+        // API returned fewer conversations than we originally had - likely incomplete response
+        // Preserve remaining cards to prevent disappearing conversations
+        SecureLogger.info(`Preserving ${remainingCardsCount} existing conversations - originally had ${originalExistingCount}, API returned ${conversations.length}, may be incomplete`);
+    }
 
     const highlightId = localStorage.getItem('highlightStudentCard');
     if (highlightId) {
@@ -910,7 +1008,21 @@ async function sendMessage() {
             }
 
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Reset timestamp to force reload of messages
+            lastMessageTimestamp = null;
+            
+            // Delay to ensure database is updated before refreshing conversations
+            // Increased delay to prevent disappearing conversations due to race condition
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Reload messages from server after sending
+            await loadMessages(currentUserId);
+            
+            // Refresh conversations list without awaiting to avoid blocking UI
+            // The updateConversations function will preserve existing cards if API hasn't updated
             loadConversations();
+            
             resumePolling(1000);
         } else {
             throw new Error(data.message || 'Failed to send message');

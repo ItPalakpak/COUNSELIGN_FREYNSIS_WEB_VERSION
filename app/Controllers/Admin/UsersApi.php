@@ -97,7 +97,7 @@ class UsersApi extends BaseController
                             $hours = floor($seconds_ago / 3600);
                             $user['activity_status'] = 'Inactive ' . $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
                         } else {
-                            $user['activity_status'] = 'Last seen on ' . date('M j, Y \a\t g:i A', $last_inactive_timestamp);
+                            $user['activity_status'] = 'Last Active at ' . date('M j, Y \a\t g:i A', $last_inactive_timestamp);
                         }
                     }
                 } else {

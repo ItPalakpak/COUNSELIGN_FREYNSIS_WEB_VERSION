@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize variables
     const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
+    const courseFilter = document.getElementById('courseFilter');
+    const yearLevelFilter = document.getElementById('yearLevelFilter');
     const usersTableBody = document.getElementById('usersTableBody');
     const noUsersMessage = document.getElementById('noUsersFound');
     const totalUsersElement = document.getElementById('totalUsers');
@@ -12,6 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event listeners
     if (searchInput) searchInput.addEventListener('input', filterUsers);
     if (statusFilter) statusFilter.addEventListener('change', filterUsers);
+    if (courseFilter) courseFilter.addEventListener('change', filterUsers);
+    if (yearLevelFilter) yearLevelFilter.addEventListener('change', filterUsers);
 
     // Fetch users when the page loads
     fetchUsers();
@@ -32,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 allUsers = normalizeUsers(data.users);
                 updateUserStats(data.activeCount);
+                buildAcademicFilterOptions();
                 filterUsers();
             } else {
                 showError(data.message || 'Failed to fetch users');
@@ -58,14 +63,81 @@ document.addEventListener('DOMContentLoaded', function() {
         displayUsers(getFilteredUsers());
     }
 
+    function buildAcademicFilterOptions() {
+        if (!courseFilter && !yearLevelFilter) {
+            return;
+        }
+
+        const courseOptions = collectUniqueAcademicValues('course');
+        const yearOptions = collectUniqueAcademicValues('year_level');
+
+        populateFilterSelect(courseFilter, courseOptions, 'All Courses');
+        populateFilterSelect(yearLevelFilter, yearOptions, 'All Year Levels');
+    }
+
+    function collectUniqueAcademicValues(field) {
+        const uniqueMap = new Map();
+
+        allUsers.forEach(user => {
+            const academicInfo = user.student_data?.academic_info;
+            if (!academicInfo) {
+                return;
+            }
+
+            const normalizedValue = normalizeText(academicInfo[field]);
+            if (!normalizedValue) {
+                return;
+            }
+
+            if (!uniqueMap.has(normalizedValue)) {
+                const displayValue = String(academicInfo[field]).trim();
+                uniqueMap.set(normalizedValue, displayValue);
+            }
+        });
+
+        return Array.from(uniqueMap.entries())
+            .sort((a, b) => a[1].localeCompare(b[1], undefined, { sensitivity: 'base' }))
+            .map(([normalized, display]) => ({ normalized, display }));
+    }
+
+    function populateFilterSelect(selectElement, options, defaultLabel) {
+        if (!selectElement) {
+            return;
+        }
+
+        const previousValue = resolveFilterValue(selectElement);
+        selectElement.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = 'all';
+        defaultOption.textContent = defaultLabel;
+        selectElement.appendChild(defaultOption);
+
+        options.forEach(optionData => {
+            const option = document.createElement('option');
+            option.value = optionData.normalized;
+            option.textContent = optionData.display;
+            selectElement.appendChild(option);
+        });
+
+        const canRestorePrevious = previousValue !== 'all' && options.some(option => option.normalized === previousValue);
+        selectElement.value = canRestorePrevious ? previousValue : 'all';
+    }
+
     function getFilteredUsers() {
         const searchTerm = (searchInput?.value || '').trim().toLowerCase();
         const statusValue = statusFilter?.value || 'all';
+        const courseValue = resolveFilterValue(courseFilter);
+        const yearLevelValue = resolveFilterValue(yearLevelFilter);
 
         return allUsers.filter(user => {
             const courseInfo = user.student_data?.academic_info?.course && user.student_data?.academic_info?.year_level 
                 ? `${user.student_data.academic_info.course}-${user.student_data.academic_info.year_level}`
                 : 'Not specified';
+
+            const academicInfo = user.student_data?.academic_info;
+            const normalizedCourse = normalizeText(academicInfo?.course);
+            const normalizedYearLevel = normalizeText(academicInfo?.year_level);
 
             const personalInfo = user.student_data?.personal_info;
             const names = personalInfo
@@ -99,7 +171,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 matchesStatus = !Boolean(user.is_online);
             }
 
-            return matchesSearch && matchesStatus;
+            const matchesCourse = courseValue === 'all' || normalizedCourse === courseValue;
+            const matchesYearLevel = yearLevelValue === 'all' || normalizedYearLevel === yearLevelValue;
+
+            return matchesSearch && matchesStatus && matchesCourse && matchesYearLevel;
         });
     }
 
@@ -802,6 +877,28 @@ document.addEventListener('DOMContentLoaded', function() {
             ...user,
             is_online: user.is_online === true || user.is_online === 1 || user.is_online === '1'
         }));
+    }
+
+    function resolveFilterValue(selectElement) {
+        if (!selectElement) {
+            return 'all';
+        }
+
+        const value = (selectElement.value || '').trim().toLowerCase();
+        return value === '' ? 'all' : value;
+    }
+
+    function normalizeText(value) {
+        if (value === undefined || value === null) {
+            return null;
+        }
+
+        const text = String(value).trim();
+        if (text === '') {
+            return null;
+        }
+
+        return text.toLowerCase();
     }
 
     // Update activity status every 4 minutes

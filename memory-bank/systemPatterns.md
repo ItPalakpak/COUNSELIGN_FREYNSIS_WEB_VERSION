@@ -181,6 +181,8 @@
 - `public/js/admin/view_users.js` normalizes `is_online` values from the API into strict booleans before rendering.
 - Search input now inspects student first, middle, and last names alongside IDs, usernames, emails, and course/year codes for broader matching.
 - The status filter uses the normalized boolean to separate active vs inactive rows reliably, and the current filter/search criteria are re-applied every time the background refresh runs so the list no longer snaps back to the unfiltered state.
+- Course and year-level dropdowns hydrate from the API payload, preserve selections after every refresh, and fall back to “All” when a combination disappears to guarantee consistent filtering.
+- Desktop layouts show search, course, year, and status controls in a single row while mobile breaks them into stacked rows for readability.
 
 ## Follow-up Session Management Pattern
 
