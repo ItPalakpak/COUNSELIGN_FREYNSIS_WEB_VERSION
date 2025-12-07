@@ -201,6 +201,11 @@ function changePassword() {
     };
 }
 
+// Image cropping state for admin
+let adminCurrentCropper = null;
+let adminSelectedImageFile = null;
+let adminCroppedImageFile = null; // Store the cropped file for upload
+
 function updateProfilePicture() {
     // Check if a modal is already open
     if (document.querySelector('.modal-overlay')) {
@@ -243,12 +248,110 @@ function updateProfilePicture() {
         positionModal();
     }, 50);
 
-    // Add form submission handler
+    // Add file input change handler for cropping
+    const fileInput = document.getElementById('profile_picture');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showNotification('Please select a valid image file', 'error');
+                this.value = '';
+                return;
+            }
+
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('File is too large. Maximum size is 5MB', 'error');
+                this.value = '';
+                return;
+            }
+
+            adminSelectedImageFile = file;
+
+            // Close the current modal first (but don't reset adminSelectedImageFile)
+            // We'll handle the modal closing manually to preserve the file reference
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.classList.remove('active');
+                const profileContainer = document.querySelector('.profile-container');
+                if (profileContainer) {
+                    profileContainer.classList.remove('modal-open');
+                }
+                setTimeout(() => {
+                    modal.remove();
+                }, 300);
+            }
+
+            // Load image into cropper modal
+            ImageCropper.loadImageFromFile(file, 'cropper-image')
+                .then(() => {
+                    // Show cropper modal
+                    const cropperModal = new bootstrap.Modal(document.getElementById('imageCropperModal'));
+                    cropperModal.show();
+
+                    // Initialize cropper when modal is shown
+                    const cropperModalElement = document.getElementById('imageCropperModal');
+                    cropperModalElement.addEventListener('shown.bs.modal', function onModalShown() {
+                        cropperModalElement.removeEventListener('shown.bs.modal', onModalShown);
+                        
+                        // Destroy existing cropper if any
+                        if (adminCurrentCropper) {
+                            ImageCropper.destroyCropper(adminCurrentCropper);
+                        }
+
+                        // Wait for image to be fully loaded before initializing cropper
+                        const cropperImage = document.getElementById('cropper-image');
+                        if (!cropperImage) {
+                            SecureLogger.error('Cropper image element not found');
+                            showNotification('Failed to initialize image cropper', 'error');
+                            return;
+                        }
+
+                        // Check if image is already loaded
+                        if (cropperImage.complete && cropperImage.naturalWidth > 0) {
+                            initializeCropper();
+                        } else {
+                            // Wait for image to load
+                            cropperImage.onload = function() {
+                                initializeCropper();
+                            };
+                            cropperImage.onerror = function() {
+                                SecureLogger.error('Image failed to load');
+                                showNotification('Failed to load image for cropping', 'error');
+                            };
+                        }
+
+                        function initializeCropper() {
+                            try {
+                                adminCurrentCropper = ImageCropper.initCropper('cropper-image', {
+                                    aspectRatio: 1,
+                                    viewMode: 1,
+                                    autoCropArea: 0.8
+                                });
+                                SecureLogger.info('Cropper initialized successfully');
+                            } catch (error) {
+                                SecureLogger.error('Failed to initialize cropper:', error);
+                                showNotification('Failed to initialize image cropper: ' + (error.message || 'Unknown error'), 'error');
+                            }
+                        }
+                    }, { once: true });
+                })
+                .catch((error) => {
+                    SecureLogger.error('Failed to load image:', error);
+                    showNotification('Failed to load image. Please try again.', 'error');
+                });
+        });
+    }
+
+    // Add form submission handler (this will be called after cropping)
     const form = modal.querySelector('#update-profile-form');
     form.onsubmit = function (e) {
         e.preventDefault();
         const fileInput = document.getElementById('profile_picture');
-        const file = fileInput.files[0];
+        const file = fileInput ? fileInput.files[0] : null;
 
         if (!file) {
             showNotification('Please select a file', 'error');
@@ -317,11 +420,203 @@ function updateProfilePicture() {
     };
 }
 
+// Handle crop application for admin
+function handleAdminCropApply() {
+    if (!adminCurrentCropper) {
+        showNotification('No image to crop', 'warning');
+        return;
+    }
+
+    if (!adminSelectedImageFile) {
+        showNotification('No image file selected', 'warning');
+        return;
+    }
+
+    // Check if cropper is ready
+    try {
+        const cropperImage = document.getElementById('cropper-image');
+        if (!cropperImage || !cropperImage.cropper) {
+            showNotification('Image cropper is not ready. Please wait a moment and try again.', 'warning');
+            return;
+        }
+    } catch (error) {
+        SecureLogger.error('Error checking cropper:', error);
+        showNotification('Image cropper error. Please try selecting the image again.', 'error');
+        return;
+    }
+
+    // Disable the apply button to prevent multiple clicks
+    const applyBtn = document.getElementById('applyCropBtn');
+    if (applyBtn) {
+        applyBtn.disabled = true;
+        applyBtn.textContent = 'Processing...';
+    }
+
+    // Convert cropped canvas to blob and create a new File object
+    ImageCropper.getCroppedBlob(adminCurrentCropper, {
+        width: 500,
+        height: 500
+    }).then((blob) => {
+        if (!blob) {
+            throw new Error('Failed to create cropped image blob');
+        }
+
+        // Create a new File object from the blob
+        const fileName = adminSelectedImageFile.name.replace(/\.[^/.]+$/, '.jpg');
+        const croppedFile = new File([blob], fileName, {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+        });
+
+        // Store the cropped file for later use
+        adminCroppedImageFile = croppedFile;
+
+        SecureLogger.info('Image cropped successfully, file stored:', croppedFile.name, croppedFile.size);
+
+        // Close cropper modal
+        const cropperModal = bootstrap.Modal.getInstance(document.getElementById('imageCropperModal'));
+        if (cropperModal) {
+            cropperModal.hide();
+        }
+
+        // Clean up cropper
+        if (adminCurrentCropper) {
+            ImageCropper.destroyCropper(adminCurrentCropper);
+            adminCurrentCropper = null;
+        }
+
+        // Re-enable apply button
+        if (applyBtn) {
+            applyBtn.disabled = false;
+            applyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Apply Crop';
+        }
+
+        // Now open the upload modal with the cropped file
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+
+        modal.innerHTML = `
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h3>Update Profile Picture</h3>
+                </div>
+                <div class="modal-body">
+                    <form id="update-profile-form" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>Cropped profile picture ready to upload:</label>
+                            <div class="text-center mt-2 mb-3">
+                                <img id="cropped-preview" src="" alt="Cropped preview" style="max-width: 200px; max-height: 200px; border-radius: 50%; object-fit: cover;">
+                            </div>
+                            <input type="file" id="profile_picture" name="profile_picture" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="modal-buttons">
+                            <button type="button" onclick="closeModal()" class="cancel-btn">Cancel</button>
+                            <button type="button" class="submit-btn" id="upload-cropped-btn">Upload Picture</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        setTimeout(() => {
+            modal.classList.add('active');
+            const pc = document.querySelector('.profile-container');
+            pc && pc.classList.remove('modal-open');
+            positionModal();
+        }, 50);
+
+        // Show preview
+        const preview = document.getElementById('cropped-preview');
+        if (preview) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+            };
+            reader.onerror = () => {
+                SecureLogger.error('Failed to read cropped file for preview');
+            };
+            reader.readAsDataURL(croppedFile);
+        }
+
+        // Handle upload - use the stored cropped file
+        const uploadBtn = document.getElementById('upload-cropped-btn');
+        if (uploadBtn) {
+            uploadBtn.addEventListener('click', function() {
+                if (!adminCroppedImageFile) {
+                    showNotification('No cropped image available', 'error');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('profile_picture', adminCroppedImageFile);
+
+                SecureLogger.info('Uploading profile picture:', {
+                    name: adminCroppedImageFile.name,
+                    size: adminCroppedImageFile.size,
+                    type: adminCroppedImageFile.type
+                });
+
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = 'Uploading...';
+
+                fetch((window.BASE_URL || '/') + 'admin/profile/picture', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const profileImg = document.getElementById('profile-avatar');
+                            if (profileImg) {
+                                const newImageUrl = data.picture_url + '?t=' + new Date().getTime();
+                                profileImg.src = newImageUrl;
+                                sessionStorage.setItem('adminProfilePicture', newImageUrl);
+                                broadcastProfileUpdate(newImageUrl);
+                                showNotification(data.message, 'success');
+                                closeModal();
+                                loadAdminData();
+                            } else {
+                                throw new Error('Profile image element not found');
+                            }
+                            // Clear cropped file after successful upload
+                            adminCroppedImageFile = null;
+                        } else {
+                            showNotification(data.message || 'Failed to update profile picture', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('An error occurred while updating the profile picture', 'error');
+                    })
+                    .finally(() => {
+                        uploadBtn.disabled = false;
+                        uploadBtn.textContent = 'Upload Picture';
+                    });
+            });
+        }
+    }).catch((error) => {
+        SecureLogger.error('Failed to get cropped blob:', error);
+        showNotification('Failed to process cropped image: ' + (error.message || 'Unknown error'), 'error');
+        
+        // Re-enable apply button on error
+        if (applyBtn) {
+            applyBtn.disabled = false;
+            applyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Apply Crop';
+        }
+    });
+}
+
 function closeModal() {
     const modal = document.querySelector('.modal-overlay');
     if (modal) {
         modal.classList.remove('active');
-        document.querySelector('.profile-container').classList.remove('modal-open');
+        const profileContainer = document.querySelector('.profile-container');
+        if (profileContainer) {
+            profileContainer.classList.remove('modal-open');
+        }
         setTimeout(() => {
             modal.remove();
         }, 300);
@@ -470,6 +765,71 @@ document.addEventListener('DOMContentLoaded', function () {
     window.showNotification = showNotification;
     window.validateEmail = validateEmail;
     window.updateProfilePicture = updateProfilePicture;
+    window.handleAdminCropApply = handleAdminCropApply;
+
+    // Handle crop application button
+    const applyCropBtn = document.getElementById('applyCropBtn');
+    if (applyCropBtn) {
+        applyCropBtn.addEventListener('click', handleAdminCropApply);
+    }
+
+    // Handle crop cancellation
+    const cropperModalElement = document.getElementById('imageCropperModal');
+    if (cropperModalElement) {
+        cropperModalElement.addEventListener('hidden.bs.modal', function() {
+            // Clean up cropper when modal is closed
+            if (adminCurrentCropper) {
+                ImageCropper.destroyCropper(adminCurrentCropper);
+                adminCurrentCropper = null;
+            }
+            
+            // Only reset file variables if crop was cancelled (not applied)
+            // If adminCroppedImageFile is set, it means crop was applied, so don't reset
+            if (!adminCroppedImageFile) {
+                // Crop was cancelled, reset the selected file
+                adminSelectedImageFile = null;
+                SecureLogger.info('Cropper modal closed without applying crop, resetting selected file');
+            }
+        });
+    }
+
+    // Override closeModal to handle cleanup appropriately
+    // We need to preserve adminSelectedImageFile when closing the file selection modal
+    // because it's needed for the cropper modal
+    const originalCloseModalFunc = window.closeModal;
+    window.closeModal = function() {
+        // Check which modal is being closed by looking for specific elements
+        // We need to check BEFORE closing because the modal will be removed
+        const modal = document.querySelector('.modal-overlay');
+        let hasCroppedPreview = false;
+        let isFileSelectionModal = false;
+        
+        if (modal) {
+            // Check for cropped preview (upload modal)
+            hasCroppedPreview = !!modal.querySelector('#cropped-preview');
+            // Check for file selection modal (has profile_picture input but no cropped preview)
+            const profileInput = modal.querySelector('#profile_picture');
+            isFileSelectionModal = !!profileInput && !hasCroppedPreview;
+        }
+        
+        // Call original closeModal
+        if (originalCloseModalFunc) {
+            originalCloseModalFunc();
+        }
+        
+        // Only reset if we're closing the upload modal (has cropped preview)
+        // Don't reset when closing file selection modal - we need adminSelectedImageFile for cropping
+        if (hasCroppedPreview) {
+            // This is the upload modal being closed - reset everything
+            adminCroppedImageFile = null;
+            adminSelectedImageFile = null;
+            SecureLogger.info('Upload modal closed, resetting file variables');
+        } else if (isFileSelectionModal) {
+            // This is the file selection modal - don't reset adminSelectedImageFile yet
+            // It will be needed for the cropper
+            SecureLogger.info('File selection modal closed, keeping adminSelectedImageFile for cropper');
+        }
+    };
 
     // Add event listeners to buttons
     const editButtons = document.querySelectorAll('.edit-btn');

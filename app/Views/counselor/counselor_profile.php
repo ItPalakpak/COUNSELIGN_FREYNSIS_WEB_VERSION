@@ -14,6 +14,7 @@
     <link rel="icon" href="<?= base_url('Photos/counselign.ico') ?>" sizes="16x16 32x32" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link href="<?= base_url('css/counselor/counselor_profile.css') ?>" rel="stylesheet" />
     <link rel="stylesheet" href="<?= base_url('css/counselor/header.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/utils/sidebar.css') ?>">
@@ -30,25 +31,7 @@
             </button>
 
             <!-- Navigation Links -->
-            <nav class="sidebar-nav">
-                <a href="<?= base_url('counselor/dashboard') ?>" class="sidebar-link active" title="Dashboard">
-                    <i class="fas fa-home"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                </a>
-
-                <a href="<?= base_url('counselor/appointments/scheduled') ?>" class="sidebar-link" title="Scheduled Appointments">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span class="sidebar-text">Scheduled Appointments</span>
-                </a>
-                <a href="<?= base_url('counselor/follow-up') ?>" class="sidebar-link" title="Follow-up Sessions">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span class="sidebar-text">Follow-up Sessions</span>
-                </a>
-                <a href="<?= base_url('counselor/announcements') ?>" class="sidebar-link" title="Announcement">
-                    <i class="fas fa-bullhorn"></i>
-                    <span class="sidebar-text">Announcement</span>
-                </a>
-            </nav>
+            <?= view('partials/sidebar_navigation', ['role' => 'counselor']) ?>
         </div>
     </aside>
 
@@ -415,18 +398,53 @@
         </div>
     </div>
 
+    <!-- Image Cropper Modal -->
+    <div class="modal fade" id="imageCropperModal" tabindex="-1" aria-labelledby="imageCropperModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageCropperModalLabel">
+                        <i class="fas fa-crop me-2"></i>Crop Profile Picture
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="cropper-container" style="max-width: 100%; max-height: 500px; overflow: hidden;">
+                        <img id="cropper-image" src="" alt="Crop preview" style="max-width: 100%; display: block;">
+                    </div>
+                    <div class="mt-3 text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Drag to reposition, resize the crop box to select the area you want to keep. The image will be cropped to a perfect square.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelCropBtn">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="applyCropBtn">
+                        <i class="fas fa-check me-1"></i>Apply Crop
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php echo view('modals/student_dashboard_modals'); ?>
-    <script src="<?= base_url('js/modals/student_dashboard_modals.js') ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         window.BASE_URL = "<?= base_url() ?>";
     </script>
+    <script src="<?= base_url('js/modals/student_dashboard_modals.js') ?>"></script>
     <script src="<?= base_url('js/utils/timeFormatter.js') ?>"></script>
+    <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
+    <script src="<?= base_url('js/utils/imageCropper.js') ?>"></script>
     <script src="<?= base_url('js/counselor/logout.js') ?>"></script>
     <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
+    <script src="<?= base_url('js/counselor/counselor_messages_badge_updater.js') ?>"></script>
+    <script src="<?= base_url('js/counselor/counselor_notifications_badge_updater.js') ?>"></script>
     <script src="<?= base_url('js/counselor/counselor_profile.js') ?>"></script>
     <script src="<?= base_url('js/counselor/counselor_drawer.js') ?>"></script>
-    <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
 </body>
 
 </html>

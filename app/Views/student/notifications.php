@@ -3,14 +3,17 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Messages - Counselign</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="University Guidance Counseling Services - Your safe space for support and guidance" />
+    <meta name="keywords" content="counseling, guidance, university, support, mental health, student wellness" />
+    <title>Notifications - Counselign</title>
     <link rel="icon" href="<?= base_url('Photos/counselign.ico') ?>" sizes="16x16 32x32" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="<?= base_url('css/student/student_messages.css') ?>" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="<?= base_url('css/student/student_dashboard.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/student/header.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/utils/sidebar.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('css/student/notifications.css') ?>">
 </head>
 
 <body>
@@ -37,19 +40,16 @@
     </button>
 
     <div class="main-wrapper" id="mainWrapper">
-        <!-- Interactive Profile Picture Section -->
-
         <!-- Top Bar -->
         <header class="top-bar">
             <div class="top-bar-left">
                 <h1 class="page-title-header">
-                    <i class="fas fa-comments me-2"></i>
-                    Messages
+                    <i class="fas fa-bell me-2"></i>
+                    Notifications
                 </h1>
             </div>
 
             <div class="top-bar-right">
-
                 <!-- Profile Dropdown -->
                 <div class="profile-dropdown">
                     <button class="top-bar-btn profile-btn" id="profileDropdownBtn">
@@ -80,97 +80,78 @@
             </div>
         </header>
 
-    <!-- Mobile Sidebar Toggle Button -->
-    <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
-        <i class="fas fa-comments"></i>
-    </button>
-
-    <!-- Mobile Sidebar Overlay -->
-    <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
-
-    <!-- Main Content -->
-    <div class="messages-wrapper">
-        <div class="messages-layout">
-            <!-- Conversations Sidebar (Counselors list) -->
-            <div class="conversations-sidebar" id="conversationsSidebar">
-                <div class="sidebar-header">
-                    <h3 class="sidebar-title">
-                        <i class="fas fa-user-md me-2"></i>
-                        Counselors
-                    </h3>
-                </div>
-
-                <!-- Search Box -->
-                <div class="search-section">
-                    <div class="search-box">
+        <!-- Notifications Content -->
+        <div class="notifications-page-content">
+            <!-- Toolbar -->
+            <div class="notifications-toolbar">
+                <div class="toolbar-left">
+                    <div class="search-container">
                         <i class="fas fa-search search-icon"></i>
-                        <input type="text" class="search-input" placeholder="Search counselors...">
+                        <input type="text" id="notificationSearch" class="form-control search-input" placeholder="Search notifications...">
                     </div>
+                    <select id="notificationFilter" class="form-select filter-select">
+                        <option value="all">All Types</option>
+                        <option value="appointment">Appointments</option>
+                        <option value="announcement">Announcements</option>
+                        <option value="event">Events</option>
+                        <option value="message">Messages</option>
+                        <option value="follow-up">Follow-up</option>
+                    </select>
+                    <select id="readStatusFilter" class="form-select filter-select">
+                        <option value="all">All Status</option>
+                        <option value="unread">Unread Only</option>
+                        <option value="read">Read Only</option>
+                    </select>
                 </div>
-
-                <!-- Conversations List -->
-                <div class="conversations-list">
-                    <div class="loading-state">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <span>Loading conversations...</span>
+                <div class="toolbar-right">
+                    <div class="selection-controls" id="selectionControls" style="display: none;">
+                        <span id="selectedCount" class="selected-count">0 selected</span>
+                        <button class="btn btn-sm btn-outline-danger" id="deleteSelectedBtn" title="Delete Selected">
+                            <i class="fas fa-trash"></i> Delete Selected
+                        </button>
                     </div>
+                    <button class="btn btn-sm btn-outline-primary" id="markAllReadBtn" title="Mark all as read">
+                        <i class="fas fa-check-double"></i> Mark All as Read
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" id="deleteAllBtn" title="Delete all notifications">
+                        <i class="fas fa-trash-alt"></i> Delete All
+                    </button>
                 </div>
             </div>
 
-            <!-- Chat Area -->
-            <div class="chat-area">
-                <!-- Chat Header -->
-                <div class="chat-header">
-                    <div class="chat-user-info">
-                        <div class="user-avatar">
-                            <i class="fas fa-user"></i>
+            <!-- Notifications List -->
+            <div class="notifications-list-container">
+                <div id="notificationsList" class="notifications-list-page">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading notifications...</span>
                         </div>
-                        <div class="user-details">
-                            <h4 class="user-name">Messages</h4>
-                            <span class="user-status">Select a conversation to start messaging</span>
-                        </div>
+                        <p class="mt-2 text-muted">Loading notifications...</p>
                     </div>
                 </div>
-
-                <!-- Messages Area -->
-                <div class="messages-area" id="messages-container">
-                    <div class="empty-chat" id="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-inbox"></i>
-                        </div>
-                        <h5>No Messages Yet</h5>
-                        <p>Select a counselor from the list to start messaging.</p>
-                    </div>
-                </div>
-
-                <!-- Message Input -->
-                <div class="message-input-section">
-                    <div class="input-container">
-                        <textarea id="message-input" class="message-input"
-                            placeholder="Select a conversation to reply..." disabled></textarea>
-                        <button id="send-button" class="send-button" disabled>
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>No notifications found</p>
                 </div>
             </div>
         </div>
     </div>
 
-    
+    <!-- Confirmation Modal -->
+    <?php echo view('modals/student_dashboard_modals'); ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        window.BASE_URL = "<?= base_url() ?>";
-    </script>
-    <script src="<?= base_url('js/student/student_messages.js') ?>" defer></script>
-    <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
-    <script src="<?= base_url('js/student/student_header_drawer.js') ?>"></script>
+    <script src="<?= base_url('js/modals/student_dashboard_modals.js') ?>"></script>
+    <script src="<?= base_url('js/student/notifications.js') ?>"></script>
     <script src="<?= base_url('js/student/logout.js') ?>"></script>
     <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
     <script src="<?= base_url('js/student/student_messages_badge_updater.js') ?>"></script>
     <script src="<?= base_url('js/student/student_notifications_badge_updater.js') ?>"></script>
-
+    <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.BASE_URL = "<?= base_url() ?>";
+    </script>
 </body>
 
 </html>
+

@@ -45,6 +45,8 @@ class Message extends BaseController
                     return $this->sendMessage($userId);
                 case 'mark_read':
                     return $this->markMessagesAsRead($userId);
+                case 'get_unread_count':
+                    return $this->getUnreadCount($userId);
                 default:
                     return $this->fail('Invalid action');
             }
@@ -249,6 +251,22 @@ class Message extends BaseController
         $db->query($sql, [$userId]);
         
         return $this->respond(['success' => true, 'message' => 'Messages marked as read']);
+    }
+
+    private function getUnreadCount($userId)
+    {
+        $db = \Config\Database::connect();
+        
+        // Get total unread message count from students only
+        $unreadCount = $db->table('messages')
+            ->where('receiver_id', $userId)
+            ->where('is_read', 0)
+            ->join('users u', 'u.user_id = messages.sender_id', 'left')
+            ->where('u.role', 'student')
+            ->countAllResults();
+        
+        // Ensure type-safe integer response
+        return $this->respond(['success' => true, 'unread_count' => (int)$unreadCount]);
     }
 
 }

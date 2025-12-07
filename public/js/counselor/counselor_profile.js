@@ -76,11 +76,26 @@ function saveProfileChanges() {
         }
 
         // If there is a selected picture, upload it next
-        const fileInput = document.getElementById('update-picture');
-        const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
-        if (file) {
+        // Check for cropped file first, then fall back to file input
+        let fileToUpload = null;
+        if (croppedImageFile) {
+            fileToUpload = croppedImageFile;
+            SecureLogger.info('Using cropped image file for upload');
+        } else {
+            const fileInput = document.getElementById('update-picture');
+            fileToUpload = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+        }
+
+        if (fileToUpload) {
             const picForm = new FormData();
-            picForm.append('profile_picture', file);
+            picForm.append('profile_picture', fileToUpload);
+            
+            SecureLogger.info('Uploading profile picture:', {
+                name: fileToUpload.name,
+                size: fileToUpload.size,
+                type: fileToUpload.type
+            });
+
             const resp = await fetch(window.BASE_URL + 'counselor/profile/picture', {
                 method: 'POST',
                 body: picForm,
@@ -97,6 +112,8 @@ function saveProfileChanges() {
                 imgEl.src = newUrl;
                 try { localStorage.setItem('counselor_profile_picture', newUrl); } catch (e) {}
             }
+            // Clear cropped file after successful upload
+            croppedImageFile = null;
         }
 
         // Update the display values
@@ -353,20 +370,195 @@ function togglePassword(inputId) {
     }
 }
 
-// Preview selected profile picture in modal
+// Image cropping state
+let currentCropper = null;
+let selectedImageFile = null;
+let croppedImageFile = null; // Store the cropped file for upload
+
+// Preview selected profile picture in modal with cropping
 document.addEventListener('change', function(e) {
     const target = e.target;
     if (target && target.id === 'update-picture' && target.files && target.files[0]) {
         const file = target.files[0];
-        const reader = new FileReader();
-        reader.onload = function(ev) {
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            openAlertModal('Please select a valid image file', 'warning');
+            target.value = '';
+            return;
+        }
+
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            openAlertModal('File is too large. Maximum size is 5MB', 'warning');
+            target.value = '';
+            return;
+        }
+
+        selectedImageFile = file;
+
+        // Load image into cropper modal
+        ImageCropper.loadImageFromFile(file, 'cropper-image')
+            .then(() => {
+                // Show cropper modal
+                const cropperModal = new bootstrap.Modal(document.getElementById('imageCropperModal'));
+                cropperModal.show();
+
+                // Initialize cropper when modal is shown
+                const cropperModalElement = document.getElementById('imageCropperModal');
+                cropperModalElement.addEventListener('shown.bs.modal', function onModalShown() {
+                    cropperModalElement.removeEventListener('shown.bs.modal', onModalShown);
+                    
+                    // Destroy existing cropper if any
+                    if (currentCropper) {
+                        ImageCropper.destroyCropper(currentCropper);
+                    }
+
+                    // Wait for image to be fully loaded before initializing cropper
+                    const cropperImage = document.getElementById('cropper-image');
+                    if (!cropperImage) {
+                        SecureLogger.error('Cropper image element not found');
+                        openAlertModal('Failed to initialize image cropper', 'error');
+                        return;
+                    }
+
+                    // Check if image is already loaded
+                    if (cropperImage.complete && cropperImage.naturalWidth > 0) {
+                        initializeCropper();
+                    } else {
+                        // Wait for image to load
+                        cropperImage.onload = function() {
+                            initializeCropper();
+                        };
+                        cropperImage.onerror = function() {
+                            SecureLogger.error('Image failed to load');
+                            openAlertModal('Failed to load image for cropping', 'error');
+                        };
+                    }
+
+                    function initializeCropper() {
+                        try {
+                            currentCropper = ImageCropper.initCropper('cropper-image', {
+                                aspectRatio: 1,
+                                viewMode: 1,
+                                autoCropArea: 0.8
+                            });
+                            SecureLogger.info('Cropper initialized successfully');
+                        } catch (error) {
+                            SecureLogger.error('Failed to initialize cropper:', error);
+                            openAlertModal('Failed to initialize image cropper: ' + (error.message || 'Unknown error'), 'error');
+                        }
+                    }
+                }, { once: true });
+            })
+            .catch((error) => {
+                SecureLogger.error('Failed to load image:', error);
+                openAlertModal('Failed to load image. Please try again.', 'error');
+                target.value = '';
+            });
+    }
+});
+
+// Handle crop application
+document.addEventListener('DOMContentLoaded', function() {
+    const applyCropBtn = document.getElementById('applyCropBtn');
+    if (applyCropBtn) {
+        applyCropBtn.addEventListener('click', function() {
+            if (!currentCropper) {
+                openAlertModal('No image to crop', 'warning');
+                return;
+            }
+
+            try {
+                // Get cropped data URL for preview
+                const croppedDataURL = ImageCropper.getCroppedDataURL(currentCropper, {
+                    width: 500,
+                    height: 500
+                });
+
+                // Update preview
+                const preview = document.getElementById('update-picture-preview');
+                if (preview) {
+                    preview.src = croppedDataURL;
+                    preview.style.display = 'block';
+                }
+
+                // Convert cropped canvas to blob and create a new File object
+                ImageCropper.getCroppedBlob(currentCropper, {
+                    width: 500,
+                    height: 500
+                }).then((blob) => {
+                    // Create a new File object from the blob
+                    const croppedFile = new File([blob], selectedImageFile.name.replace(/\.[^/.]+$/, '.jpg'), {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    });
+
+                    // Store the cropped file for later use
+                    croppedImageFile = croppedFile;
+
+                    // Create a new FileList-like object and update the input
+                    const pictureInput = document.getElementById('update-picture');
+                    if (pictureInput) {
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(croppedFile);
+                        pictureInput.files = dataTransfer.files;
+                    }
+
+                    SecureLogger.info('Image cropped successfully, file stored:', croppedFile.name, croppedFile.size);
+
+                    // Close cropper modal
+                    const cropperModal = bootstrap.Modal.getInstance(document.getElementById('imageCropperModal'));
+                    if (cropperModal) {
+                        cropperModal.hide();
+                    }
+
+                    // Clean up cropper
+                    if (currentCropper) {
+                        ImageCropper.destroyCropper(currentCropper);
+                        currentCropper = null;
+                    }
+                }).catch((error) => {
+                    SecureLogger.error('Failed to get cropped blob:', error);
+                    openAlertModal('Failed to process cropped image', 'error');
+                });
+            } catch (error) {
+                SecureLogger.error('Failed to apply crop:', error);
+                openAlertModal('Failed to apply crop. Please try again.', 'error');
+            }
+        });
+    }
+
+    // Handle crop cancellation
+    const cropperModalElement = document.getElementById('imageCropperModal');
+    if (cropperModalElement) {
+        cropperModalElement.addEventListener('hidden.bs.modal', function() {
+            // Clean up cropper when modal is closed
+            if (currentCropper) {
+                ImageCropper.destroyCropper(currentCropper);
+                currentCropper = null;
+            }
+        });
+    }
+
+    // Reset cropped file when update profile modal is closed
+    const updateProfileModal = document.getElementById('updateProfileModal');
+    if (updateProfileModal) {
+        updateProfileModal.addEventListener('hidden.bs.modal', function() {
+            // Reset file input and cropped file
+            const pictureInput = document.getElementById('update-picture');
+            if (pictureInput) {
+                pictureInput.value = '';
+            }
+            selectedImageFile = null;
+            croppedImageFile = null;
+            // Reset preview
             const preview = document.getElementById('update-picture-preview');
             if (preview) {
-                preview.src = ev.target.result;
-                preview.style.display = 'block';
+                const currentSrc = document.getElementById('profile-img')?.src || (window.BASE_URL || '/') + 'Photos/profile.png';
+                preview.src = currentSrc;
             }
-        };
-        reader.readAsDataURL(file);
+        });
     }
 });
 

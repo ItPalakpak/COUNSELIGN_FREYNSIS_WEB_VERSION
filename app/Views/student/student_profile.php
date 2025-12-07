@@ -14,6 +14,7 @@
     <link rel="icon" href="<?= base_url('Photos/counselign.ico') ?>" sizes="16x16 32x32" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link href="<?= base_url('css/student/student_profile.css') ?>" rel="stylesheet" />
     <link rel="stylesheet" href="<?= base_url('css/student/header.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/utils/sidebar.css') ?>">
@@ -30,31 +31,7 @@
             </button>
 
             <!-- Navigation Links -->
-            <nav class="sidebar-nav">
-                <a href="<?= base_url('student/dashboard') ?>" class="sidebar-link active" title="Dashboard">
-                    <i class="fas fa-home"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                </a>
-
-                <a href="<?= base_url('student/schedule-appointment') ?>" class="sidebar-link" title="Schedule an Appointment">
-                    <i class="fas fa-plus-circle"></i>
-                    <span class="sidebar-text">Schedule an Appointment</span>
-                </a>
-
-                <a href="<?= base_url('student/my-appointments') ?>" class="sidebar-link" title="My Appointments">
-                    <i class="fas fa-list-alt"></i>
-                    <span class="sidebar-text">My Appointments</span>
-                </a>
-
-                <a href="<?= base_url('student/follow-up-sessions') ?>" class="sidebar-link" title="Follow-up Sessions">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span class="sidebar-text">Follow-up Sessions</span>
-                </a>
-                <a href="<?= base_url('student/announcements') ?>" class="sidebar-link" title="Announcement">
-                    <i class="fas fa-bullhorn"></i>
-                    <span class="sidebar-text">Announcement</span>
-                </a>
-            </nav>
+            <?= view('partials/sidebar_navigation', ['role' => 'student']) ?>
         </div>
     </aside>
 
@@ -301,7 +278,7 @@
 
                                         <div class="col-md-2">
                                             <label class="form-label">Age</label>
-                                            <input class="form-control" type="number" id="age" placeholder="Age">
+                                            <input class="form-control" type="number" id="age" placeholder="Age" maxlength="2" min="0" max="99">
                                         </div>
 
                                         <!-- NEW FIELD -->
@@ -330,7 +307,7 @@
 
                                         <div class="col-md-4">
                                             <label class="form-label">Contact Number</label>
-                                            <input class="form-control" type="tel" id="contactNumber" placeholder="09XXXXXXXXX">
+                                            <input class="form-control" type="tel" id="contactNumber" placeholder="09XXXXXXXXX" maxlength="11">
                                         </div>
 
                                         <div class="col-md-4">
@@ -349,13 +326,8 @@
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label class="form-label">Street/Zone</label>
-                                            <input class="form-control" type="text" id="permanentAddressZone" placeholder="Zone">
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <label class="form-label">Barangay</label>
-                                            <input class="form-control" type="text" id="permanentAddressBarangay" placeholder="Barangay">
+                                            <label class="form-label">Province</label>
+                                            <input class="form-control" type="text" id="permanentAddressProvince" placeholder="Province">
                                         </div>
 
                                         <div class="col-md-3">
@@ -364,8 +336,13 @@
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label class="form-label">Province</label>
-                                            <input class="form-control" type="text" id="permanentAddressProvince" placeholder="Province">
+                                            <label class="form-label">Barangay</label>
+                                            <input class="form-control" type="text" id="permanentAddressBarangay" placeholder="Barangay">
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Street/Zone</label>
+                                            <input class="form-control" type="text" id="permanentAddressZone" placeholder="Zone">
                                         </div>
 
                                         <div class="col-12 mt-3">
@@ -373,13 +350,8 @@
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label class="form-label">Street/Zone</label>
-                                            <input class="form-control" type="text" id="presentAddressZone" placeholder="Zone">
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <label class="form-label">Barangay</label>
-                                            <input class="form-control" type="text" id="presentAddressBarangay" placeholder="Barangay">
+                                            <label class="form-label">Province</label>
+                                            <input class="form-control" type="text" id="presentAddressProvince" placeholder="Province">
                                         </div>
 
                                         <div class="col-md-3">
@@ -388,9 +360,15 @@
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label class="form-label">Province</label>
-                                            <input class="form-control" type="text" id="presentAddressProvince" placeholder="Province">
+                                            <label class="form-label">Barangay</label>
+                                            <input class="form-control" type="text" id="presentAddressBarangay" placeholder="Barangay">
                                         </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Street/Zone</label>
+                                            <input class="form-control" type="text" id="presentAddressZone" placeholder="Zone">
+                                        </div>
+                                        
                                     </div>
                                 </div>
 
@@ -422,12 +400,12 @@
 
                                         <div class="col-md-4">
                                             <label class="form-label">Father's Age</label>
-                                            <input class="form-control" type="number" id="fatherAge" placeholder="Age" min="18" max="120">
+                                            <input class="form-control" type="number" id="fatherAge" placeholder="Age" min="18" max="120" maxlength="2">
                                         </div>
 
                                         <div class="col-md-4">
                                             <label class="form-label">Father's Contact No.</label>
-                                            <input class="form-control" type="tel" id="fatherContactNumber" placeholder="09XXXXXXXXX">
+                                            <input class="form-control" type="tel" id="fatherContactNumber" placeholder="09XXXXXXXXX" maxlength="11">
                                         </div>
 
                                         <!-- Mother Information -->
@@ -453,12 +431,12 @@
 
                                         <div class="col-md-4">
                                             <label class="form-label">Mother's Age</label>
-                                            <input class="form-control" type="number" id="motherAge" placeholder="Age" min="18" max="120">
+                                            <input class="form-control" type="number" id="motherAge" placeholder="Age" min="18" max="120" maxlength="2">
                                         </div>
 
                                         <div class="col-md-4">
                                             <label class="form-label">Mother's Contact No.</label>
-                                            <input class="form-control" type="tel" id="motherContactNumber" placeholder="09XXXXXXXXX">
+                                            <input class="form-control" type="tel" id="motherContactNumber" placeholder="09XXXXXXXXX" maxlength="11">
                                         </div>
 
                                         <!-- NEW FIELDS - Parents Address and Contact -->
@@ -473,7 +451,7 @@
 
                                         <div class="col-md-4">
                                             <label class="form-label">Parents' Contact No.</label>
-                                            <input class="form-control" type="tel" id="parentsContactNumber" placeholder="09XXXXXXXXX">
+                                            <input class="form-control" type="tel" id="parentsContactNumber" placeholder="09XXXXXXXXX" maxlength="11">
                                         </div>
 
                                         <!-- Spouse Information (if married) -->
@@ -510,7 +488,7 @@
 
                                         <div class="col-md-2">
                                             <label class="form-label">Guardian's Age</label>
-                                            <input class="form-control" type="number" id="guardianAge" placeholder="Age" min="18" max="120">
+                                            <input class="form-control" type="number" id="guardianAge" placeholder="Age" min="18" max="120" maxlength="2">
                                         </div>
 
                                         <div class="col-md-3">
@@ -520,7 +498,7 @@
 
                                         <div class="col-md-3">
                                             <label class="form-label">Guardian's Contact No.</label>
-                                            <input class="form-control" type="tel" id="guardianContactNumber" placeholder="09XXXXXXXXX">
+                                            <input class="form-control" type="tel" id="guardianContactNumber" placeholder="09XXXXXXXXX" maxlength="11">
                                         </div>
                                     </div>
                                 </div>
@@ -878,15 +856,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- Consent -->
-                                        <div class="col-12 mt-4">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="consentAgree">
-                                                <label class="form-check-label" for="consentAgree">
-                                                    <strong>I voluntarily give my consent to participate in this survey.</strong>
-                                                </label>
-                                            </div>
-                                        </div>
+
                                     </div>
                                 </div>
 
@@ -970,6 +940,18 @@
                                 </div>
 
                             </div>
+
+
+                        </div>
+
+                    </div>
+                    <!-- Consent -->
+                    <div class="col-12 mt-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="consentAgree">
+                            <label class="form-check-label" for="consentAgree">
+                                <strong>I voluntarily give my consent to participate in this survey.</strong>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -1090,13 +1072,48 @@
         </div>
     </div>
 
+    <!-- Image Cropper Modal -->
+    <div class="modal fade" id="imageCropperModal" tabindex="-1" aria-labelledby="imageCropperModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageCropperModalLabel">
+                        <i class="fas fa-crop me-2"></i>Crop Profile Picture
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="cropper-container" style="max-width: 100%; max-height: 500px; overflow: hidden;">
+                        <img id="cropper-image" src="" alt="Crop preview" style="max-width: 100%; display: block;">
+                    </div>
+                    <div class="mt-3 text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Drag to reposition, resize the crop box to select the area you want to keep. The image will be cropped to a perfect square.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelCropBtn">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="applyCropBtn">
+                        <i class="fas fa-check me-1"></i>Apply Crop
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php echo view('modals/student_dashboard_modals'); ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script src="<?= base_url('js/modals/student_dashboard_modals.js') ?>"></script>
     <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
+    <script src="<?= base_url('js/utils/imageCropper.js') ?>"></script>
     <script src="<?= base_url('js/student/student_profile.js') ?>"></script>
     <script src="<?= base_url('js/student/logout.js') ?>"></script>
     <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="<?= base_url('js/student/student_messages_badge_updater.js') ?>"></script>
+    <script src="<?= base_url('js/student/student_notifications_badge_updater.js') ?>"></script>
     <script>
         window.BASE_URL = "<?= base_url() ?>";
     </script>

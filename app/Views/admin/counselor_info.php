@@ -27,32 +27,7 @@
             </button>
 
             <!-- Navigation Links -->
-            <nav class="sidebar-nav">
-                <a href="<?= base_url('admin/dashboard') ?>" class="sidebar-link" title="Dashboard">
-                    <i class="fas fa-home"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                </a>
-                <a href="<?= base_url('admin/admins-management') ?>" class="sidebar-link active" title="Management">
-                    <i class="fas fa-users-cog"></i>
-                    <span class="sidebar-text">Management</span>
-                </a>
-                <a href="<?= base_url('admin/appointments') ?>" class="sidebar-link" title="Recent Appointments">
-                    <i class="fas fa-calendar-check"></i>
-                    <span class="sidebar-text">Recent Appointments</span>
-                </a>
-                <a href="<?= base_url('admin/follow-up-sessions') ?>" class="sidebar-link" title="Follow-up Sessions">
-                    <i class="fas fa-calendar-days"></i>
-                    <span class="sidebar-text">Follow-up Sessions</span>
-                </a>
-                <a href="<?= base_url('admin/resources') ?>" class="sidebar-link" title="Resources">
-                    <i class="fas fa-folder-open"></i>
-                    <span class="sidebar-text">Resources</span>
-                </a>
-                <a href="<?= base_url('admin/announcements') ?>" class="sidebar-link" title="Announcements">
-                    <i class="fa-solid fa-bullhorn"></i>
-                    <span class="sidebar-text">Announcements</span>
-                </a>
-            </nav>
+            <?= view('partials/sidebar_navigation', ['role' => 'admin']) ?>
         </div>
     </aside>
 
@@ -213,6 +188,7 @@
     <script src="<?= base_url('js/admin/admin_drawer.js') ?>"></script>
     <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
     <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
+    <script src="<?= base_url('js/admin/quotes_badge_updater.js') ?>"></script>
 </body>
 
 </html>

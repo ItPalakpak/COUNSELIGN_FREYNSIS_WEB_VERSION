@@ -11,6 +11,7 @@
     <link rel="icon" href="<?= base_url('Photos/counselign.ico') ?>" sizes="16x16 32x32" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link rel="stylesheet" href="<?= base_url('css/admin/account_settings.css') . '?v=' . @filemtime(FCPATH . 'css/admin/account_settings.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/admin/header.css') . '?v=' . @filemtime(FCPATH . 'css/admin/header.css') ?>">
     <link rel="stylesheet" href="<?= base_url('css/utils/sidebar.css') ?>">
@@ -27,32 +28,7 @@
             </button>
 
             <!-- Navigation Links -->
-            <nav class="sidebar-nav">
-                <a href="<?= base_url('admin/dashboard') ?>" class="sidebar-link active" title="Dashboard">
-                    <i class="fas fa-home"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                </a>
-                <a href="<?= base_url('admin/admins-management') ?>" class="sidebar-link" title="Management">
-                    <i class="fas fa-users-cog"></i>
-                    <span class="sidebar-text">Management</span>
-                </a>
-                <a href="<?= base_url('admin/appointments') ?>" class="sidebar-link" title="Recent Appointments">
-                    <i class="fas fa-calendar-check"></i>
-                    <span class="sidebar-text">Recent Appointments</span>
-                </a>
-                <a href="<?= base_url('admin/follow-up-sessions') ?>" class="sidebar-link" title="Follow-up Sessions">
-                    <i class="fas fa-calendar-days"></i>
-                    <span class="sidebar-text">Follow-up Sessions</span>
-                </a>
-                <a href="<?= base_url('admin/resources') ?>" class="sidebar-link" title="Resources">
-                    <i class="fas fa-folder-open"></i>
-                    <span class="sidebar-text">Resources</span>
-                </a>
-                <a href="<?= base_url('admin/announcements') ?>" class="sidebar-link" title="Announcements">
-                    <i class="fa-solid fa-bullhorn"></i>
-                    <span class="sidebar-text">Announcements</span>
-                </a>
-            </nav>
+            <?= view('partials/sidebar_navigation', ['role' => 'admin']) ?>
         </div>
     </aside>
 
@@ -154,15 +130,50 @@
             </div>
         </div>
     </div>
+
+    <!-- Image Cropper Modal -->
+    <div class="modal fade" id="imageCropperModal" tabindex="-1" aria-labelledby="imageCropperModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageCropperModalLabel">
+                        <i class="fas fa-crop me-2"></i>Crop Profile Picture
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="cropper-container" style="max-width: 100%; max-height: 500px; overflow: hidden;">
+                        <img id="cropper-image" src="" alt="Crop preview" style="max-width: 100%; display: block;">
+                    </div>
+                    <div class="mt-3 text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Drag to reposition, resize the crop box to select the area you want to keep. The image will be cropped to a perfect square.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelCropBtn">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="applyCropBtn">
+                        <i class="fas fa-check me-1"></i>Apply Crop
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
         window.BASE_URL = "<?= base_url() ?>";
     </script>
+    <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
+    <script src="<?= base_url('js/utils/imageCropper.js') ?>"></script>
     <script src="<?= base_url('js/admin/account_settings.js?v=1.1') ?>"></script>
     <script src="<?= base_url('js/admin/admin_drawer.js') ?>"></script>
-    <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
     <script src="<?= base_url('js/admin/logout.js') ?>"></script>
     <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
+    <script src="<?= base_url('js/admin/quotes_badge_updater.js') ?>"></script>
 </body>
 
 </html>

@@ -27,31 +27,7 @@
             </button>
 
             <!-- Navigation Links -->
-            <nav class="sidebar-nav">
-                <a href="<?= base_url('student/dashboard') ?>" class="sidebar-link" title="Dashboard">
-                    <i class="fas fa-home"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                </a>
-
-                <a href="<?= base_url('student/schedule-appointment') ?>" class="sidebar-link active" title="Schedule an Appointment">
-                    <i class="fas fa-plus-circle"></i>
-                    <span class="sidebar-text">Schedule an Appointment</span>
-                </a>
-
-                <a href="<?= base_url('student/my-appointments') ?>" class="sidebar-link" title="My Appointments">
-                    <i class="fas fa-list-alt"></i>
-                    <span class="sidebar-text">My Appointments</span>
-                </a>
-
-                <a href="<?= base_url('student/follow-up-sessions') ?>" class="sidebar-link" title="Follow-up Sessions">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span class="sidebar-text">Follow-up Sessions</span>
-                </a>
-                <a href="<?= base_url('student/announcements') ?>" class="sidebar-link" title="Announcement">
-                    <i class="fas fa-bullhorn"></i>
-                    <span class="sidebar-text">Announcement</span>
-                </a>
-            </nav>
+            <?= view('partials/sidebar_navigation', ['role' => 'student']) ?>
         </div>
     </aside>
 
@@ -394,6 +370,8 @@
     <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
     <script src="<?= base_url('js/student/logout.js') ?>"></script>
     <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
+    <script src="<?= base_url('js/student/student_messages_badge_updater.js') ?>"></script>
+    <script src="<?= base_url('js/student/student_notifications_badge_updater.js') ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Set the base URL for JavaScript

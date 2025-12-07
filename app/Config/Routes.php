@@ -106,6 +106,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function ($rou
     $routes->get('filter-data/student-academic-map', 'FilterData::getStudentAcademicMap');
 
     // Quote management endpoints
+    $routes->get('quotes-management', 'Dashboard::quotesManagement');
+    $routes->get('quotes/pending-count', 'Dashboard::getPendingQuotesCount');
     $routes->get('quotes/all', 'Dashboard::getAllQuotes');
     $routes->post('quotes/approve/(:num)', 'Dashboard::approveQuote/$1');
     $routes->post('quotes/reject/(:num)', 'Dashboard::rejectQuote/$1');
@@ -147,9 +149,12 @@ $routes->group('student', ['namespace' => 'App\Controllers\Student'], function (
     $routes->get('my-appointments', 'Appointment::viewAppointments');
 
     // Add notification routes
+    $routes->get('notifications/page', 'Notifications::notificationsPage');
+    $routes->get('notifications/all', 'Notifications::getAll');
     $routes->get('notifications', 'Notifications::index');
     $routes->get('notifications/unread-count', 'Notifications::getUnreadCount');
     $routes->post('notifications/mark-read', 'Notifications::markAsRead');
+    $routes->post('notifications/delete', 'Notifications::delete');
 
     $routes->get('appointments/get-my-appointments', 'Appointment::getMyAppointments');
     $routes->get('appointments/booked-times', 'Appointment::getBookedTimesForDate');
@@ -231,9 +236,12 @@ $routes->group('counselor', ['namespace' => 'App\Controllers\Counselor'], functi
     $routes->get('events/all', 'Events::getAll');
 
     // Notifications routes for counselors
+    $routes->get('notifications/page', 'Notifications::notificationsPage');
+    $routes->get('notifications/all', 'Notifications::getAll');
     $routes->get('notifications', 'Notifications::index');
     $routes->get('notifications/unread-count', 'Notifications::getUnreadCount');
     $routes->post('notifications/mark-read', 'Notifications::markAsRead');
+    $routes->post('notifications/delete', 'Notifications::delete');
 
     // Follow-up appointments routes
     $routes->get('follow-up', 'FollowUp::index');

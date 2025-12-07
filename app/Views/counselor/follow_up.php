@@ -28,25 +28,7 @@
             </button>
 
             <!-- Navigation Links -->
-            <nav class="sidebar-nav">
-                <a href="<?= base_url('counselor/dashboard') ?>" class="sidebar-link " title="Dashboard">
-                    <i class="fas fa-home"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                </a>
-
-                <a href="<?= base_url('counselor/appointments/scheduled') ?>" class="sidebar-link" title="Scheduled Appointments">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span class="sidebar-text">Scheduled Appointments</span>
-                </a>
-                <a href="<?= base_url('counselor/follow-up') ?>" class="sidebar-link active" title="Follow-up Sessions">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span class="sidebar-text">Follow-up Sessions</span>
-                </a>
-                <a href="<?= base_url('counselor/announcements') ?>" class="sidebar-link" title="Announcement">
-                    <i class="fas fa-bullhorn"></i>
-                    <span class="sidebar-text">Announcement</span>
-                </a>
-            </nav>
+            <?= view('partials/sidebar_navigation', ['role' => 'counselor']) ?>
         </div>
     </aside>
 
@@ -405,6 +387,8 @@
     <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
     <script src="<?= base_url('js/counselor/logout.js') ?>"></script>
     <script src="<?= base_url('js/utils/sidebar.js') ?>"></script>
+    <script src="<?= base_url('js/counselor/counselor_messages_badge_updater.js') ?>"></script>
+    <script src="<?= base_url('js/counselor/counselor_notifications_badge_updater.js') ?>"></script>
 </body>
 
 </html>

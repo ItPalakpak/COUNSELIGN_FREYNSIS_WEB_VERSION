@@ -1,0 +1,261 @@
+/* Quotes Management Page Styles */
+
+/* Page Header */
+.page-header {
+    margin-bottom: 1.5rem;
+}
+
+/* Filter Section */
+.filter-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.filter-section .input-group-text {
+    background-color: #fff;
+    border-right: none;
+}
+
+.filter-section .form-control,
+.filter-section .form-select {
+    border-left: none;
+}
+
+.filter-section .form-control:focus,
+.filter-section .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Statistics Summary */
+.stats-summary {
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.pending {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+    color: #fff;
+}
+
+.stat-card.approved {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: #fff;
+}
+
+.stat-card.rejected {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: #fff;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-right: 1rem;
+    opacity: 0.9;
+}
+
+.stat-details h3 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.stat-details p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Quotes Container */
+.quotes-container {
+    min-height: 400px;
+}
+
+.quotes-container .loading-spinner {
+    padding: 3rem 0;
+}
+
+/* Quote Cards */
+.quote-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-width: 2px;
+    height: 100%;
+}
+
+.quote-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.quote-card.border-warning {
+    border-color: #ffc107 !important;
+}
+
+.quote-card.border-success {
+    border-color: #28a745 !important;
+}
+
+.quote-card.border-danger {
+    border-color: #dc3545 !important;
+}
+
+.quote-card .card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.quote-card .card-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+}
+
+.quote-card .quote-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 1rem;
+    flex-grow: 1;
+    font-style: italic;
+}
+
+.quote-card .quote-meta {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.quote-card .card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.quote-card .card-actions .btn {
+    flex: 1;
+}
+
+/* Badge Styles */
+.quote-card .badge {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.empty-state i {
+    opacity: 0.5;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        margin-right: 0.75rem;
+    }
+
+    .stat-details h3 {
+        font-size: 1.5rem;
+    }
+
+    .filter-section {
+        padding: 1rem;
+    }
+
+    .quote-card .card-actions {
+        flex-direction: column;
+    }
+
+    .quote-card .card-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-summary .col-md-4 {
+        margin-bottom: 1rem;
+    }
+
+    .filter-section .row > div {
+        margin-bottom: 0.75rem;
+    }
+
+    .quote-card .quote-text {
+        font-size: 0.95rem;
+    }
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 0;
+}
+
+/* Alert Styles in Cards */
+.quote-card .alert {
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+.quote-card .alert strong {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Modal Styles */
+#rejectionReasonModal .modal-body textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Card Row Spacing */
+.quotes-container .row {
+    margin-bottom: 1.5rem;
+}
+
+.quotes-container .row:last-child {
+    margin-bottom: 0;
+}
+
+/* Ensure cards have equal height in row */
+.quotes-container .row .col-md-6 {
+    display: flex;
+}
+
+.quotes-container .row .col-md-6 .quote-card {
+    width: 100%;
+}
+

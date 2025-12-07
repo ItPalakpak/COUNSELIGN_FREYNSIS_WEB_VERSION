@@ -79,11 +79,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Store appointments data globally
             appointments = Array.isArray(data.appointments) ? data.appointments : [];
             
-            // Update status counts
-            updateStatusCounts(appointments);
-            
-            // Display appointments
+            // Display appointments (this will also trigger count update via displayAppointments)
             displayAppointments(appointments);
+            
+            // Update status counts based on current filters
+            updateStatusCounts(appointments);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -122,8 +122,24 @@ document.addEventListener('DOMContentLoaded', function() {
         cancelledCountEl.textContent = '-';
     }
     
-    // Update status count cards
+    // Get filtered appointments based on current filters
+    function getFilteredAppointments(appointmentsData) {
+        const selectedDateRange = dateRangeFilter ? dateRangeFilter.value : 'all';
+        let filteredAppointments = appointmentsData.filter(app => isDateInRange(app.preferred_date, selectedDateRange));
+
+        if (!viewAllMode && statusFilter) {
+            const selectedStatus = statusFilter.value;
+            filteredAppointments = filteredAppointments.filter(app => selectedStatus === 'all' || app.status === selectedStatus);
+        }
+        
+        return filteredAppointments;
+    }
+    
+    // Update status count cards based on filtered appointments
     function updateStatusCounts(appointmentsData) {
+        // Get filtered appointments based on current filters
+        const filteredAppointments = getFilteredAppointments(appointmentsData);
+        
         // Count appointments by status
         const counts = {
             pending: 0,
@@ -133,8 +149,8 @@ document.addEventListener('DOMContentLoaded', function() {
             cancelled: 0
         };
         
-        // Count each status
-        appointmentsData.forEach(appointment => {
+        // Count each status from filtered appointments
+        filteredAppointments.forEach(appointment => {
             if (counts.hasOwnProperty(appointment.status)) {
                 counts[appointment.status]++;
             }
@@ -176,8 +192,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function getMondayOfCurrentWeek() {
         const today = new Date();
         const day = today.getDay();
-        const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-        return new Date(today.setDate(diff));
+        // Calculate days to subtract to get to Monday (0 = Sunday, 1 = Monday, etc.)
+        const daysToMonday = day === 0 ? 6 : day - 1;
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - daysToMonday);
+        return monday;
     }
     
     // Check if a date is within the selected date range
@@ -186,10 +205,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         }
         
+        if (!dateString) {
+            return false;
+        }
+        
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
         const appointmentDate = new Date(dateString);
+        if (isNaN(appointmentDate.getTime())) {
+            return false;
+        }
         appointmentDate.setHours(0, 0, 0, 0);
         
         const timeDiff = appointmentDate.getTime() - today.getTime();
@@ -198,9 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
         switch (rangeType) {
             case 'today':
                 return dayDiff === 0;
-            case 'tomorrow':
-                return dayDiff === 1;
-            case 'week':
+            case 'thisWeek':
                 // Get Monday of current week
                 const monday = getMondayOfCurrentWeek();
                 monday.setHours(0, 0, 0, 0);
@@ -211,10 +235,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 sunday.setHours(23, 59, 59, 999);
                 
                 return appointmentDate >= monday && appointmentDate <= sunday;
-            case 'month':
-                const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                const daysLeftInMonth = endOfMonth.getDate() - today.getDate();
-                return dayDiff >= 0 && dayDiff <= daysLeftInMonth;
+            case 'nextWeek':
+                // Get Monday of current week, then add 7 days to get next week's Monday
+                const currentMonday = getMondayOfCurrentWeek();
+                currentMonday.setHours(0, 0, 0, 0);
+                
+                const nextWeekStart = new Date(currentMonday);
+                nextWeekStart.setDate(currentMonday.getDate() + 7);
+                nextWeekStart.setHours(0, 0, 0, 0);
+                
+                const nextWeekEnd = new Date(nextWeekStart);
+                nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
+                nextWeekEnd.setHours(23, 59, 59, 999);
+                
+                return appointmentDate >= nextWeekStart && appointmentDate <= nextWeekEnd;
+            case 'nextMonth':
+                // First day of next month
+                const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+                nextMonthStart.setHours(0, 0, 0, 0);
+                
+                // Last day of next month
+                const nextMonthEnd = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+                nextMonthEnd.setHours(23, 59, 59, 999);
+                
+                return appointmentDate >= nextMonthStart && appointmentDate <= nextMonthEnd;
+            case 'past':
+                return appointmentDate < today;
             default:
                 return true;
         }
@@ -222,13 +268,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Display appointments based on filters
     function displayAppointments(appointmentsData) {
-        const selectedDateRange = dateRangeFilter.value;
-        let filteredAppointments = appointmentsData.filter(app => isDateInRange(app.preferred_date, selectedDateRange));
-
-        if (!viewAllMode) {
-            const selectedStatus = statusFilter.value;
-            filteredAppointments = filteredAppointments.filter(app => selectedStatus === 'all' || app.status === selectedStatus);
-        }
+        // Get filtered appointments using shared filtering function
+        const filteredAppointments = getFilteredAppointments(appointmentsData);
         
         // Show no appointments message if no appointments found
         if (filteredAppointments.length === 0) {
@@ -990,18 +1031,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Add event listeners for filters
-    document.getElementById('dateRangeFilter').addEventListener('change', function() {
-        const filteredAppointments = filterAppointments();
-        displayAppointments(filteredAppointments);
-    });
+    if (dateRangeFilter) {
+        dateRangeFilter.addEventListener('change', function() {
+            displayAppointments(appointments);
+            updateStatusCounts(appointments);
+        });
+    }
 
-    document.getElementById('statusFilter').addEventListener('change', function() {
-        if (viewAllMode) {
-            return;
-        }
-        const filteredAppointments = filterAppointments();
-        displayAppointments(filteredAppointments);
-    });
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            if (viewAllMode) {
+                return;
+            }
+            displayAppointments(appointments);
+            updateStatusCounts(appointments);
+        });
+    }
 
     if (viewToggleBtn){
         updateViewToggleState();
@@ -1009,6 +1054,7 @@ document.addEventListener('DOMContentLoaded', function() {
             viewAllMode = !viewAllMode;
             updateViewToggleState();
             displayAppointments(appointments);
+            updateStatusCounts(appointments);
         });
     }
 

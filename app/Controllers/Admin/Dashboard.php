@@ -96,6 +96,55 @@ class Dashboard extends BaseController
     }
 
     /**
+     * Quotes Management page
+     */
+    public function quotesManagement()
+    {
+        // Check if user is logged in and is admin
+        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
+            return redirect()->to('/');
+        }
+
+        $data = [
+            'title' => 'Quotes Management - Counselign',
+            'username' => session()->get('username'),
+            'email' => session()->get('email')
+        ];
+
+        return view('admin/quotes_management', $data);
+    }
+
+    /**
+     * Get pending quotes count for badge
+     */
+    public function getPendingQuotesCount()
+    {
+        if (!session()->get('logged_in') || session()->get('role') !== 'admin') {
+            return $this->respond([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 401);
+        }
+
+        try {
+            $quoteModel = new QuoteModel();
+            $pendingCount = $quoteModel->getPendingCount();
+
+            return $this->respond([
+                'success' => true,
+                'count' => $pendingCount
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', '[Admin Quotes] Error fetching pending count: ' . $e->getMessage());
+            return $this->respond([
+                'success' => false,
+                'message' => 'Failed to load pending count',
+                'count' => 0
+            ], 500);
+        }
+    }
+
+    /**
      * Get all quotes for admin moderation
      */
     public function getAllQuotes()

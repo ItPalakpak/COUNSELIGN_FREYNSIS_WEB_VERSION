@@ -197,4 +197,162 @@ class Notifications extends \CodeIgniter\Controller
             return $this->failServerError('Failed to get unread count');
         }
     }
+
+    /**
+     * Display notifications page view
+     */
+    public function notificationsPage()
+    {
+        // Check if user is logged in and is a student
+        if (!session()->get('logged_in') || session()->get('role') !== 'student') {
+            return redirect()->to('auth');
+        }
+
+        return view('student/notifications');
+    }
+
+    /**
+     * Get all notifications for the notifications page (regardless of read status)
+     */
+    public function getAll()
+    {
+        try {
+            // Check if user is logged in and is a student
+            if (!session()->get('logged_in') || session()->get('role') !== 'student') {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'User not logged in']);
+            }
+
+            $userId = session()->get('user_id_display');
+            if (!$userId) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'User ID not found in session']);
+            }
+
+            // Get all notifications regardless of read status
+            $notifications = $this->notificationsModel->getAllNotifications($userId);
+
+            // Enrich message notifications safely: only received from counselors; attach counselor info
+            if (is_array($notifications) && !empty($notifications)) {
+                try {
+                    // Collect message IDs present in notifications
+                    $messageIds = [];
+                    foreach ($notifications as $n) {
+                        if (isset($n['type']) && $n['type'] === 'message' && !empty($n['related_id'])) {
+                            $messageIds[] = $n['related_id'];
+                        }
+                    }
+
+                    if (!empty($messageIds)) {
+                        $db = \Config\Database::connect();
+
+                        // Query only messages RECEIVED by the current user; join users to get counselor name/username
+                        $rows = $db->table('messages m')
+                            ->select('m.message_id, m.sender_id, m.receiver_id, m.created_at, u.username, c.name as counselor_name')
+                            ->join('users u', 'u.user_id = m.sender_id', 'left')
+                            ->join('counselors c', 'c.counselor_id = m.sender_id', 'left')
+                            ->whereIn('m.message_id', $messageIds)
+                            ->where('m.receiver_id', $userId)
+                            ->get()
+                            ->getResultArray();
+
+                        $byId = [];
+                        foreach ($rows as $r) {
+                            if (!isset($r['message_id'])) { continue; }
+                            $byId[$r['message_id']] = $r;
+                        }
+
+                        // Rebuild notifications: keep non-message as-is; for message, include only received and attach counselor info
+                        $rebuilt = [];
+                        foreach ($notifications as $n) {
+                            if (!isset($n['type']) || $n['type'] !== 'message') {
+                                $rebuilt[] = $n;
+                                continue;
+                            }
+                            $mid = $n['related_id'] ?? null;
+                            if (!$mid || !isset($byId[$mid])) {
+                                continue; // drop sent or unknown
+                            }
+                            $row = $byId[$mid];
+                            $displayName = ($row['counselor_name'] ?? '') ?: (($row['username'] ?? '') ?: 'Counselor');
+                            $n['counselor_id'] = $row['sender_id'] ?? null;
+                            $n['counselor_name'] = $displayName;
+                            $n['title'] = 'New Message from Counselor ' . $displayName;
+                            $rebuilt[] = $n;
+                        }
+
+                        $notifications = $rebuilt;
+                    }
+                } catch (\Throwable $t) {
+                    log_message('error', 'Student notifications enrichment failed: ' . $t->getMessage());
+                    // Fail open: keep original $notifications to avoid breaking UI
+                }
+            }
+
+            // Exclude message notifications from display per requirement
+            $notifications = array_filter($notifications, function($n) {
+                return !(isset($n['type']) && $n['type'] === 'message');
+            });
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'notifications' => array_values($notifications)
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in NotificationsController->getAll: ' . $e->getMessage() . ' on line ' . $e->getLine() . ' in file ' . $e->getFile());
+            return $this->response->setJSON(['status' => 'error', 'message' => 'An internal server error occurred.']);
+        }
+    }
+
+    /**
+     * Delete single or multiple notifications
+     */
+    public function delete()
+    {
+        // Check if user is logged in and is a student
+        if (!session()->get('logged_in') || session()->get('role') !== 'student') {
+            return $this->failUnauthorized('User not logged in');
+        }
+
+        $userId = session()->get('user_id_display');
+        if (!$userId) {
+            return $this->failUnauthorized('User ID not found in session');
+        }
+
+        try {
+            $input = $this->request->getJSON(true);
+            $notificationIds = $input['notification_ids'] ?? [];
+            $deleteAll = $input['delete_all'] ?? false;
+
+            if ($deleteAll) {
+                // Delete all notifications
+                $this->notificationsModel->deleteAllNotifications($userId);
+                
+                // Update last_activity
+                $activityHelper = new UserActivityHelper();
+                $activityHelper->updateStudentActivity($userId, 'view_notifications');
+
+                return $this->respond([
+                    'status' => 'success',
+                    'message' => 'All notifications deleted.'
+                ]);
+            } else if (!empty($notificationIds) && is_array($notificationIds)) {
+                // Delete multiple notifications
+                $deletedCount = 0;
+                foreach ($notificationIds as $notificationId) {
+                    if ($this->notificationsModel->deleteNotification($notificationId, $userId)) {
+                        $deletedCount++;
+                    }
+                }
+                
+                return $this->respond([
+                    'status' => 'success',
+                    'message' => "Deleted {$deletedCount} notification(s)."
+                ]);
+            } else {
+                return $this->fail('Missing required parameters');
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error deleting notifications: ' . $e->getMessage());
+            return $this->failServerError('Failed to delete notifications');
+        }
+    }
 } 

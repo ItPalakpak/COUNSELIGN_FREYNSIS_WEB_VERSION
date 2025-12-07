@@ -32,32 +32,7 @@
             </button>
 
             <!-- Navigation Links -->
-            <nav class="sidebar-nav">
-                <a href="<?= base_url('admin/dashboard') ?>" class="sidebar-link active" title="Dashboard">
-                    <i class="fas fa-home"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                </a>
-                <a href="<?= base_url('admin/admins-management') ?>" class="sidebar-link" title="Management">
-                    <i class="fas fa-users-cog"></i>
-                    <span class="sidebar-text">Management</span>
-                </a>
-                <a href="<?= base_url('admin/appointments') ?>" class="sidebar-link" title="Recent Appointments">
-                    <i class="fas fa-calendar-check"></i>
-                    <span class="sidebar-text">Recent Appointments</span>
-                </a>
-                <a href="<?= base_url('admin/follow-up-sessions') ?>" class="sidebar-link" title="Follow-up Sessions">
-                    <i class="fas fa-calendar-days"></i>
-                    <span class="sidebar-text">Follow-up Sessions</span>
-                </a>
-                <a href="<?= base_url('admin/resources') ?>" class="sidebar-link" title="Resources">
-                    <i class="fas fa-folder-open"></i>
-                    <span class="sidebar-text">Resources</span>
-                </a>
-                <a href="<?= base_url('admin/announcements') ?>" class="sidebar-link" title="Announcements">
-                    <i class="fa-solid fa-bullhorn"></i>
-                    <span class="sidebar-text">Announcements</span>
-                </a>
-            </nav>
+            <?= view('partials/sidebar_navigation', ['role' => 'admin']) ?>
         </div>
     </aside>
 
@@ -81,12 +56,6 @@
             </div>
 
             <div class="top-bar-right">
-                <!-- Quote Modal Button -->
-                <button class="top-bar-btn" id="openQuotesModalBtn" title="Manage Quotes">
-                    <i class="fas fa-quote-right"></i>
-                    <span class="btn-label">Quotes</span>
-                </button>
-
                 <!-- Profile Dropdown -->
                 <div class="profile-dropdown">
                     <button class="top-bar-btn profile-btn" id="profileDropdownBtn">
@@ -606,81 +575,6 @@
         </main>
     </div>
 
-    <!-- Quotes Management Modal -->
-    <div class="modal fade" id="quotesManagementModal" tabindex="-1" aria-labelledby="quotesManagementModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #060E57, #0A1875); color: white;">
-                    <h5 class="modal-title" id="quotesManagementModalLabel">
-                        <i class="fas fa-quote-left me-2"></i>Manage Quotes
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Navigation Tabs -->
-                    <ul class="nav nav-tabs mb-4" id="quoteTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-quotes" type="button" role="tab">
-                                <i class="fas fa-clock me-1"></i>Pending
-                                <span class="badge bg-warning ms-2" id="pending-count">0</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-quotes" type="button" role="tab">
-                                <i class="fas fa-check-circle me-1"></i>Approved
-                                <span class="badge bg-success ms-2" id="approved-count">0</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-quotes" type="button" role="tab">
-                                <i class="fas fa-times-circle me-1"></i>Rejected
-                                <span class="badge bg-danger ms-2" id="rejected-count">0</span>
-                            </button>
-                        </li>
-                    </ul>
-
-                    <!-- Tab Content -->
-                    <div class="tab-content" id="quoteTabContent">
-                        <!-- Pending Quotes Tab -->
-                        <div class="tab-pane fade show active" id="pending-quotes" role="tabpanel">
-                            <div id="pendingQuotesList" class="d-flex flex-column gap-3">
-                                <div class="text-center py-4">
-                                    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
-                                    <p class="mt-2 text-muted">Loading quotes...</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Approved Quotes Tab -->
-                        <div class="tab-pane fade" id="approved-quotes" role="tabpanel">
-                            <div id="approvedQuotesList" class="d-flex flex-column gap-3">
-                                <div class="text-center py-4">
-                                    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
-                                    <p class="mt-2 text-muted">Loading quotes...</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Rejected Quotes Tab -->
-                        <div class="tab-pane fade" id="rejected-quotes" role="tabpanel">
-                            <div id="rejectedQuotesList" class="d-flex flex-column gap-3">
-                                <div class="text-center py-4">
-                                    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
-                                    <p class="mt-2 text-muted">Loading quotes...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Rejection Reason Modal -->
     <div class="modal fade" id="rejectionReasonModal" tabindex="-1" aria-labelledby="rejectionReasonModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -767,7 +661,7 @@
     <script src="<?= base_url('js/admin/profile_sync.js') ?>"></script>
     <script src="<?= base_url('js/admin/view_all_appointments.js') ?>"></script>
     <script src="<?= base_url('js/modals/student_dashboard_modals.js') ?>"></script>
-    <script src="<?= base_url('js/admin/quotes_management.js') ?>"></script>
+    <script src="<?= base_url('js/admin/quotes_badge_updater.js') ?>"></script>
     <script src="<?= base_url('js/admin/logout.js') ?>" defer></script>
     <script src="<?= base_url('js/utils/secureLogger.js') ?>"></script>
 </body>

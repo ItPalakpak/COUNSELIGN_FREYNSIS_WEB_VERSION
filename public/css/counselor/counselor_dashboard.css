@@ -514,8 +514,16 @@ footer {
 }
 
 .notification-item.unread {
-    background-color: #f0f7ff;
+    background-color: #e7f3ff;
     position: relative;
+    border-left: 4px solid #0d6efd;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.1);
+}
+
+.notification-item.unread:hover {
+    background-color: #d0e7ff;
+    box-shadow: 0 2px 6px rgba(13, 110, 253, 0.15);
 }
 
 .notification-item.unread::before {
@@ -524,10 +532,15 @@ footer {
     top: 50%;
     left: 8px;
     transform: translateY(-50%);
-    width: 4px;
-    height: 4px;
-    background-color: #060E57;
+    width: 6px;
+    height: 6px;
+    background-color: #0d6efd;
     border-radius: 50%;
+}
+
+.notification-item.unread .notification-header h4 {
+    font-weight: 700;
+    color: #0d6efd;
 }
 
 /* Notification Header and Actions */

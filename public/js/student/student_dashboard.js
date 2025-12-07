@@ -406,15 +406,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     notifications
       // Exclude ALL message notifications from display per requirement
-      .filter((n) => !(n && n.type === "message"))
+      // Only show unread notifications (is_read = 0)
+      .filter((n) => {
+        if (!n || n.type === "message") return false;
+        // Only show unread notifications
+        return n.is_read === 0 || n.is_read === false || n.is_read === "0" || n.is_read === null;
+      })
       .forEach((notification) => {
         if (!notification) return;
 
         const notificationItem = document.createElement("div");
-        notificationItem.className = "notification-item";
-        if (!notification.is_read) {
-          notificationItem.classList.add("unread");
-        }
+        notificationItem.className = "notification-item unread";
 
         const notifDate = new Date(notification.created_at);
         const formattedDate =
@@ -423,78 +425,23 @@ document.addEventListener("DOMContentLoaded", function () {
         // Use title directly from backend (already formatted with counselor name)
         const displayTitle = notification.title || "Notification";
 
-        // Show mark as read button for all notification types if not already read
-        // For events and announcements, check if they're already marked as read
-        let showMarkReadBtn = false;
-        if (
-          notification.is_read === 0 ||
-          notification.is_read === false ||
-          notification.is_read === "0"
-        ) {
-          showMarkReadBtn = true;
-        } else if (
-          notification.type === "event" ||
-          notification.type === "announcement"
-        ) {
-          // Events and announcements don't have is_read in the notification object
-          // They're considered unread if they appear in the list
-          showMarkReadBtn = true;
-        }
-
-        const markReadBtn = showMarkReadBtn
-          ? `
-                <button class="btn btn-sm btn-outline-primary mark-read-btn" data-notification-id="${
-                  notification.id || ""
-                }" data-type="${notification.type || ""}" data-related-id="${
-              notification.related_id || ""
-            }" title="Mark as read">
-                    <i class="fas fa-check"></i>
-                </button>
-            `
-          : "";
-
+        // No mark as read button - clicking the notification will mark it as read and redirect
         notificationItem.innerHTML = `
                 <div class="notification-header">
                     <h4>${displayTitle}</h4>
                     <div class="notification-actions">
                         <span class="notification-time">${formattedDate}</span>
-                        ${markReadBtn}
                     </div>
                 </div>
                 <p>${notification.message || ""}</p>
             `;
 
-        // Store counselor data as data attributes for message notifications
-        if (notification.type === "message" && notification.counselor_id) {
-          notificationItem.dataset.counselorId = notification.counselor_id;
-          notificationItem.dataset.counselorName =
-            notification.counselor_name || "Counselor";
-        }
+        // Store notification data for click handler
+        notificationItem.dataset.notificationId = notification.id || "";
+        notificationItem.dataset.notificationType = notification.type || "";
+        notificationItem.dataset.relatedId = notification.related_id || "";
 
-        // Add click handler for mark as read button
-        const markReadButton = notificationItem.querySelector(".mark-read-btn");
-        if (markReadButton) {
-          markReadButton.addEventListener("click", function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            const notificationId =
-              markReadButton.dataset.notificationId || notification.id || null;
-            const notificationType =
-              markReadButton.dataset.type || notification.type || null;
-            const relatedId =
-              markReadButton.dataset.relatedId ||
-              notification.related_id ||
-              null;
-
-            markNotificationAsRead(notificationId, notificationType, relatedId);
-            notificationItem.classList.remove("unread");
-            notification.is_read = 1;
-            markReadButton.remove();
-            fetchNotificationCount();
-            loadNotifications(); // Reload to update the list
-          });
-        }
-
+        // Click handler: mark as read and redirect based on notification type
         notificationItem.addEventListener("click", function () {
           // Hide notifications dropdown first
           const notificationsDropdown = document.getElementById(
@@ -504,39 +451,31 @@ document.addEventListener("DOMContentLoaded", function () {
             notificationsDropdown.style.display = "none";
           }
 
-          // Mark as read
-          if (!notification.is_read) {
-            markNotificationAsRead(notification.id);
-            notificationItem.classList.remove("unread");
-            notification.is_read = true;
-            fetchNotificationCount();
+          // Mark notification as read
+          const notificationId = notificationItem.dataset.notificationId || notification.id || null;
+          const notificationType = notificationItem.dataset.notificationType || notification.type || null;
+          const relatedId = notificationItem.dataset.relatedId || notification.related_id || null;
+
+          if (notificationId || (notificationType && relatedId)) {
+            markNotificationAsRead(notificationId, notificationType, relatedId);
           }
 
           // Handle navigation based on notification type
           if (notification.type === "appointment") {
-            showAppointmentDetailsModal(notification.related_id);
+            // Redirect to appointments page
+            window.location.href = window.BASE_URL + "student/my-appointments";
           } else if (
             notification.type === "event" ||
             notification.type === "announcement"
           ) {
+            // Redirect to announcements page
             window.location.href = window.BASE_URL + "student/announcements";
-          } else if (notification.type === "message") {
-            // Open chat with the specific counselor
-            const counselorId =
-              notification.counselor_id || notificationItem.dataset.counselorId;
-            const counselorName =
-              notification.counselor_name ||
-              notificationItem.dataset.counselorName ||
-              "Counselor";
-
-            if (counselorId) {
-              // Use the selectCounselor function to open chat with this counselor
-              selectCounselor(counselorId, counselorName);
-            } else {
-              // Fallback: just open chat
-              const openChatBtn = document.getElementById("openChatBtn");
-              if (openChatBtn) openChatBtn.click();
-            }
+          } else if (
+            notification.type === "follow-up" ||
+            notification.type === "follow_up_session"
+          ) {
+            // Redirect to follow-ups page
+            window.location.href = window.BASE_URL + "student/follow-up-sessions";
           }
         });
 
@@ -579,38 +518,6 @@ document.addEventListener("DOMContentLoaded", function () {
       e.stopPropagation();
       e.preventDefault();
 
-      // Get all notifications currently displayed in the modal
-      const notificationsList = document.querySelector(".notifications-list");
-      if (!notificationsList) return;
-
-      const notificationItems =
-        notificationsList.querySelectorAll(".notification-item");
-
-      // Collect all notifications that need to be marked as read
-      const notificationsToMark = [];
-
-      notificationItems.forEach((item) => {
-        const markReadBtn = item.querySelector(".mark-read-btn");
-        if (markReadBtn) {
-          const notificationId = markReadBtn.dataset.notificationId || null;
-          const notificationType = markReadBtn.dataset.type || null;
-          const relatedId = markReadBtn.dataset.relatedId || null;
-
-          if (notificationId || (notificationType && relatedId)) {
-            notificationsToMark.push({
-              notification_id: notificationId,
-              type: notificationType,
-              related_id: relatedId,
-            });
-          }
-        }
-      });
-
-      // If no notifications to mark, just return
-      if (notificationsToMark.length === 0) {
-        return;
-      }
-
       // Mark all notifications as read using the bulk endpoint
       fetch(window.BASE_URL + "student/notifications/mark-read", {
         method: "POST",
@@ -620,53 +527,12 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === "success") {
-            // Now mark each individual notification based on its type
-            const markPromises = notificationsToMark.map((notif) => {
-              const payload = {};
-
-              // Handle different notification types
-              if (notif.notification_id) {
-                payload.notification_id = notif.notification_id;
-              } else if (notif.type && notif.related_id) {
-                payload.type = notif.type;
-                payload.related_id = notif.related_id;
-              } else {
-                return Promise.resolve();
-              }
-
-              return fetch(
-                window.BASE_URL + "student/notifications/mark-read",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(payload),
-                }
-              );
-            });
-
-            // Wait for all individual marks to complete
-            return Promise.all(markPromises);
+            // Reload notifications to get fresh data (only unread will show)
+            loadNotifications();
+            fetchNotificationCount();
           } else {
-            console.error(
-              "Error marking all notifications as read:",
-              data.message
-            );
-            throw new Error(data.message);
+            console.error("Error marking all notifications as read:", data.message);
           }
-        })
-        .then(() => {
-          // Remove all mark-as-read buttons and unread classes
-          notificationItems.forEach((item) => {
-            item.classList.remove("unread");
-            const markReadBtn = item.querySelector(".mark-read-btn");
-            if (markReadBtn) {
-              markReadBtn.remove();
-            }
-          });
-
-          // Reload notifications to get fresh data
-          loadNotifications();
-          fetchNotificationCount();
         })
         .catch((error) => {
           console.error("Error marking all notifications as read:", error);

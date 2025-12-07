@@ -199,6 +199,101 @@ class Notifications extends \CodeIgniter\Controller
             return $this->failServerError('Failed to get unread count');
         }
     }
+
+    /**
+     * Display notifications page view
+     */
+    public function notificationsPage()
+    {
+        // Check if user is logged in and is a counselor
+        if (!session()->get('logged_in') || session()->get('role') !== 'counselor') {
+            return redirect()->to('auth');
+        }
+
+        return view('counselor/notifications');
+    }
+
+    /**
+     * Get all notifications for the notifications page (regardless of read status)
+     */
+    public function getAll()
+    {
+        try {
+            // Check if user is logged in and is a counselor
+            if (!session()->get('logged_in') || session()->get('role') !== 'counselor') {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'User not logged in']);
+            }
+
+            $userId = session()->get('user_id_display');
+            if (!$userId) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'User ID not found in session']);
+            }
+
+            // Get all notifications regardless of read status
+            $notifications = $this->notificationsModel->getAllNotifications($userId);
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'notifications' => $notifications
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in Counselor Notifications->getAll: ' . $e->getMessage());
+            return $this->response->setJSON(['status' => 'error', 'message' => 'An internal server error occurred.']);
+        }
+    }
+
+    /**
+     * Delete single or multiple notifications
+     */
+    public function delete()
+    {
+        if (!session()->get('logged_in') || session()->get('role') !== 'counselor') {
+            return $this->failUnauthorized('User not logged in');
+        }
+
+        $userId = session()->get('user_id_display');
+        if (!$userId) {
+            return $this->failUnauthorized('User ID not found in session');
+        }
+
+        try {
+            $input = $this->request->getJSON(true);
+            $notificationIds = $input['notification_ids'] ?? [];
+            $deleteAll = $input['delete_all'] ?? false;
+
+            if ($deleteAll) {
+                // Delete all notifications
+                $this->notificationsModel->deleteAllNotifications($userId);
+                
+                // Update last_activity
+                $activityHelper = new UserActivityHelper();
+                $activityHelper->updateCounselorActivity($userId, 'view_notifications');
+
+                return $this->respond([
+                    'status' => 'success',
+                    'message' => 'All notifications deleted.'
+                ]);
+            } else if (!empty($notificationIds) && is_array($notificationIds)) {
+                // Delete multiple notifications
+                $deletedCount = 0;
+                foreach ($notificationIds as $notificationId) {
+                    if ($this->notificationsModel->deleteNotification($notificationId, $userId)) {
+                        $deletedCount++;
+                    }
+                }
+                
+                return $this->respond([
+                    'status' => 'success',
+                    'message' => "Deleted {$deletedCount} notification(s)."
+                ]);
+            } else {
+                return $this->fail('Missing required parameters');
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error deleting counselor notifications: ' . $e->getMessage());
+            return $this->failServerError('Failed to delete notifications');
+        }
+    }
 }
 
 

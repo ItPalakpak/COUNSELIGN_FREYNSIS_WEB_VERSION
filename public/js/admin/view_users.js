@@ -10,6 +10,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const activeUsersElement = document.getElementById('activeUsers');
     
     let allUsers = [];
+    
+    // Pagination state
+    const paginationState = {
+        usersTable: 1
+    };
+    const paginationWindowState = {
+        usersTable: 1
+    };
+    const ITEMS_PER_PAGE = 10;
+    const PAGES_PER_WINDOW = 5;
+    
+    // Track if this is the initial data load
+    let isInitialLoad = true;
 
     // Add event listeners
     if (searchInput) searchInput.addEventListener('input', filterUsers);
@@ -37,7 +50,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 allUsers = normalizeUsers(data.users);
                 updateUserStats(data.activeCount);
                 buildAcademicFilterOptions();
-                filterUsers();
+                
+                // Only reset pagination on initial load, preserve it on periodic refreshes
+                if (isInitialLoad) {
+                    paginationState.usersTable = 1;
+                    paginationWindowState.usersTable = 1;
+                    isInitialLoad = false;
+                    filterUsers();
+                } else {
+                    // On periodic refresh, preserve pagination and just refresh the display
+                    refreshCurrentTableDisplay();
+                }
             } else {
                 showError(data.message || 'Failed to fetch users');
             }
@@ -60,6 +83,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function filterUsers() {
+        // Reset pagination to page 1 when filters change
+        paginationState.usersTable = 1;
+        paginationWindowState.usersTable = 1;
         displayUsers(getFilteredUsers());
     }
 
@@ -187,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (noUsersMessage) {
                 noUsersMessage.style.display = 'block';
             }
+            renderPagination('usersTable', 0);
             return;
         }
 
@@ -194,7 +221,25 @@ document.addEventListener('DOMContentLoaded', function() {
             noUsersMessage.style.display = 'none';
         }
         
-        users.forEach(user => {
+        // Pagination logic
+        const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
+        let currentPage = paginationState.usersTable || 1;
+        
+        // Validate and correct page number if out of bounds
+        if (currentPage < 1) {
+            currentPage = 1;
+            paginationState.usersTable = 1;
+        } else if (totalPages > 0 && currentPage > totalPages) {
+            currentPage = totalPages;
+            paginationState.usersTable = totalPages;
+        }
+        
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const paginatedUsers = users.slice(startIndex, endIndex);
+        
+        // Display paginated users
+        paginatedUsers.forEach(user => {
             const row = document.createElement('tr');
             let activityStatus;
             
@@ -229,6 +274,167 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             usersTableBody.appendChild(row);
         });
+        
+        // Render pagination controls
+        renderPagination('usersTable', users.length, currentPage, totalPages);
+    }
+    
+    // Render pagination controls
+    function renderPagination(targetTableId, totalItems, currentPage = 1, totalPages = 1) {
+        const paginationContainerId = targetTableId + 'Pagination';
+        let paginationContainer = document.getElementById(paginationContainerId);
+        
+        if (!paginationContainer) {
+            // Create pagination container if it doesn't exist
+            const tableContainer = document.querySelector('.table-container');
+            if (tableContainer) {
+                paginationContainer = document.createElement('div');
+                paginationContainer.id = paginationContainerId;
+                paginationContainer.className = 'pagination-container mt-3 d-flex justify-content-center';
+                tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+            } else {
+                return;
+            }
+        }
+
+        if (totalItems === 0 || totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
+        // Calculate the visible page window (5 consecutive pages)
+        let windowStart = paginationWindowState[targetTableId] || 1;
+        
+        // Ensure window start is valid
+        if (windowStart < 1) {
+            windowStart = 1;
+            paginationWindowState[targetTableId] = 1;
+        }
+        
+        // Adjust window if current page is outside the visible window
+        if (currentPage < windowStart) {
+            windowStart = Math.max(1, currentPage);
+            paginationWindowState[targetTableId] = windowStart;
+        } else if (currentPage >= windowStart + PAGES_PER_WINDOW) {
+            windowStart = Math.min(totalPages - PAGES_PER_WINDOW + 1, currentPage);
+            paginationWindowState[targetTableId] = windowStart;
+        }
+        
+        // Calculate the end of the visible window
+        const windowEnd = Math.min(windowStart + PAGES_PER_WINDOW - 1, totalPages);
+        
+        // Calculate previous and next window starts (always shift by 5 pages)
+        const previousWindowStart = Math.max(1, windowStart - PAGES_PER_WINDOW);
+        const nextWindowStart = Math.min(totalPages - PAGES_PER_WINDOW + 1, windowStart + PAGES_PER_WINDOW);
+        
+        // Check if we can shift the window (only if there are pages beyond current window)
+        const canShiftPreviousWindow = previousWindowStart < windowStart;
+        const canShiftNextWindow = nextWindowStart > windowStart && nextWindowStart <= totalPages;
+
+        let paginationHTML = '<nav aria-label="Page navigation"><ul class="pagination mb-0">';
+        
+        // Previous button - always tries to shift window by 5 pages backward, falls back to single page if at edge
+        let previousTargetPage;
+        let previousActionType;
+        if (canShiftPreviousWindow) {
+            previousTargetPage = previousWindowStart;
+            previousActionType = 'previous-window';
+        } else if (currentPage > 1) {
+            previousTargetPage = currentPage - 1;
+            previousActionType = 'previous-page';
+        } else {
+            previousTargetPage = 1;
+            previousActionType = 'previous-page';
+        }
+        
+        paginationHTML += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-action="${previousActionType}" data-page="${previousTargetPage}" data-table="${targetTableId}" ${currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : ''}>Previous</a>
+        </li>`;
+
+        // Show only 5 consecutive page numbers
+        for (let i = windowStart; i <= windowEnd; i++) {
+            paginationHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" data-action="goto-page" data-page="${i}" data-table="${targetTableId}">${i}</a>
+            </li>`;
+        }
+
+        // Next button - always tries to shift window by 5 pages forward, falls back to single page if at edge
+        let nextTargetPage;
+        let nextActionType;
+        if (canShiftNextWindow) {
+            nextTargetPage = nextWindowStart;
+            nextActionType = 'next-window';
+        } else if (currentPage < totalPages) {
+            nextTargetPage = currentPage + 1;
+            nextActionType = 'next-page';
+        } else {
+            nextTargetPage = totalPages;
+            nextActionType = 'next-page';
+        }
+        
+        paginationHTML += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-action="${nextActionType}" data-page="${nextTargetPage}" data-table="${targetTableId}" ${currentPage === totalPages ? 'tabindex="-1" aria-disabled="true"' : ''}>Next</a>
+        </li>`;
+
+        paginationHTML += '</ul></nav>';
+        paginationContainer.innerHTML = paginationHTML;
+        
+        // Store totalPages in container for event handlers
+        paginationContainer.setAttribute('data-total-pages', totalPages.toString());
+
+        // Add event listeners to pagination links
+        paginationContainer.querySelectorAll('.page-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (this.classList.contains('disabled') || this.getAttribute('aria-disabled') === 'true') {
+                    return;
+                }
+                
+                const action = this.getAttribute('data-action');
+                const page = parseInt(this.getAttribute('data-page'), 10);
+                const tableId = this.getAttribute('data-table');
+                const container = document.getElementById(tableId + 'Pagination');
+                const totalPagesForTable = container ? parseInt(container.getAttribute('data-total-pages'), 10) : 1;
+                
+                if (!page || page < 1 || !tableId) {
+                    return;
+                }
+                
+                if (action === 'previous-window' || action === 'next-window') {
+                    // Shift the window and move to the first page of the new window
+                    paginationWindowState[tableId] = page;
+                    paginationState[tableId] = page;
+                } else if (action === 'goto-page') {
+                    // Go to specific page - adjust window if needed
+                    paginationState[tableId] = page;
+                    // Check if the page is outside current window and adjust if needed
+                    const currentWindowStart = paginationWindowState[tableId] || 1;
+                    if (page < currentWindowStart || page >= currentWindowStart + PAGES_PER_WINDOW) {
+                        // Adjust window to include the clicked page
+                        const newWindowStart = Math.max(1, Math.min(page, totalPagesForTable - PAGES_PER_WINDOW + 1));
+                        paginationWindowState[tableId] = newWindowStart;
+                    }
+                } else {
+                    // Single page navigation (previous-page/next-page)
+                    paginationState[tableId] = page;
+                    // Adjust window if needed
+                    const currentWindowStart = paginationWindowState[tableId] || 1;
+                    if (page < currentWindowStart || page >= currentWindowStart + PAGES_PER_WINDOW) {
+                        const newWindowStart = Math.max(1, Math.min(page, totalPagesForTable - PAGES_PER_WINDOW + 1));
+                        paginationWindowState[tableId] = newWindowStart;
+                    }
+                }
+                
+                // Re-display current filtered data without resetting pagination
+                refreshCurrentTableDisplay();
+            });
+        });
+    }
+    
+    // Refresh current table display without resetting pagination
+    function refreshCurrentTableDisplay() {
+        const filteredUsers = getFilteredUsers();
+        displayUsers(filteredUsers);
     }
 
     // PDS Modal functionality

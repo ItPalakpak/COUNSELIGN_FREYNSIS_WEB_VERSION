@@ -89,7 +89,8 @@ class Autoload extends AutoloadConfig
      * @var list<string>
      */
     public $helpers = [
-        'url',    // Load custom URL helper
-        'admin',  // Load admin helper
+        'url',        // Load custom URL helper
+        'admin',      // Load admin helper
+        'navigation', // Load navigation helper
     ];
 }

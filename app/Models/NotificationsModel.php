@@ -41,55 +41,146 @@ class NotificationsModel extends Model
         $db = \Config\Database::connect();
         
         // Get last active time from user's last activity
-        $lastActiveTime = $db->table('users')
+        $lastActiveTimeRow = $db->table('users')
                            ->select('last_activity')
                            ->where('user_id', $userId)
                            ->get()
                            ->getRowArray();
         
-        if (!$lastActiveTime || !$lastActiveTime['last_activity']) {
+        if (!$lastActiveTimeRow || !$lastActiveTimeRow['last_activity']) {
             // If no last activity time, consider all recent items as unread (last 30 days)
             $lastActiveTime = date('Y-m-d H:i:s', strtotime('-30 days'));
         } else {
-            $lastActiveTime = $lastActiveTime['last_activity'];
+            $lastActiveTime = $lastActiveTimeRow['last_activity'];
         }
         
         try {
-            // Count new events
-            $eventsCount = $db->table('events')
+            // Get read event/announcement IDs for this user (same logic as getRecentNotifications)
+            $readEvents = $db->table('notification_reads')
+                ->select('related_id')
+                ->where('user_id', $userId)
+                ->where('notification_type', 'event')
+                ->get()
+                ->getResultArray();
+            $readEventIds = array_column($readEvents, 'related_id');
+            
+            $readAnnouncements = $db->table('notification_reads')
+                ->select('related_id')
+                ->where('user_id', $userId)
+                ->where('notification_type', 'announcement')
+                ->get()
+                ->getResultArray();
+            $readAnnouncementIds = array_column($readAnnouncements, 'related_id');
+            
+            // Count unread events (created after last_activity, not in read list, and not expired)
+            $eventsQuery = $db->table('events')
+                            ->select('id, date, time')
                             ->where('created_at >', $lastActiveTime)
-                            ->countAllResults();
+                            ->where('date >=', date('Y-m-d')); // Only show events from today onwards
             
-            // Count new announcements
-            $announcementsCount = $db->table('announcements')
-                                   ->where('created_at >', $lastActiveTime)
-                                   ->countAllResults();
+            // Exclude read events
+            if (!empty($readEventIds)) {
+                $eventsQuery->whereNotIn('id', $readEventIds);
+            }
             
-            // Count updated appointments (user only)
-            $appointmentsCount = $db->table('appointments')
-                                  ->where('student_id', $userId)
-                                  ->where('updated_at >', $lastActiveTime)
+            $events = $eventsQuery->get()->getResultArray();
+            $eventsCount = 0;
+            foreach ($events as $event) {
+                // Skip expired events (same check as getRecentNotifications)
+                if (!$this->isEventExpired($event['date'], $event['time'])) {
+                    $eventsCount++;
+                }
+            }
+            
+            // Count unread announcements (created after last_activity, not in read list)
+            $announcementsQuery = $db->table('announcements')
+                                   ->select('id')
+                                   ->where('created_at >', $lastActiveTime);
+            
+            // Exclude read announcements
+            if (!empty($readAnnouncementIds)) {
+                $announcementsQuery->whereNotIn('id', $readAnnouncementIds);
+            }
+            
+            $announcementsCount = $announcementsQuery->countAllResults();
+            
+            // Count unread notifications from notifications table (follow-ups and other types, excluding appointments)
+            // Appointments are counted separately below to match getRecentNotifications logic
+            // Only count those with is_read = 0 (same logic as getRecentNotifications)
+            $notificationsCount = $db->table('notifications')
+                                  ->where('user_id', $userId)
+                                  ->where('is_read', 0)
+                                  ->whereNotIn('type', ['announcement', 'event', 'appointment'])
                                   ->countAllResults();
             
-            // Count new messages (student <-> counselor conversations)
-            $adminIds = $this->getCounselorIds();
-            $messagesCount = 0; // Initialize messagesCount
-
-            if (!empty($adminIds)) {
-                $messagesCount = $db->table('messages')
-                                  ->groupStart()
-                                  ->whereIn('sender_id', $adminIds)
-                                  ->where('receiver_id', $userId)
-                                  ->groupEnd()
-                                  ->orGroupStart()
-                                  ->where('sender_id', $userId)
-                                  ->whereIn('receiver_id', $adminIds)
-                                  ->groupEnd()
-                                  ->where('created_at >', $lastActiveTime)
-                                  ->countAllResults();
+            // Count unread appointment notifications (same logic as getRecentNotifications)
+            $userRole = $this->getUserRole($userId);
+            $appointmentsCount = 0;
+            
+            // Get unread appointment notification IDs
+            $unreadAppointmentNotifications = $db->table('notifications')
+                ->select('related_id')
+                ->where('user_id', $userId)
+                ->where('type', 'appointment')
+                ->where('is_read', 0)
+                ->get()
+                ->getResultArray();
+            $unreadAppointmentIdList = array_column($unreadAppointmentNotifications, 'related_id');
+            
+            if ($userRole === 'student' && !empty($unreadAppointmentIdList)) {
+                // Count appointments that have unread notifications
+                $appointmentsQuery = $db->table('appointments')
+                    ->select('id, preferred_date, preferred_time')
+                    ->where('student_id', $userId)
+                    ->whereIn('status', ['approved', 'rejected', 'cancelled'])
+                    ->where('updated_at >', $lastActiveTime)
+                    ->where('preferred_date >=', date('Y-m-d', strtotime('-7 days')))
+                    ->whereIn('id', $unreadAppointmentIdList)
+                    ->get()
+                    ->getResultArray();
+                
+                // Filter out expired appointments (same check as getRecentNotifications)
+                foreach ($appointmentsQuery as $appointment) {
+                    if (!$this->isAppointmentExpired($appointment['preferred_date'], $appointment['preferred_time'])) {
+                        $appointmentDateTime = $appointment['preferred_date'] . ' ' . $appointment['preferred_time'];
+                        $appointmentTimestamp = strtotime($appointmentDateTime);
+                        $sevenDaysAgo = strtotime('-7 days');
+                        
+                        if ($appointmentTimestamp >= $sevenDaysAgo) {
+                            $appointmentsCount++;
+                        }
+                    }
+                }
+            } elseif ($userRole === 'counselor' && !empty($unreadAppointmentIdList)) {
+                // Count cancelled appointments that have unread notifications
+                $appointmentsQuery = $db->table('appointments')
+                    ->select('id, preferred_date, preferred_time')
+                    ->where('counselor_preference', $userId)
+                    ->where('status', 'cancelled')
+                    ->where('updated_at >', $lastActiveTime)
+                    ->where('preferred_date >=', date('Y-m-d', strtotime('-7 days')))
+                    ->whereIn('id', $unreadAppointmentIdList)
+                    ->get()
+                    ->getResultArray();
+                
+                // Filter out expired appointments
+                foreach ($appointmentsQuery as $appointment) {
+                    if (!$this->isAppointmentExpired($appointment['preferred_date'], $appointment['preferred_time'])) {
+                        $appointmentDateTime = $appointment['preferred_date'] . ' ' . $appointment['preferred_time'];
+                        $appointmentTimestamp = strtotime($appointmentDateTime);
+                        $sevenDaysAgo = strtotime('-7 days');
+                        
+                        if ($appointmentTimestamp >= $sevenDaysAgo) {
+                            $appointmentsCount++;
+                        }
+                    }
+                }
             }
 
-            return $eventsCount + $announcementsCount + $appointmentsCount + $messagesCount;
+            // Note: Messages are excluded from the count since they're filtered out from display
+            // The notifications page doesn't show messages, so we don't count them here either
+
+            return $eventsCount + $announcementsCount + $notificationsCount + $appointmentsCount;
         } catch (\Exception $e) {
             log_message('error', 'Error in getUnreadCount: ' . $e->getMessage());
             return 0; // Return 0 on error to prevent breaking the UI
@@ -105,32 +196,63 @@ class NotificationsModel extends Model
     }
 
     /**
-     * Delete a single notification instead of marking as read
+     * Mark a single notification as read
+     * 
+     * @param int $notificationId Notification ID to mark as read
+     * @param string $userId User ID to verify ownership
+     * @return bool True if marked as read, false otherwise
+     */
+    public function markAsRead($notificationId, $userId)
+    {
+        // Mark the notification as read instead of deleting
+        return $this->where('id', $notificationId)
+                    ->where('user_id', $userId)
+                    ->set('is_read', 1)
+                    ->update();
+    }
+
+    /**
+     * Delete a single notification
      * 
      * @param int $notificationId Notification ID to delete
      * @param string $userId User ID to verify ownership
      * @return bool True if deleted, false otherwise
      */
-    public function markAsRead($notificationId, $userId)
+    public function deleteNotification($notificationId, $userId)
     {
-        // Delete the notification instead of marking as read
+        // Actually delete the notification from the database
         return $this->where('id', $notificationId)
                     ->where('user_id', $userId)
                     ->delete();
     }
 
     /**
-     * Delete all notifications for a user instead of marking as read
-     * Deletes notifications from notifications table and marks events/announcements as read in notification_reads
+     * Delete all notifications for a user
+     * 
+     * @param string $userId User ID
+     * @return bool True on success
+     */
+    public function deleteAllNotifications($userId)
+    {
+        // Actually delete all notifications for the user
+        return $this->where('user_id', $userId)
+                    ->delete();
+    }
+
+    /**
+     * Mark all notifications for a user as read
+     * Marks notifications in notifications table as read and marks events/announcements as read in notification_reads
      * 
      * @param string $userId User ID
      * @return bool True on success
      */
     public function markAllAsRead($userId)
     {
-        // Delete all notifications in notifications table (appointments, follow-up sessions, etc.)
+        // Mark all unread notifications in notifications table as read (appointments, follow-up sessions, etc.)
         $this->where('user_id', $userId)
-             ->delete();
+             ->where('is_read', 0)
+             ->set('is_read', 1)
+             ->update();
         
         // Mark all events and announcements as read using the EXACT same logic as getRecentNotifications()
         // This ensures we mark exactly what is currently visible in the notifications popup
@@ -212,7 +334,7 @@ class NotificationsModel extends Model
     }
 
     /**
-     * Mark event as read by adding to notification_reads and deleting from notifications table
+     * Mark event as read by adding to notification_reads and marking notifications table entries as read
      * 
      * @param string $userId User ID
      * @param int $eventId Event ID
@@ -238,15 +360,16 @@ class NotificationsModel extends Model
             ]);
         }
         
-        // Delete notifications table entries instead of marking as read
+        // Mark notifications table entries as read instead of deleting
         $this->where('user_id', $userId)
              ->where('type', 'event')
              ->where('related_id', $eventId)
-             ->delete();
+             ->set('is_read', 1)
+             ->update();
     }
 
     /**
-     * Mark announcement as read by adding to notification_reads and deleting from notifications table
+     * Mark announcement as read by adding to notification_reads and marking notifications table entries as read
      * 
      * @param string $userId User ID
      * @param int $announcementId Announcement ID
@@ -272,11 +395,12 @@ class NotificationsModel extends Model
             ]);
         }
         
-        // Delete notifications table entries instead of marking as read
+        // Mark notifications table entries as read instead of deleting
         $this->where('user_id', $userId)
              ->where('type', 'announcement')
              ->where('related_id', $announcementId)
-             ->delete();
+             ->set('is_read', 1)
+             ->update();
     }
 
     public function createNotification($data)
@@ -706,6 +830,290 @@ class NotificationsModel extends Model
         } catch (\Exception $e) {
             log_message('error', 'Error getting user role: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Get all notifications for a user regardless of read status
+     * Similar to getRecentNotifications but includes read notifications
+     * 
+     * @param string $userId User ID
+     * @param string|null $lastActiveTime Optional last active time (defaults to 30 days ago)
+     * @return array Array of all notifications
+     */
+    public function getAllNotifications($userId, $lastActiveTime = null)
+    {
+        $db = \Config\Database::connect();
+        
+        // If $lastActiveTime is not provided, use a longer time range (90 days)
+        if (!$lastActiveTime) {
+            $lastActiveTime = date('Y-m-d H:i:s', strtotime('-90 days'));
+        }
+
+        try {
+            // Get all events (not filtered by read status)
+            $eventsQuery = $db->table('events')
+                ->select('id, title, date, time, location, created_at')
+                ->where('created_at >', $lastActiveTime)
+                ->where('date >=', date('Y-m-d', strtotime('-7 days'))) // Show events from 7 days ago onwards
+                ->get()
+                ->getResultArray();
+
+            // Get all announcements (not filtered by read status)
+            $announcementsQuery = $db->table('announcements')
+                ->select('id, title, content, created_at')
+                ->where('created_at >', $lastActiveTime)
+                ->get()
+                ->getResultArray();
+
+            // Get all notifications from notifications table (appointments and follow-ups)
+            // Include both read and unread
+            $notificationsQuery = $db->table('notifications')
+                ->select('id, user_id, type, title, message, related_id, is_read, created_at, appointment_date, event_date')
+                ->where('user_id', $userId)
+                ->whereNotIn('type', ['announcement', 'event'])
+                ->orderBy('created_at', 'DESC')
+                ->get()
+                ->getResultArray();
+            
+            $userRole = $this->getUserRole($userId);
+            $appointmentsQuery = [];
+            
+            // Get all appointment notifications (read and unread)
+            $allAppointmentNotifications = $db->table('notifications')
+                ->select('related_id, is_read')
+                ->where('user_id', $userId)
+                ->where('type', 'appointment')
+                ->get()
+                ->getResultArray();
+            $allAppointmentIdList = array_column($allAppointmentNotifications, 'related_id');
+            $appointmentReadMap = [];
+            foreach ($allAppointmentNotifications as $notif) {
+                $appointmentReadMap[$notif['related_id']] = $notif['is_read'];
+            }
+            
+            if ($userRole === 'student') {
+                // Get all appointments (not filtered by read status)
+                $appointmentsQuery = $db->table('appointments')
+                    ->select('id, student_id, preferred_date, preferred_time, status, updated_at, counselor_preference, purpose, reason')
+                    ->where('student_id', $userId)
+                    ->whereIn('status', ['approved', 'rejected', 'cancelled'])
+                    ->where('updated_at >', $lastActiveTime)
+                    ->where('preferred_date >=', date('Y-m-d', strtotime('-7 days')))
+                    ->get()
+                    ->getResultArray();
+                
+                // Filter to only include appointments that have notifications
+                if (!empty($allAppointmentIdList)) {
+                    $appointmentsQuery = array_filter($appointmentsQuery, function($app) use ($allAppointmentIdList) {
+                        return in_array($app['id'], $allAppointmentIdList);
+                    });
+                    $appointmentsQuery = array_values($appointmentsQuery);
+                } else {
+                    $appointmentsQuery = [];
+                }
+            } elseif ($userRole === 'counselor') {
+                // Get all cancelled appointments (not filtered by read status)
+                $appointmentsQuery = $db->table('appointments a')
+                    ->select('a.id, a.student_id, a.preferred_date, a.preferred_time, a.status, a.updated_at, a.counselor_preference, a.purpose, a.reason, spi.first_name, spi.last_name')
+                    ->join('student_personal_info spi', 'spi.student_id = a.student_id', 'left')
+                    ->where('a.counselor_preference', $userId)
+                    ->where('a.status', 'cancelled')
+                    ->where('a.updated_at >', $lastActiveTime)
+                    ->where('a.preferred_date >=', date('Y-m-d', strtotime('-7 days')))
+                    ->get()
+                    ->getResultArray();
+                
+                // Filter to only include appointments that have notifications
+                if (!empty($allAppointmentIdList)) {
+                    $appointmentsQuery = array_filter($appointmentsQuery, function($app) use ($allAppointmentIdList) {
+                        return in_array($app['id'], $allAppointmentIdList);
+                    });
+                    $appointmentsQuery = array_values($appointmentsQuery);
+                } else {
+                    $appointmentsQuery = [];
+                }
+            }
+
+            $notifications = [];
+
+            // Format events - include all (read and unread)
+            foreach ($eventsQuery as $event) {
+                // Skip expired events
+                if ($this->isEventExpired($event['date'], $event['time'])) {
+                    continue;
+                }
+                
+                // Check if read
+                $isRead = $db->table('notification_reads')
+                    ->where('user_id', $userId)
+                    ->where('notification_type', 'event')
+                    ->where('related_id', $event['id'])
+                    ->countAllResults() > 0;
+                
+                $notifications[] = [
+                    'type' => 'event',
+                    'title' => 'New Event: ' . $event['title'],
+                    'message' => "A new event has been scheduled for " . date('F j, Y', strtotime($event['date'])) . 
+                                " at " . $event['time'] . " in " . $event['location'],
+                    'created_at' => $event['created_at'],
+                    'related_id' => $event['id'],
+                    'is_read' => $isRead ? 1 : 0
+                ];
+            }
+
+            // Format announcements - include all (read and unread)
+            foreach ($announcementsQuery as $announcement) {
+                // Check if read
+                $isRead = $db->table('notification_reads')
+                    ->where('user_id', $userId)
+                    ->where('notification_type', 'announcement')
+                    ->where('related_id', $announcement['id'])
+                    ->countAllResults() > 0;
+                
+                $notifications[] = [
+                    'type' => 'announcement',
+                    'title' => 'New Announcement: ' . $announcement['title'],
+                    'message' => substr($announcement['content'], 0, 100) . '...',
+                    'created_at' => $announcement['created_at'],
+                    'related_id' => $announcement['id'],
+                    'is_read' => $isRead ? 1 : 0
+                ];
+            }
+
+            // Format appointments - include all (read and unread)
+            foreach ($appointmentsQuery as $appointment) {
+                // Skip expired appointments
+                if ($this->isAppointmentExpired($appointment['preferred_date'], $appointment['preferred_time'])) {
+                    $appointmentDateTime = $appointment['preferred_date'] . ' ' . $appointment['preferred_time'];
+                    $appointmentTimestamp = strtotime($appointmentDateTime);
+                    $sevenDaysAgo = strtotime('-7 days');
+                    
+                    if ($appointmentTimestamp < $sevenDaysAgo) {
+                        continue;
+                    }
+                }
+                
+                $reasonText = isset($appointment['reason']) && $appointment['reason'] ? ' Reason: ' . $appointment['reason'] : '';
+                $purposeText = isset($appointment['purpose']) && $appointment['purpose'] ? ' Purpose: ' . $appointment['purpose'] : '';
+                
+                // Get is_read status from notification entry (default to 0 if not found, ensure it's an integer)
+                $isRead = isset($appointmentReadMap[$appointment['id']]) ? (int)$appointmentReadMap[$appointment['id']] : 0;
+                
+                if ($userRole === 'student') {
+                    $counselorName = 'the counselor';
+                    if (!empty($appointment['counselor_preference']) && $appointment['counselor_preference'] !== 'No preference') {
+                        $counselorInfo = $db->table('counselors')
+                            ->select('name')
+                            ->where('counselor_id', $appointment['counselor_preference'])
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($counselorInfo && !empty($counselorInfo['name'])) {
+                            $counselorName = trim($counselorInfo['name']);
+                        }
+                    }
+                    
+                    $notifications[] = [
+                        'type' => 'appointment',
+                        'title' => 'Appointment Update',
+                        'message' => "Your appointment for " . date('F j, Y', strtotime($appointment['preferred_date'])) .
+                                    " at " . $appointment['preferred_time'] .
+                                    " with Counselor " . $counselorName .
+                                    $purposeText .
+                                    " has been " . strtolower($appointment['status']) . $reasonText,
+                        'created_at' => $appointment['updated_at'],
+                        'related_id' => $appointment['id'],
+                        'is_read' => $isRead
+                    ];
+                } elseif ($userRole === 'counselor') {
+                    $studentName = $appointment['student_id'];
+                    if (!empty($appointment['first_name']) && !empty($appointment['last_name'])) {
+                        $studentName = trim($appointment['last_name'] . ', ' . $appointment['first_name']);
+                    }
+                    
+                    $notifications[] = [
+                        'type' => 'appointment',
+                        'title' => 'Appointment Cancelled',
+                        'message' => "Student " . $studentName . " has cancelled their appointment scheduled for " .
+                                    date('F j, Y', strtotime($appointment['preferred_date'])) .
+                                    " at " . $appointment['preferred_time'] . $reasonText,
+                        'created_at' => $appointment['updated_at'],
+                        'related_id' => $appointment['id'],
+                        'is_read' => $isRead
+                    ];
+                }
+            }
+            
+            // Add notifications from notifications table (appointments and follow-ups)
+            foreach ($notificationsQuery as $notification) {
+                $notificationMessage = $notification['message'];
+                
+                // For counselors, replace student_id with student name
+                if ($userRole === 'counselor' && ($notification['type'] === 'appointment' || $notification['type'] === 'follow-up' || $notification['type'] === 'follow_up_session')) {
+                    if (preg_match('/Student\s+(\d{10})/', $notificationMessage, $matches)) {
+                        $studentId = $matches[1];
+                        $studentInfo = $db->table('student_personal_info')
+                            ->select('first_name, last_name')
+                            ->where('student_id', $studentId)
+                            ->get()
+                            ->getRowArray();
+                        
+                        if ($studentInfo && !empty($studentInfo['first_name']) && !empty($studentInfo['last_name'])) {
+                            $studentName = trim($studentInfo['last_name'] . ', ' . $studentInfo['first_name']);
+                            $notificationMessage = preg_replace('/Student\s+\d{10}/', 'Student ' . $studentName, $notificationMessage);
+                        }
+                    }
+                }
+                
+                // For students, replace counselor ID with counselor name
+                if ($userRole === 'student' && ($notification['type'] === 'appointment' || $notification['type'] === 'follow-up' || $notification['type'] === 'follow_up_session')) {
+                    if (preg_match('/Counselor\s+([A-Z0-9-]+)/', $notificationMessage, $matches)) {
+                        $counselorId = $matches[1];
+                        if (preg_match('/^[A-Z0-9-]+$/', $counselorId) && strlen($counselorId) <= 20) {
+                            $counselorInfo = $db->table('counselors')
+                                ->select('name')
+                                ->where('counselor_id', $counselorId)
+                                ->get()
+                                ->getRowArray();
+                            
+                            if ($counselorInfo && !empty($counselorInfo['name'])) {
+                                $counselorName = trim($counselorInfo['name']);
+                                $notificationMessage = preg_replace('/Counselor\s+' . preg_quote($counselorId, '/') . '/', 'Counselor ' . $counselorName, $notificationMessage);
+                            }
+                        }
+                    }
+                }
+                
+                // Ensure is_read is always set (default to 0 if null)
+                $isReadValue = isset($notification['is_read']) ? (int)$notification['is_read'] : 0;
+                
+                $notifications[] = [
+                    'id' => $notification['id'],
+                    'type' => $notification['type'],
+                    'title' => $notification['title'],
+                    'message' => $notificationMessage,
+                    'related_id' => $notification['related_id'],
+                    'is_read' => $isReadValue,
+                    'created_at' => $notification['created_at'],
+                    'appointment_date' => $notification['appointment_date'] ?? null,
+                    'event_date' => $notification['event_date'] ?? null
+                ];
+            }
+
+            // Add messages as notifications
+            $messageNotifications = $this->getRecentMessagesAsNotifications($userId, $lastActiveTime);
+            $notifications = array_merge($notifications, $messageNotifications);
+
+            // Sort by created_at in descending order
+            usort($notifications, function($a, $b) {
+                return strtotime($b['created_at']) - strtotime($a['created_at']);
+            });
+
+            return $notifications;
+        } catch (\Exception $e) {
+            log_message('error', 'Error in getAllNotifications: ' . $e->getMessage());
+            return [];
         }
     }
 

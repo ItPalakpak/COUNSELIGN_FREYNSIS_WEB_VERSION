@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.status !== 'success') throw new Error(data.message || 'Failed');
             appointments = Array.isArray(data.appointments) ? data.appointments : [];
-            updateStatusCounts(appointments);
             displayAppointments(appointments);
+            updateStatusCounts(appointments);
         })
         .catch(err => {
             if (noAppointmentsMessage) {
@@ -46,9 +46,25 @@ document.addEventListener('DOMContentLoaded', function() {
         .finally(() => { if (loadingIndicator) loadingIndicator.classList.add('d-none'); });
     }
 
+    // Get filtered appointments based on current filters
+    function getFilteredAppointments(appointmentsData) {
+        const selectedDateRange = dateRangeFilter ? dateRangeFilter.value : 'all';
+        let filteredAppointments = appointmentsData.filter(app => isDateInRange(app.preferred_date, selectedDateRange));
+
+        if (!viewAllMode && statusFilter) {
+            const selectedStatus = statusFilter.value;
+            filteredAppointments = filteredAppointments.filter(app => selectedStatus === 'all' || app.status === selectedStatus);
+        }
+        
+        return filteredAppointments;
+    }
+
     function updateStatusCounts(data) {
+        // Get filtered appointments based on current filters
+        const filteredAppointments = getFilteredAppointments(data);
+        
         const counts = { pending: 0, approved: 0, completed: 0, rejected: 0, cancelled: 0 };
-        data.forEach(a => { if (counts.hasOwnProperty(a.status)) counts[a.status]++; });
+        filteredAppointments.forEach(a => { if (counts.hasOwnProperty(a.status)) counts[a.status]++; });
         pendingCountEl.textContent = counts.pending;
         approvedCountEl.textContent = counts.approved;
         completedCountEl.textContent = counts.completed;
@@ -57,37 +73,82 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function isDateInRange(dateString, rangeType) {
-        if (rangeType === 'all') return true;
-        const today = new Date(); today.setHours(0,0,0,0);
-        const d = new Date(dateString); d.setHours(0,0,0,0);
-        const diff = Math.floor((d.getTime()-today.getTime())/(1000*3600*24));
-        switch(rangeType){
-            case 'today': return diff === 0;
+        if (rangeType === 'all') {
+            return true;
+        }
+        
+        if (!dateString) {
+            return false;
+        }
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const appointmentDate = new Date(dateString);
+        if (isNaN(appointmentDate.getTime())) {
+            return false;
+        }
+        appointmentDate.setHours(0, 0, 0, 0);
+        
+        const timeDiff = appointmentDate.getTime() - today.getTime();
+        const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+        
+        switch (rangeType) {
+            case 'today':
+                return dayDiff === 0;
             case 'thisWeek':
-                const monday = new Date(today); monday.setDate(today.getDate() - (today.getDay()===0?6:today.getDay()-1));
-                const sunday = new Date(monday); sunday.setDate(monday.getDate()+6); sunday.setHours(23,59,59,999);
-                return d>=monday && d<=sunday;
+                // Calculate Monday of current week
+                const monday = new Date(today);
+                const dayOfWeek = today.getDay();
+                const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                monday.setDate(today.getDate() - daysToMonday);
+                monday.setHours(0, 0, 0, 0);
+                
+                // Calculate Sunday of current week
+                const sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+                sunday.setHours(23, 59, 59, 999);
+                
+                return appointmentDate >= monday && appointmentDate <= sunday;
             case 'nextWeek':
-                const nextStart = new Date(today); nextStart.setDate(today.getDate() - (today.getDay()===0?6:today.getDay()-1) + 7);
-                const nextEnd = new Date(nextStart); nextEnd.setDate(nextStart.getDate()+6); nextEnd.setHours(23,59,59,999);
-                return d>=nextStart && d<=nextEnd;
+                // Calculate Monday of current week
+                const currentMonday = new Date(today);
+                const currentDayOfWeek = today.getDay();
+                const currentDaysToMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+                currentMonday.setDate(today.getDate() - currentDaysToMonday);
+                currentMonday.setHours(0, 0, 0, 0);
+                
+                // Calculate Monday of next week (add 7 days)
+                const nextWeekStart = new Date(currentMonday);
+                nextWeekStart.setDate(currentMonday.getDate() + 7);
+                nextWeekStart.setHours(0, 0, 0, 0);
+                
+                // Calculate Sunday of next week
+                const nextWeekEnd = new Date(nextWeekStart);
+                nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
+                nextWeekEnd.setHours(23, 59, 59, 999);
+                
+                return appointmentDate >= nextWeekStart && appointmentDate <= nextWeekEnd;
             case 'nextMonth':
-                const ns = new Date(today.getFullYear(), today.getMonth()+1, 1);
-                const ne = new Date(today.getFullYear(), today.getMonth()+2, 0, 23,59,59,999);
-                return d>=ns && d<=ne;
-            case 'past': return d < today;
-            default: return true;
+                // First day of next month
+                const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+                nextMonthStart.setHours(0, 0, 0, 0);
+                
+                // Last day of next month
+                const nextMonthEnd = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+                nextMonthEnd.setHours(23, 59, 59, 999);
+                
+                return appointmentDate >= nextMonthStart && appointmentDate <= nextMonthEnd;
+            case 'past':
+                return appointmentDate < today;
+            default:
+                return true;
         }
     }
 
     function displayAppointments(data) {
-        const selectedDateRange = dateRangeFilter.value;
-        let filtered = data.filter(app => isDateInRange(app.preferred_date, selectedDateRange));
-
-        if (!viewAllMode) {
-            const selectedStatus = statusFilter.value;
-            filtered = filtered.filter(app => selectedStatus === 'all' || app.status === selectedStatus);
-        }
+        // Get filtered appointments using shared filtering function
+        const filtered = getFilteredAppointments(data);
 
         if (filtered.length === 0) { showNoAppointmentsMessage(); return; }
         appointmentsList.innerHTML = '';
@@ -307,12 +368,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Filter event listeners
-    document.getElementById('dateRangeFilter').addEventListener('change', function(){ displayAppointments(appointments); });
-    document.getElementById('statusFilter').addEventListener('change', function(){ 
-        if (!viewAllMode) {
-            displayAppointments(appointments); 
-        }
-    });
+    if (dateRangeFilter) {
+        dateRangeFilter.addEventListener('change', function(){ 
+            displayAppointments(appointments);
+            updateStatusCounts(appointments);
+        });
+    }
+    
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function(){ 
+            if (!viewAllMode) {
+                displayAppointments(appointments);
+                updateStatusCounts(appointments);
+            }
+        });
+    }
 
     if (viewToggleBtn){
         updateViewToggleState();
@@ -320,6 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
             viewAllMode = !viewAllMode;
             updateViewToggleState();
             displayAppointments(appointments);
+            updateStatusCounts(appointments);
         });
     }
 
