@@ -30,11 +30,18 @@ if (!function_exists('getNavigationLinks')) {
                     'icon' => 'fas fa-calendar-check',
                     'text' => 'Recent Appointments',
                     'title' => 'Recent Appointments',
-                    'active_patterns' => ['admin/appointments', 'admin/appointments/view-all', 'admin/appointments/scheduled']
+                    'active_patterns' => ['admin/appointments']
+                ],
+                [
+                    'url' => 'admin/appointments/scheduled',
+                    'icon' => 'fas fa-calendar-alt',
+                    'text' => 'Scheduled Appointments',
+                    'title' => 'Scheduled Appointments',
+                    'active_patterns' => ['admin/appointments/scheduled']
                 ],
                 [
                     'url' => 'admin/follow-up-sessions',
-                    'icon' => 'fas fa-calendar-days',
+                    'icon' => 'fas fa-clipboard-list',
                     'text' => 'Follow-up Sessions',
                     'title' => 'Follow-up Sessions',
                     'active_patterns' => ['admin/follow-up-sessions']
@@ -75,11 +82,18 @@ if (!function_exists('getNavigationLinks')) {
                     'active_patterns' => ['counselor/dashboard']
                 ],
                 [
+                    'url' => 'counselor/appointments',
+                    'icon' => 'fas fa-list-alt',
+                    'text' => 'Manage Appointments',
+                    'title' => 'Manage Appointments',
+                    'active_patterns' => ['counselor/appointments']
+                ],
+                [
                     'url' => 'counselor/appointments/scheduled',
                     'icon' => 'fas fa-calendar-alt',
                     'text' => 'Scheduled Appointments',
                     'title' => 'Scheduled Appointments',
-                    'active_patterns' => ['counselor/appointments', 'counselor/appointments/scheduled', 'counselor/appointments/view-all']
+                    'active_patterns' => ['counselor/appointments/scheduled']
                 ],
                 [
                     'url' => 'counselor/follow-up',
@@ -89,11 +103,32 @@ if (!function_exists('getNavigationLinks')) {
                     'active_patterns' => ['counselor/follow-up']
                 ],
                 [
+                    'url' => 'counselor/appointments/view-all',
+                    'icon' => 'fas fa-chart-line',
+                    'text' => 'Reports',
+                    'title' => 'Reports',
+                    'active_patterns' => ['counselor/appointments/view-all']
+                ],
+                [
                     'url' => 'counselor/announcements',
                     'icon' => 'fas fa-bullhorn',
-                    'text' => 'Announcement',
-                    'title' => 'Announcement',
-                    'active_patterns' => ['counselor/announcements', 'counselor/history-reports']
+                    'text' => 'Announcements',
+                    'title' => 'Announcements',
+                    'active_patterns' => ['counselor/announcements']
+                ],
+                [
+                    'url' => 'counselor/resources',
+                    'icon' => 'fas fa-folder-open',
+                    'text' => 'Resources',
+                    'title' => 'Resources',
+                    'active_patterns' => ['counselor/resources']
+                ],
+                [
+                    'url' => 'counselor/quotes',
+                    'icon' => 'fas fa-quote-right',
+                    'text' => 'Quotes',
+                    'title' => 'Quotes',
+                    'active_patterns' => ['counselor/quotes']
                 ],
                 [
                     'url' => 'counselor/messages',
@@ -152,9 +187,16 @@ if (!function_exists('getNavigationLinks')) {
                 [
                     'url' => 'student/announcements',
                     'icon' => 'fas fa-bullhorn',
-                    'text' => 'Announcement',
-                    'title' => 'Announcement',
+                    'text' => 'Announcements',
+                    'title' => 'Announcements',
                     'active_patterns' => ['student/announcements']
+                ],
+                [
+                    'url' => 'student/resources',
+                    'icon' => 'fas fa-folder-open',
+                    'text' => 'Resources',
+                    'title' => 'Resources',
+                    'active_patterns' => ['student/resources']
                 ],
                 [
                     'url' => 'student/messages',
@@ -208,9 +250,11 @@ if (!function_exists('isNavigationLinkActive')) {
             }
             
             // Pattern match (for routes like admin/appointments/view-all matching admin/appointments)
+            /*
             if (strpos($currentRoute, $pattern) === 0) {
                 return true;
             }
+            */
         }
 
         return false;
