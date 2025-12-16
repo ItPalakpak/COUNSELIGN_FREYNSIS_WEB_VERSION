@@ -1763,6 +1763,32 @@ async function exportToPDF(filters = {}) {
           format: 'a4'
       });
 
+      // Prepare header and footer assets to mirror PDS preview styling
+      const ustpLogoPrimary = new Image();
+      ustpLogoPrimary.src = (window.BASE_URL || '/') + 'Photos/USTP.png';
+
+      const ustpLogoSecondary = new Image();
+      ustpLogoSecondary.src = (window.BASE_URL || '/') + 'Photos/new_ustp_logo.png';
+
+      const socotecStampImage = new Image();
+      socotecStampImage.src = (window.BASE_URL || '/') + 'Misc/PDS/SOCOTECH_stamp.jpg';
+
+      // Ensure all header/footer images are loaded before rendering
+      await Promise.all([
+          new Promise((resolve, reject) => {
+              ustpLogoPrimary.onload = resolve;
+              ustpLogoPrimary.onerror = () => reject(new Error('Failed to load USTP primary logo'));
+          }),
+          new Promise((resolve, reject) => {
+              ustpLogoSecondary.onload = resolve;
+              ustpLogoSecondary.onerror = () => reject(new Error('Failed to load USTP secondary logo'));
+          }),
+          new Promise((resolve, reject) => {
+              socotecStampImage.onload = resolve;
+              socotecStampImage.onerror = () => reject(new Error('Failed to load SOCOTEC stamp image'));
+          })
+      ]);
+
       if (typeof doc.autoTable !== 'function') {
           await new Promise((resolve, reject) => {
               const script = document.createElement('script');
@@ -1828,35 +1854,64 @@ async function exportToPDF(filters = {}) {
           return dateTimeA < dateTimeB ? -1 : dateTimeA > dateTimeB ? 1 : 0;
       });
 
-      // Add header with logo
-      const logoImg = new Image();
-      logoImg.src = (window.BASE_URL || '/') + 'Photos/ticket_logo_blue.png';
-      
-      await new Promise((resolve, reject) => {
-          logoImg.onload = resolve;
-          logoImg.onerror = reject;
-      });
+      // Add PDS-style university header (mirrors PDS preview header content)
+      const pageWidth = doc.internal.pageSize.getWidth();
 
-      // Add logo
-      doc.addImage(logoImg, 'PNG', 12, 10, 20, 15);
+      // University logos (centered block, matching PDS preview placement)
+      const logoTopY = 8;
+      const logoHeight = 18;
+      const logoWidth = 18;
+      const logoGap = 3;
+      const totalLogoWidth = logoWidth * 2 + logoGap;
+      const logosStartX = (pageWidth - totalLogoWidth) / 2;
+      const logoPrimaryX = logosStartX;
+      const logoSecondaryX = logosStartX + logoWidth + logoGap;
 
-      // Add header text
-      doc.setFontSize(12);
+      doc.addImage(ustpLogoPrimary, 'PNG', logoPrimaryX, logoTopY, logoWidth, logoHeight);
+      doc.addImage(ustpLogoSecondary, 'PNG', logoSecondaryX, logoTopY, logoWidth, logoHeight);
+
+      // University header text (centered, same lines as PDS preview)
+      // UNIVERSITY NAME – blue, bold, slightly larger (placed safely below logos)
       doc.setFont('helvetica', 'bold');
-      doc.text('Counselign: USTP Guidance Counseling Sanctuary', 37, 17);
+      doc.setFontSize(12);
+      // University name in darker blue to match PDS preview
+      doc.setTextColor(0, 0, 102);
+      doc.text(
+          'UNIVERSITY OF SCIENCE AND TECHNOLOGY OF SOUTHERN PHILIPPINES',
+          pageWidth / 2,
+          30,
+          { align: 'center' }
+      );
 
-      // Add horizontal line
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5);
-      doc.line(12, 27, doc.internal.pageSize.getWidth() - 12, 27);
+      // Reset to black for the remaining header lines
+      doc.setTextColor(0, 0, 0);
 
-      // Add report title
+      // CAMPUSES LINE – smaller, regular weight
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(
+          'Alubijid | Balubal | Cagayan de Oro | Claveria | Jasaan | Oroquieta | Panaon | Villanueva',
+          pageWidth / 2,
+          34,
+          { align: 'center' }
+      );
+
+      // GUIDANCE AND COUNSELING SERVICES – bold, medium size
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text(
+          'GUIDANCE AND COUNSELING SERVICES',
+          pageWidth / 2,
+          38,
+          { align: 'center' }
+      );
+
+      // Add report title (below GUIDANCE AND COUNSELING SERVICES)
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      const pageWidth = doc.internal.pageSize.getWidth();
       const titleWidth = doc.getStringUnitWidth(reportTitle) * doc.internal.getFontSize() / doc.internal.scaleFactor;
       const titleX = (pageWidth - titleWidth) / 2;
-      doc.text(reportTitle, titleX, 35);
+      doc.text(reportTitle, titleX, 44);
       
       // Define table headers (Reason column removed for PDF)
       const tableHeaders = ['User ID', 'Full Name', 'Date', 'Time', 'Method Type', 'Consultation Type', 'Session', 'Purpose', 'Counselor', 'Status'];
@@ -1882,10 +1937,10 @@ async function exportToPDF(filters = {}) {
 
       // Create table configuration
       const tableConfig = {
-          startY: 40,
+      startY: 50,
           head: [tableHeaders],
           body: tableData,
-          margin: { top: 40, bottom: 25, left: 12, right: 12 },
+          margin: { top: 50, bottom: 25, left: 12, right: 12 },
           tableWidth: 'wrap',
           styles: {
               fontSize: 7,
@@ -1915,18 +1970,48 @@ async function exportToPDF(filters = {}) {
               9: { cellWidth: 15 },  // Status
           },
           didDrawPage: function(data) {
-              // Add header
-              doc.addImage(logoImg, 'PNG', 12, 10, 20, 15);
-              doc.setFontSize(12);
+              // Add PDS-style university header on each page
+              const currentPageWidth = doc.internal.pageSize.getWidth();
+              const currentPageHeight = doc.internal.pageSize.getHeight();
+
+              doc.addImage(ustpLogoPrimary, 'PNG', logoPrimaryX, logoTopY, logoWidth, logoHeight);
+              doc.addImage(ustpLogoSecondary, 'PNG', logoSecondaryX, logoTopY, logoWidth, logoHeight);
+
+              // Mirror header typography and spacing from first page
               doc.setFont('helvetica', 'bold');
-              doc.text('Counselign: USTP Guidance Counseling Sanctuary', 37, 17);
-              doc.setDrawColor(0, 0, 0);
-              doc.setLineWidth(0.5);
-              doc.line(12, 27, doc.internal.pageSize.getWidth() - 12, 27);
+              doc.setFontSize(12);
+              // University name in darker blue (same as first page)
+              doc.setTextColor(0, 0, 102);
+              doc.text(
+                  'UNIVERSITY OF SCIENCE AND TECHNOLOGY OF SOUTHERN PHILIPPINES',
+                  currentPageWidth / 2,
+                  30,
+                  { align: 'center' }
+              );
+
+              // Reset to black for the remaining header lines
+              doc.setTextColor(0, 0, 0);
+
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(8);
+              doc.text(
+                  'Alubijid | Balubal | Cagayan de Oro | Claveria | Jasaan | Oroquieta | Panaon | Villanueva',
+                  currentPageWidth / 2,
+                  34,
+                  { align: 'center' }
+              );
+
+              doc.setFont('helvetica', 'bold');
+              doc.setFontSize(10);
+              doc.text(
+                  'GUIDANCE AND COUNSELING SERVICES',
+                  currentPageWidth / 2,
+                  38,
+                  { align: 'center' }
+              );
 
               // Footer
-              const pageHeight = doc.internal.pageSize.getHeight();
-              const pageWidth = doc.internal.pageSize.getWidth();
+              const pageHeight = currentPageHeight;
               const margin = 12;
               doc.setDrawColor(0, 0, 0);
               doc.setLineWidth(0.3);
@@ -1936,16 +2021,38 @@ async function exportToPDF(filters = {}) {
               doc.setFont('helvetica', 'normal');
 
               const leftText = 'Confidential Document';
-              const centerText = 'Prepared by the University Guidance Counseling Office';
+              const footerMainText = 'Prepared by the University Guidance Counseling Office';
               const currentDate = new Date();
               const dateStr = currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
               const timeStr = currentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-              const rightText = `Generated: ${dateStr} | ${timeStr} PST | Page ${data.pageNumber}`;
+              const dateTimeText = `Generated: ${dateStr} | ${timeStr} PST | Page ${data.pageNumber}`;
+              const centerCombinedText = `${footerMainText}  ${dateTimeText}`;
 
               const y = pageHeight - 17;
               doc.text(leftText, margin, y, { align: 'left' });
-              doc.text(centerText, pageWidth / 2, y, { align: 'center' });
-              doc.text(rightText, pageWidth - margin, y, { align: 'right' });
+              // Center the combined "Prepared by ... Generated ..." text across the row
+              doc.text(centerCombinedText, pageWidth / 2, y, { align: 'center' });
+
+              // Add PDS-style footer (address, contact, and SOCOTEC stamp) BELOW the existing footer text
+              doc.setFontSize(7);
+              doc.setFont('helvetica', 'normal');
+
+              const footerAddress = 'C.M. Recto Avenue, Lapasan, Cagayan De Oro City 9000 Philippines';
+              const footerContact = 'Tel Nos. +63 (88) 856 1738; Telefax +63 (88) 856 4696 | http://www.ustp.edu.ph';
+
+              const footerAddressY = pageHeight - 12;
+              const footerContactY = pageHeight - 8;
+
+              doc.text(footerAddress, pageWidth / 2, footerAddressY, { align: 'center' });
+              doc.text(footerContact, pageWidth / 2, footerContactY, { align: 'center' });
+
+              // SOCOTEC stamp image aligned to bottom-right similar to PDS preview,
+              // slightly smaller and with adjusted aspect ratio to avoid vertical stretching
+              const stampWidth = 12;
+              const stampHeight = 9;
+              const stampX = pageWidth - margin - stampWidth;
+              const stampY = pageHeight - margin - stampHeight;
+              doc.addImage(socotecStampImage, 'JPEG', stampX, stampY, stampWidth, stampHeight);
 
               doc.setFontSize(10);
               doc.setFont('helvetica', 'normal');
@@ -1959,7 +2066,8 @@ async function exportToPDF(filters = {}) {
       try {
           const filterSummary = buildFilterSummary(filters);
           const pageWidth2 = doc.internal.pageSize.getWidth();
-          const footerY2 = doc.internal.pageSize.getHeight() - 10;
+          // Position summary slightly above the repeated footers to avoid overlap
+          const footerY2 = doc.internal.pageSize.getHeight() - 28;
           doc.setFontSize(8);
           doc.text(filterSummary || 'No additional filters applied', pageWidth2 / 2, footerY2, { align: 'center' });
       } catch (e) {

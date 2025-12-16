@@ -79,6 +79,25 @@ document.addEventListener("DOMContentLoaded", function () {
   const emptyState = document.querySelector(".empty-state");
   let counselorsCache = null;
 
+  // Pagination state - track current page for each table
+  const paginationState = {
+    allAppointmentsTable: 1,
+    rejectedAppointmentsTable: 1,
+    completedAppointmentsTable: 1,
+    cancelledAppointmentsTable: 1
+  };
+  
+  // Pagination window state - track the starting page of visible page numbers window
+  const paginationWindowState = {
+    allAppointmentsTable: 1,
+    rejectedAppointmentsTable: 1,
+    completedAppointmentsTable: 1,
+    cancelledAppointmentsTable: 1
+  };
+  
+  const ITEMS_PER_PAGE = 10;
+  const PAGES_PER_WINDOW = 5;
+
   // Fetch appointments when the page loads
   fetchAppointments();
 
@@ -324,6 +343,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateInitialDisplay() {
+    // Reset all pagination to page 1 when data is first loaded
+    Object.keys(paginationState).forEach(key => {
+      paginationState[key] = 1;
+      paginationWindowState[key] = 1;
+    });
+
     // Display approved appointments first
     const approvedAppointments = allAppointments.filter(
       (app) => app.status && app.status.toUpperCase() === "APPROVED"
@@ -784,9 +809,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function displayAppointments(appointments, targetTableId) {
+  function displayAppointments(appointments, targetTableId = "allAppointmentsTable") {
     const tableBody = document.getElementById(targetTableId);
-    if (!tableBody) return;
+    if (!tableBody) {
+      console.error(`Table body with ID ${targetTableId} not found`);
+      return;
+    }
 
     tableBody.innerHTML = "";
 
@@ -798,13 +826,41 @@ document.addEventListener("DOMContentLoaded", function () {
     ].includes(targetTableId);
 
     if (!appointments || appointments.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="${
-        showReason ? 8 : 7
-      }" class="text-center">No appointments found</td></tr>`;
+      const colspan = showReason ? 8 : 7;
+      tableBody.innerHTML = `<tr><td colspan="${colspan}" class="text-center">No appointments found</td></tr>`;
+      renderPagination(targetTableId, 0);
       return;
     }
 
-    appointments.forEach((appointment) => {
+    // Sort appointments from oldest to newest
+    const sortedAppointments = [...appointments].sort((a, b) => {
+      const dateTimeA = a.preferred_date + " " + a.preferred_time;
+      const dateTimeB = b.preferred_date + " " + b.preferred_time;
+
+      if (dateTimeA < dateTimeB) return -1;
+      if (dateTimeA > dateTimeB) return 1;
+      return 0;
+    });
+
+    // Pagination logic
+    const totalPages = Math.ceil(sortedAppointments.length / ITEMS_PER_PAGE);
+    let currentPage = paginationState[targetTableId] || 1;
+    
+    // Validate and correct page number if out of bounds
+    if (currentPage < 1) {
+      currentPage = 1;
+      paginationState[targetTableId] = 1;
+    } else if (totalPages > 0 && currentPage > totalPages) {
+      currentPage = totalPages;
+      paginationState[targetTableId] = totalPages;
+    }
+    
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedAppointments = sortedAppointments.slice(startIndex, endIndex);
+
+    // Display paginated appointments
+    paginatedAppointments.forEach((appointment) => {
       const row = document.createElement("tr");
       row.innerHTML = `
                 <td>${formatDate(appointment.preferred_date)}</td>
@@ -824,6 +880,220 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
       tableBody.appendChild(row);
     });
+
+    // Render pagination controls
+    renderPagination(targetTableId, sortedAppointments.length, currentPage, totalPages);
+  }
+
+  // Render pagination controls
+  function renderPagination(targetTableId, totalItems, currentPage = 1, totalPages = 1) {
+    const paginationContainerId = targetTableId + 'Pagination';
+    let paginationContainer = document.getElementById(paginationContainerId);
+    
+    if (!paginationContainer) {
+      // Create pagination container if it doesn't exist
+      const tableContainer = document.getElementById(targetTableId).closest('.table-responsive');
+      if (tableContainer) {
+        paginationContainer = document.createElement('div');
+        paginationContainer.id = paginationContainerId;
+        paginationContainer.className = 'pagination-container mt-3 d-flex justify-content-center';
+        tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+      } else {
+        return;
+      }
+    }
+
+    if (totalItems === 0 || totalPages <= 1) {
+      paginationContainer.innerHTML = '';
+      return;
+    }
+
+    // Calculate the visible page window (5 consecutive pages)
+    let windowStart = paginationWindowState[targetTableId] || 1;
+    
+    // Ensure window start is valid
+    if (windowStart < 1) {
+      windowStart = 1;
+      paginationWindowState[targetTableId] = 1;
+    }
+    
+    // Adjust window if current page is outside the visible window
+    if (currentPage < windowStart) {
+      windowStart = Math.max(1, currentPage);
+      paginationWindowState[targetTableId] = windowStart;
+    } else if (currentPage >= windowStart + PAGES_PER_WINDOW) {
+      windowStart = Math.min(totalPages - PAGES_PER_WINDOW + 1, currentPage);
+      paginationWindowState[targetTableId] = windowStart;
+    }
+    
+    // Calculate the end of the visible window
+    const windowEnd = Math.min(windowStart + PAGES_PER_WINDOW - 1, totalPages);
+    
+    // Calculate previous and next window starts (always shift by 5 pages)
+    const previousWindowStart = Math.max(1, windowStart - PAGES_PER_WINDOW);
+    const nextWindowStart = Math.min(totalPages - PAGES_PER_WINDOW + 1, windowStart + PAGES_PER_WINDOW);
+    
+    // Check if we can shift the window (only if there are pages beyond current window)
+    const canShiftPreviousWindow = previousWindowStart < windowStart;
+    const canShiftNextWindow = nextWindowStart > windowStart && nextWindowStart <= totalPages;
+
+    let paginationHTML = '<nav aria-label="Page navigation"><ul class="pagination mb-0">';
+    
+    // Previous button - always tries to shift window by 5 pages backward, falls back to single page if at edge
+    let previousTargetPage;
+    let previousActionType;
+    if (canShiftPreviousWindow) {
+      previousTargetPage = previousWindowStart;
+      previousActionType = 'previous-window';
+    } else if (currentPage > 1) {
+      previousTargetPage = currentPage - 1;
+      previousActionType = 'previous-page';
+    } else {
+      previousTargetPage = 1;
+      previousActionType = 'previous-page';
+    }
+    
+    paginationHTML += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+      <a class="page-link" href="#" data-action="${previousActionType}" data-page="${previousTargetPage}" data-table="${targetTableId}" ${currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : ''}>Previous</a>
+    </li>`;
+
+    // Show only 5 consecutive page numbers
+    for (let i = windowStart; i <= windowEnd; i++) {
+      paginationHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+        <a class="page-link" href="#" data-action="goto-page" data-page="${i}" data-table="${targetTableId}">${i}</a>
+      </li>`;
+    }
+
+    // Next button - always tries to shift window by 5 pages forward, falls back to single page if at edge
+    let nextTargetPage;
+    let nextActionType;
+    if (canShiftNextWindow) {
+      nextTargetPage = nextWindowStart;
+      nextActionType = 'next-window';
+    } else if (currentPage < totalPages) {
+      nextTargetPage = currentPage + 1;
+      nextActionType = 'next-page';
+    } else {
+      nextTargetPage = totalPages;
+      nextActionType = 'next-page';
+    }
+    
+    paginationHTML += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+      <a class="page-link" href="#" data-action="${nextActionType}" data-page="${nextTargetPage}" data-table="${targetTableId}" ${currentPage === totalPages ? 'tabindex="-1" aria-disabled="true"' : ''}>Next</a>
+    </li>`;
+
+    paginationHTML += '</ul></nav>';
+    paginationContainer.innerHTML = paginationHTML;
+    
+    // Store totalPages in container for event handlers
+    paginationContainer.setAttribute('data-total-pages', totalPages.toString());
+
+    // Add event listeners to pagination links
+    paginationContainer.querySelectorAll('.page-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (this.classList.contains('disabled') || this.getAttribute('aria-disabled') === 'true') {
+          return;
+        }
+        
+        const action = this.getAttribute('data-action');
+        const page = parseInt(this.getAttribute('data-page'), 10);
+        const tableId = this.getAttribute('data-table');
+        const container = document.getElementById(tableId + 'Pagination');
+        const totalPagesForTable = container ? parseInt(container.getAttribute('data-total-pages'), 10) : 1;
+        
+        if (!page || page < 1 || !tableId) {
+          return;
+        }
+        
+        if (action === 'previous-window' || action === 'next-window') {
+          // Shift the window and move to the first page of the new window
+          paginationWindowState[tableId] = page;
+          paginationState[tableId] = page;
+        } else if (action === 'goto-page') {
+          // Go to specific page - adjust window if needed
+          paginationState[tableId] = page;
+          // Check if the page is outside current window and adjust if needed
+          const currentWindowStart = paginationWindowState[tableId] || 1;
+          if (page < currentWindowStart || page >= currentWindowStart + PAGES_PER_WINDOW) {
+            // Adjust window to include the clicked page
+            const newWindowStart = Math.max(1, Math.min(page, totalPagesForTable - PAGES_PER_WINDOW + 1));
+            paginationWindowState[tableId] = newWindowStart;
+          }
+        } else {
+          // Single page navigation (previous-page/next-page)
+          paginationState[tableId] = page;
+          // Adjust window if needed
+          const currentWindowStart = paginationWindowState[tableId] || 1;
+          if (page < currentWindowStart || page >= currentWindowStart + PAGES_PER_WINDOW) {
+            const newWindowStart = Math.max(1, Math.min(page, totalPagesForTable - PAGES_PER_WINDOW + 1));
+            paginationWindowState[tableId] = newWindowStart;
+          }
+        }
+        
+        // Re-display current filtered data without resetting pagination
+        refreshCurrentTableDisplay();
+      });
+    });
+  }
+
+  // Refresh current table display without resetting pagination
+  function refreshCurrentTableDisplay() {
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    const dateValue = dateFilter ? dateFilter.value : '';
+    
+    let filtered = allAppointments;
+
+    if (searchTerm) {
+      filtered = filtered.filter((appointment) =>
+        Object.values(appointment).some((value) =>
+          String(value).toLowerCase().includes(searchTerm)
+        )
+      );
+    }
+
+    if (dateValue) {
+      filtered = filtered.filter((appointment) =>
+        appointment.preferred_date.startsWith(dateValue)
+      );
+    }
+
+    const activeTab = document.querySelector(".nav-link.active");
+    if (activeTab) {
+      const tabId = activeTab.getAttribute("data-bs-target").replace("#", "");
+      let status;
+      let targetTableId;
+
+      switch (tabId) {
+        case "rejected":
+          status = "REJECTED";
+          targetTableId = "rejectedAppointmentsTable";
+          break;
+        case "completed":
+          status = "COMPLETED";
+          targetTableId = "completedAppointmentsTable";
+          break;
+        case "cancelled":
+          status = "CANCELLED";
+          targetTableId = "cancelledAppointmentsTable";
+          break;
+        case "all":
+        default:
+          status = "all";
+          targetTableId = "allAppointmentsTable";
+      }
+
+      if (status !== "all") {
+        filtered = filtered.filter(
+          (app) => app.status && app.status.toUpperCase() === status
+        );
+      }
+
+      // Display without resetting pagination
+      displayAppointments(filtered, targetTableId);
+    } else {
+      displayAppointments(filtered, "allAppointmentsTable");
+    }
   }
 
   // ---- Availability helpers are now defined globally above DOMContentLoaded ----
@@ -937,6 +1207,10 @@ document.addEventListener("DOMContentLoaded", function () {
         targetTableId = "allAppointmentsTable";
     }
 
+    // Reset pagination to page 1 when switching tabs
+    paginationState[targetTableId] = 1;
+    paginationWindowState[targetTableId] = 1;
+
     const filteredAppointments =
       status === "all"
         ? allAppointments
@@ -992,6 +1266,10 @@ document.addEventListener("DOMContentLoaded", function () {
           targetTableId = "allAppointmentsTable";
       }
 
+      // Reset pagination to page 1 when filters change
+      paginationState[targetTableId] = 1;
+      paginationWindowState[targetTableId] = 1;
+
       if (status !== "all") {
         filtered = filtered.filter(
           (app) => app.status && app.status.toUpperCase() === status
@@ -1000,6 +1278,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       displayAppointments(filtered, targetTableId);
     } else {
+      paginationState["allAppointmentsTable"] = 1;
+      paginationWindowState["allAppointmentsTable"] = 1;
       displayAppointments(filtered, "allAppointmentsTable");
     }
   }

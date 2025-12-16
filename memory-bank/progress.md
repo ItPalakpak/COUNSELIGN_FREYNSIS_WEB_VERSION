@@ -395,6 +395,10 @@ Known Issues
   - **Implementation**: Added `getExistingPWDProofFile()` helper method to retrieve current file path from database
   - **Result**: PWD proof files now persist correctly during profile updates unless explicitly replaced
 
+- **COMPLETED (2025-12-16)**: PDS-style branding for admin appointment PDF exports
+  - Updated `public/js/admin/view_all_appointments.js` PDF header to mirror the PDS preview university header (dual USTP logos, campus list, and GUIDANCE AND COUNSELING SERVICES label) without changing the appointment table layout.
+  - Added a PDS-style footer (university address, contact line, and SOCOTEC stamp image) rendered below the existing Confidential Document footer while keeping the original footer text and filter summary intact.
+
 ## Progress
 
 ### What works (observed)

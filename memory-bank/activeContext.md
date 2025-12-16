@@ -637,6 +637,9 @@ Previous Changes:
     - **Fallback Support**: Maintains existing month filter functionality as fallback when date range not specified
   - **User Experience**: Intuitive date range export workflow for admin users:
     - Click export button → Date range filter appears → Select dates → Apply → Export with filtered data
+  - **NEW (2025-12-16)**: PDS-branded header and footer for admin appointment PDF exports
+    - Updated `public/js/admin/view_all_appointments.js::exportToPDF()` to draw the same university header as `app/Views/PDS_preview.php` (dual USTP logos, campus line, and "GUIDANCE AND COUNSELING SERVICES").
+    - Added a PDS-style footer (address, contact line, and SOCOTEC stamp image) beneath the existing Confidential Document footer while keeping the original footer and filter summary intact.
     - Clear visual feedback with smooth scrolling to date range section
     - Validation prevents invalid date ranges with helpful error messages
     - Option to leave dates empty for exporting all appointments from selected status tab
