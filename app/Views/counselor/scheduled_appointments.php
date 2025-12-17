@@ -61,14 +61,26 @@
             <div class="top-bar-right">
 
                 <div class="search-container">
-                    <div class="input-group" style="max-width: 300px;">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0" id="appointmentsSearchInput" placeholder="Search appointments..." aria-label="Search appointments">
-                        <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
-                            <i class="fas fa-times"></i>
-                        </button>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="input-group" style="max-width: 300px;">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0" id="appointmentsSearchInput" placeholder="Search appointments..." aria-label="Search appointments">
+                            <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn" style="display: none;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            id="clearDateFilterBtn"
+                            style="display: none;"
+                            title="Show all approved appointments">
+                            <i class="fas fa-calendar-times"></i>
+                            Clear filter
+                            </button>
+                        </div>
+                        
                     </div>
                 </div>
 

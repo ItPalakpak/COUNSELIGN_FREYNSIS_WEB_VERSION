@@ -628,6 +628,8 @@ function initializeCounselorsCalendarDrawer() {
 
     let calDate = new Date();
     let monthStatsCache = {}; // key: YYYY-MM -> stats object
+    const dayDetailsCache = {}; // key: YYYY-MM-DD -> items array
+    let activeTooltip = null;
 
     function monthName(idx){ return ['January','February','March','April','May','June','July','August','September','October','November','December'][idx]; }
     function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
@@ -650,6 +652,94 @@ function initializeCounselorsCalendarDrawer() {
         } catch(e){ /* noop: fallback to no stats */ }
         monthStatsCache[key] = {};
         return {};
+    }
+
+    async function fetchDayDetails(dateStr) {
+        if (dayDetailsCache[dateStr]) {
+            return dayDetailsCache[dateStr];
+        }
+
+        try {
+            const url = new URL((window.BASE_URL || '/') + 'student/calendar/day-details');
+            url.searchParams.append('date', dateStr);
+
+            const res = await fetch(url.toString(), {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to load calendar day details');
+            }
+
+            const data = await res.json();
+            if (data && data.status === 'success' && Array.isArray(data.items)) {
+                dayDetailsCache[dateStr] = data.items;
+                return data.items;
+            }
+        } catch (e) {
+            // Fallback to empty list on error
+        }
+
+        dayDetailsCache[dateStr] = [];
+        return [];
+    }
+
+    function closeTooltip() {
+        if (activeTooltip && activeTooltip.parentNode) {
+            activeTooltip.parentNode.removeChild(activeTooltip);
+        }
+        activeTooltip = null;
+    }
+
+    async function openDayTooltip(dateStr, anchorEl) {
+        const items = await fetchDayDetails(dateStr);
+        closeTooltip();
+
+        if (!items || items.length === 0) {
+            return;
+        }
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'calendar-day-tooltip';
+
+        const header = document.createElement('div');
+        header.className = 'calendar-day-tooltip-header';
+        header.innerHTML = `<i class="fas fa-calendar-check me-2"></i>${dateStr}`;
+        tooltip.appendChild(header);
+
+        const body = document.createElement('div');
+        body.className = 'calendar-day-tooltip-body';
+
+        items.forEach((item) => {
+            const kindLabel = item.kind === 'follow_up' ? 'Follow-up Session' : 'Appointment';
+            const row = document.createElement('div');
+            row.className = 'calendar-day-tooltip-item';
+            row.innerHTML = `
+                <div class="tooltip-item-title">
+                    <span class="tooltip-item-kind">${kindLabel}</span>
+                    <span class="tooltip-item-time">${item.preferred_time || ''}</span>
+                </div>
+                <div class="tooltip-item-detail"><strong>Student:</strong> ${item.student_name || 'Student'}</div>
+                <div class="tooltip-item-detail"><strong>Counselor:</strong> ${item.counselor_name || 'No Preference'}</div>
+                <div class="tooltip-item-detail"><strong>Method:</strong> ${item.method_type || 'N/A'}</div>
+            `;
+            body.appendChild(row);
+        });
+
+        tooltip.appendChild(body);
+        document.body.appendChild(tooltip);
+        activeTooltip = tooltip;
+
+        const rect = anchorEl.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+
+        const top = window.scrollY + rect.top - tooltipRect.height - 8;
+        const left = window.scrollX + rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+        tooltip.style.top = `${Math.max(8, top)}px`;
+        tooltip.style.left = `${Math.max(8, left)}px`;
     }
 
     async function render(){
@@ -713,6 +803,13 @@ function initializeCounselorsCalendarDrawer() {
                 badge.style.textAlign = 'center';
                 badge.style.pointerEvents = 'none';
                 cell.appendChild(badge);
+
+                // Attach tooltip behaviour for days with appointments / follow-ups
+                cell.classList.add('calendar-has-appointments');
+                cell.addEventListener('mouseenter', () => openDayTooltip(isoDate, cell));
+                cell.addEventListener('mouseleave', () => closeTooltip());
+                cell.addEventListener('focus', () => openDayTooltip(isoDate, cell));
+                cell.addEventListener('blur', () => closeTooltip());
             }
 
             if (st && st.fullyBooked === true){

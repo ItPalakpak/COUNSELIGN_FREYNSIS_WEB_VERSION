@@ -1241,6 +1241,158 @@ class Appointment extends BaseController
     }
 
     /**
+     * Get detailed approved appointments and follow-up sessions for a specific calendar day.
+     *
+     * This is used by student calendars to show floating tooltips for a given date.
+     * The response is restricted to the logged-in student's own records to preserve privacy.
+     *
+     * Query params:
+     * - date (YYYY-MM-DD) – required
+     */
+    public function getCalendarDayDetails()
+    {
+        try {
+            $session = session();
+
+            if (! $session->get('logged_in') || $session->get('role') !== 'student') {
+                return $this->response->setStatusCode(401)
+                    ->setJSON([
+                        'status'  => 'error',
+                        'message' => 'Unauthorized',
+                    ]);
+            }
+
+            $date = trim((string) $this->request->getGet('date'));
+
+            if ($date === '' || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+                return $this->response->setStatusCode(400)
+                    ->setJSON([
+                        'status'  => 'error',
+                        'message' => 'Invalid or missing date',
+                    ]);
+            }
+
+            $studentId = $session->get('user_id_display') ?? $session->get('user_id');
+
+            if (! $studentId) {
+                return $this->response->setStatusCode(400)
+                    ->setJSON([
+                        'status'  => 'error',
+                        'message' => 'Invalid session data',
+                    ]);
+            }
+
+            $db = \Config\Database::connect();
+
+            // --- Approved primary appointments for this student and date ---
+            $appointments = $db->table('appointments a')
+                ->select("
+                    a.id,
+                    a.preferred_date,
+                    a.preferred_time,
+                    a.method_type,
+                    a.consultation_type,
+                    a.status,
+                    a.counselor_preference,
+                    COALESCE(c.name, 'No Preference') AS counselor_name
+                ")
+                ->join('counselors c', 'c.counselor_id = a.counselor_preference', 'left')
+                ->where('a.student_id', $studentId)
+                ->where('a.preferred_date', $date)
+                ->where('a.status', 'approved')
+                ->orderBy('a.preferred_time', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            // --- Follow-up sessions for this student and date (pending/approved) ---
+            $followUps = $db->table('follow_up_appointments f')
+                ->select("
+                    f.id,
+                    f.preferred_date,
+                    f.preferred_time,
+                    f.consultation_type,
+                    f.status,
+                    COALESCE(f.counselor_id, p.counselor_preference) AS counselor_id,
+                    COALESCE(c.name, 'No Preference') AS counselor_name,
+                    p.method_type AS method_type
+                ")
+                ->join('appointments p', 'p.id = f.parent_appointment_id', 'left')
+                ->join('counselors c', 'c.counselor_id = COALESCE(f.counselor_id, p.counselor_preference)', 'left')
+                ->where('f.student_id', $studentId)
+                ->where('f.preferred_date', $date)
+                ->whereIn('f.status', ['pending', 'approved'])
+                ->orderBy('f.preferred_time', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            // Fetch the student's display name once for use in all items
+            $studentName = null;
+            $userRow     = $db->table('student_personal_info')
+                ->select('first_name, last_name')
+                ->where('student_id', $studentId)
+                ->get()
+                ->getRowArray();
+
+            if ($userRow) {
+                $first = trim((string) ($userRow['first_name'] ?? ''));
+                $last  = trim((string) ($userRow['last_name'] ?? ''));
+                $studentName = trim($first . ' ' . $last);
+            }
+
+            if ($studentName === '') {
+                // Fallback to username when personal info is not available
+                $user = $db->table('users')
+                    ->select('username')
+                    ->where('user_id', $studentId)
+                    ->get()
+                    ->getRowArray();
+
+                $studentName = $user['username'] ?? 'Student';
+            }
+
+            $items = [];
+
+            foreach ($appointments as $row) {
+                $items[] = [
+                    'kind'            => 'appointment',
+                    'student_name'    => $studentName,
+                    'preferred_time'  => (string) ($row['preferred_time'] ?? ''),
+                    'counselor_name'  => (string) ($row['counselor_name'] ?? 'No Preference'),
+                    'method_type'     => (string) ($row['method_type'] ?? ''),
+                    'consultation_type' => (string) ($row['consultation_type'] ?? ''),
+                    'status'          => (string) ($row['status'] ?? ''),
+                ];
+            }
+
+            foreach ($followUps as $row) {
+                $items[] = [
+                    'kind'            => 'follow_up',
+                    'student_name'    => $studentName,
+                    'preferred_time'  => (string) ($row['preferred_time'] ?? ''),
+                    'counselor_name'  => (string) ($row['counselor_name'] ?? 'No Preference'),
+                    'method_type'     => (string) ($row['method_type'] ?? ''),
+                    'consultation_type' => (string) ($row['consultation_type'] ?? ''),
+                    'status'          => (string) ($row['status'] ?? ''),
+                ];
+            }
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'date'   => $date,
+                'items'  => $items,
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in getCalendarDayDetails: ' . $e->getMessage());
+
+            return $this->response->setStatusCode(500)
+                ->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Error fetching calendar day details',
+                ]);
+        }
+    }
+
+    /**
      * Return approved appointment counts and fully-booked flag per day for a given month.
      * Query params: year (YYYY), month (1-12)
      */

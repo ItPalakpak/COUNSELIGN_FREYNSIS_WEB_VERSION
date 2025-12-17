@@ -1499,7 +1499,7 @@ Recent Changes
     - Proper validation of schedule data structure
     - Clean separation of concerns between API and frontend logic
     - Fallback displays for various error scenarios
-- **MAJOR FEATURE**: Implemented counselor availability filtering system for student appointment scheduling:
+-- **MAJOR FEATURE**: Implemented counselor availability filtering system for student appointment scheduling:
   - **API Endpoint**: Created `student/get-counselors-by-availability` endpoint in `app/Controllers/Student/Appointment.php`
     - Accepts `date` and `time` query parameters
     - Returns counselors available for specific day of week and time slot
@@ -1520,6 +1520,13 @@ Recent Changes
     - Comprehensive error handling for API calls and data processing
     - Proper validation of input parameters
     - Clean separation of concerns between API and frontend logic
+
+### Latest (Student Calendars)
+- **COMPLETED (2025-12-17)**: Student calendar day tooltips for approved appointments and follow-up sessions
+  - Added `student/calendar/day-details` endpoint in `app/Controllers/Student/Appointment.php` to return the logged-in student's approved appointments and pending/approved follow-up sessions for a given date, including student name, preferred_time, counselor name, consultation_type, and method_type.
+  - Updated `public/js/student/student_schedule_appointment.js` counselor schedule sidebar mini-calendar to consume `student/calendar/day-details` and show a floating tooltip on hover/focus for days that have the student’s appointments/follow-ups, while preserving the existing counselor-availability bubble on click.
+  - Updated `public/js/student/my_appointments.js` calendar drawer to use the same endpoint and tooltip behaviour so students can quickly inspect their own approved appointments and follow-up sessions per day.
+  - Added shared tooltip styling to `public/css/student/student_schedule_appointment.css` and `public/css/student/my_appointments.css` to keep the tooltip compact, readable, and visually consistent with existing calendar components.
 - **ENHANCEMENT**: Improved approved appointment ticket with advanced features:
   - **Responsive Design**: Enhanced ticket styling across all screen sizes (992px, 768px, 576px breakpoints)
     - Tablet view: Single column layout with centered elements

@@ -831,6 +831,65 @@ footer {
 .counselors-bubble .c-name { font-weight: 600; margin-bottom: 6px; color: #0f172a; }
 .counselors-bubble .slot-badge { display: inline-block; background: #e7f5ff; color: #0b7285; border: 1px solid #d0ebff; border-radius: 999px; padding: 3px 8px; font-size: 11px; margin: 2px; }
 
+/* Calendar day tooltip for appointments/follow-ups */
+.calendar-day-tooltip {
+    position: absolute;
+    z-index: 9999;
+    max-width: 320px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    padding: 12px 14px;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+.calendar-day-tooltip-header {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.calendar-day-tooltip-body {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.calendar-day-tooltip-item + .calendar-day-tooltip-item {
+    border-top: 1px solid #e5e7eb;
+    margin-top: 6px;
+    padding-top: 6px;
+}
+
+.calendar-day-tooltip-item {
+    font-size: 12px;
+    color: #111827;
+}
+
+.tooltip-item-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.tooltip-item-kind {
+    font-weight: 600;
+    color: #1d4ed8;
+}
+
+.tooltip-item-time {
+    font-weight: 500;
+    color: #111827;
+}
+
+.tooltip-item-detail {
+    font-size: 11px;
+    color: #374151;
+}
+
 /* Counselor Schedules Display Section - Inside Calendar Drawer */
 .counselor-schedules-section {
     padding: 20px 0;

@@ -7,6 +7,7 @@ let editPreferredDatePicker = null;
 let completedAppointmentsExpanded = false;
 let completedAppointmentsCollapseFrame = null;
 let completedAppointmentsResizeListenerAttached = false;
+let followUpDeepLinkHandled = false;
 const COMPLETED_APPOINTMENT_PREVIEW_LIMIT = 4;
 
 function navigateToHome() {
@@ -54,6 +55,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // Search & list controls
   initializeSearch();
   initializeCompletedAppointmentsToggle();
+
+  // If this page was opened via a deep link from scheduled appointments,
+  // attempt to open the appropriate Follow-up Sessions modal once.
+  handleFollowUpDeepLinkIfNeeded();
 });
 
 // Load completed appointments for the logged-in counselor
@@ -82,6 +87,13 @@ async function loadCompletedAppointments(searchTerm = "") {
 
     if (data.status === "success") {
       displayCompletedAppointments(data.appointments, data.search_term);
+
+      // When coming from a deep link (e.g., from scheduled appointments),
+      // open the Follow-up Sessions modal for the specified parent appointment
+      // after the completed appointments have rendered.
+      if (!searchTerm) {
+        handleFollowUpDeepLinkIfNeeded();
+      }
     } else {
       showError(data.message || "Failed to load completed appointments");
     }
@@ -206,6 +218,32 @@ function displayCompletedAppointments(appointments, searchTerm = "") {
     .join("");
 
   queueCompletedAppointmentsCollapseRecalc();
+}
+
+/**
+ * If the page was opened with deep-link query parameters
+ * (?parent_appointment_id=...&student_id=...), open the
+ * Follow-up Sessions modal for that parent appointment once.
+ */
+function handleFollowUpDeepLinkIfNeeded() {
+  if (followUpDeepLinkHandled) {
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const parentId = params.get("parent_appointment_id");
+  const studentId = params.get("student_id") || "";
+
+  if (!parentId) {
+    return;
+  }
+
+  followUpDeepLinkHandled = true;
+
+  // Defer slightly to ensure DOM and appointment cards are ready
+  setTimeout(() => {
+    openFollowUpSessionsModal(parentId, studentId);
+  }, 150);
 }
 
 // Open follow-up sessions modal
@@ -357,26 +395,53 @@ function displayFollowUpSessions(sessions) {
                 }
             </div>
             ${
-              session.status === "pending"
-                ? `
-            <div class="session-actions d-flex gap-2 flex-wrap">
-                <button class="btn btn-success btn-sm" onclick="markFollowUpCompleted(${session.id})">
-                    <i class="fas fa-check"></i> Mark as Completed
-                </button>
-                <button class="btn btn-warning btn-sm" onclick="openEditFollowUpModal(${session.id})">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="openCancelFollowUpModal(${session.id})">
-                    <i class="fas fa-ban"></i> Cancel
-                </button>
-            </div>
-            `
-                : ""
+              getFollowUpSessionActionsHtml(session)
             }
         </div>
     `
     )
     .join("");
+}
+
+/**
+ * Build the action buttons HTML for a follow-up session card.
+ * "Mark as Completed" is only enabled when today is on or after the session's preferred_date.
+ *
+ * @param {{ id: number, status: string, preferred_date: string }} session
+ * @returns {string}
+ */
+function getFollowUpSessionActionsHtml(session) {
+  if (session.status !== "pending") {
+    return "";
+  }
+
+  const isCompletionEligible = isDateStringOnOrBeforeToday(
+    session.preferred_date
+  );
+
+  const completionDisabledAttributes = isCompletionEligible
+    ? ""
+    : 'disabled title="You can only mark this follow-up as completed on or after the scheduled date."';
+
+  return `
+            <div class="session-actions d-flex gap-2 flex-wrap">
+                <button class="btn btn-success btn-sm" onclick="markFollowUpCompleted(${
+                  session.id
+                })" ${completionDisabledAttributes}>
+                    <i class="fas fa-check"></i> Mark as Completed
+                </button>
+                <button class="btn btn-warning btn-sm" onclick="openEditFollowUpModal(${
+                  session.id
+                })">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="openCancelFollowUpModal(${
+                  session.id
+                })">
+                    <i class="fas fa-ban"></i> Cancel
+                </button>
+            </div>
+        `;
 }
 
 // Create new follow-up from existing session
@@ -1199,6 +1264,30 @@ function formatDate(dateString) {
     month: "long",
     day: "numeric",
   });
+}
+
+/**
+ * Compare a YYYY-MM-DD date string against "today" (local time), ignoring time-of-day.
+ * Returns true when the given date is the same as today or lies in the past.
+ *
+ * @param {string} dateString
+ * @returns {boolean}
+ */
+function isDateStringOnOrBeforeToday(dateString) {
+  if (!dateString) {
+    return false;
+  }
+
+  const candidate = new Date(`${dateString}T00:00:00`);
+  if (Number.isNaN(candidate.getTime())) {
+    return false;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  candidate.setHours(0, 0, 0, 0);
+
+  return candidate.getTime() <= today.getTime();
 }
 
 // Time utilities for 12-hour format and 30-minute increments

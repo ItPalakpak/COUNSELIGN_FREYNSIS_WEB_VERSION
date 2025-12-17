@@ -109,6 +109,20 @@ if (!function_exists('getNavigationLinks')) {
                     'title' => 'Reports',
                     'active_patterns' => ['counselor/appointments/view-all']
                 ],
+
+                [
+                    'url' => 'counselor/messages',
+                    'icon' => 'fas fa-envelope',
+                    'text' => 'Messages',
+                    'title' => 'Messages',
+                    'active_patterns' => ['counselor/messages', 'counselor/message'],
+                    'badge' => [
+                        'enabled' => true,
+                        'api_endpoint' => 'counselor/message/operations?action=get_unread_count',
+                        'badge_id' => 'counselor-messages-badge'
+                    ]
+                ],
+
                 [
                     'url' => 'counselor/announcements',
                     'icon' => 'fas fa-bullhorn',
@@ -129,18 +143,6 @@ if (!function_exists('getNavigationLinks')) {
                     'text' => 'Quotes',
                     'title' => 'Quotes',
                     'active_patterns' => ['counselor/quotes']
-                ],
-                [
-                    'url' => 'counselor/messages',
-                    'icon' => 'fas fa-envelope',
-                    'text' => 'Messages',
-                    'title' => 'Messages',
-                    'active_patterns' => ['counselor/messages', 'counselor/message'],
-                    'badge' => [
-                        'enabled' => true,
-                        'api_endpoint' => 'counselor/message/operations?action=get_unread_count',
-                        'badge_id' => 'counselor-messages-badge'
-                    ]
                 ],
                 [
                     'url' => 'counselor/notifications/page',
@@ -185,6 +187,19 @@ if (!function_exists('getNavigationLinks')) {
                     'active_patterns' => ['student/follow-up-sessions']
                 ],
                 [
+                    'url' => 'student/messages',
+                    'icon' => 'fas fa-envelope',
+                    'text' => 'Messages',
+                    'title' => 'Messages',
+                    'active_patterns' => ['student/messages', 'student/message'],
+                    'badge' => [
+                        'enabled' => true,
+                        'api_endpoint' => 'student/message/operations?action=get_unread_count',
+                        'badge_id' => 'student-messages-badge'
+                    ]
+                ],
+
+                [
                     'url' => 'student/announcements',
                     'icon' => 'fas fa-bullhorn',
                     'text' => 'Announcements',
@@ -198,18 +213,7 @@ if (!function_exists('getNavigationLinks')) {
                     'title' => 'Resources',
                     'active_patterns' => ['student/resources']
                 ],
-                [
-                    'url' => 'student/messages',
-                    'icon' => 'fas fa-envelope',
-                    'text' => 'Messages',
-                    'title' => 'Messages',
-                    'active_patterns' => ['student/messages', 'student/message'],
-                    'badge' => [
-                        'enabled' => true,
-                        'api_endpoint' => 'student/message/operations?action=get_unread_count',
-                        'badge_id' => 'student-messages-badge'
-                    ]
-                ],
+                
                 [
                     'url' => 'student/notifications/page',
                     'icon' => 'fas fa-bell',

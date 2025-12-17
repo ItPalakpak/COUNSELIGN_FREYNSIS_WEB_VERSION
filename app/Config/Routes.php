@@ -140,8 +140,9 @@ $routes->group('student', ['namespace' => 'App\Controllers\Student'], function (
     $routes->get('check-counselor-conflicts', 'Appointment::checkCounselorConflicts');
     $routes->get('check-edit-conflicts', 'Appointment::checkEditConflicts');
     $routes->get('get-counselor-schedules', 'Appointment::getCounselorSchedules');
-    // Calendar daily stats (approved counts and fully booked flags)
+    // Calendar stats and per-day details for student appointment views
     $routes->get('calendar/daily-stats', 'Appointment::getCalendarDailyStats');
+    $routes->get('calendar/day-details', 'Appointment::getCalendarDayDetails');
     $routes->get('profile', 'Profile::profile');
     $routes->post('profile/update', 'Profile::updateProfile');
     $routes->match(['POST', 'OPTIONS'], 'profile/picture', 'Profile::updateProfilePicture');

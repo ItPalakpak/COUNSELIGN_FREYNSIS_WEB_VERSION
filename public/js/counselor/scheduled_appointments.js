@@ -12,10 +12,23 @@ document.addEventListener("DOMContentLoaded", function () {
   // Store original appointments data for search filtering
   let originalAppointments = [];
   let filteredAppointments = [];
+  let activeCalendarFilterDate = null; // YYYY-MM-DD when a calendar day filter is active
+  const clearDateFilterBtn = document.getElementById("clearDateFilterBtn");
 
   initSearchFunctionality();
   loadAppointments();
   loadCounselorSchedule();
+
+  if (clearDateFilterBtn) {
+    clearDateFilterBtn.addEventListener("click", function () {
+      if (!originalAppointments || originalAppointments.length === 0) {
+        return;
+      }
+      activeCalendarFilterDate = null;
+      displayAppointments(originalAppointments);
+      clearDateFilterBtn.style.display = "none";
+    });
+  }
 
   /**
    * Initialize search functionality for appointments table
@@ -109,6 +122,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function loadAppointments() {
+    // Reset any active calendar date filter whenever we reload from the server
+    activeCalendarFilterDate = null;
+
     loadingIndicator.classList.remove("d-none");
     appointmentsTableContainer.classList.add("d-none");
     emptyMessage.classList.add("d-none");
@@ -183,17 +199,17 @@ document.addEventListener("DOMContentLoaded", function () {
     appointments.forEach((appointment) => {
       const row = document.createElement("tr");
       row.dataset.id = appointment.id;
-      if (appointment.status === "COMPLETED") {
-        row.classList.add("table-success");
-      } else {
-        const dateObj = new Date(
-          appointment.appointed_date || appointment.preferred_date
-        );
-        if (isToday(dateObj)) row.classList.add("table-primary");
-      }
+
       const dateObj = new Date(
         appointment.appointed_date || appointment.preferred_date
       );
+
+      if (appointment.status === "COMPLETED") {
+        row.classList.add("table-success");
+      } else if (isToday(dateObj)) {
+        row.classList.add("table-primary");
+      }
+
       const formattedDate = dateObj.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
@@ -209,14 +225,33 @@ document.addEventListener("DOMContentLoaded", function () {
       if (scheduleType === "Follow-up session" || scheduleType === "Follow-up")
         scheduleType = "Follow-up Session";
       const recordKind = appointment.record_kind || "appointment";
+      const isCompletionEligible =
+        isDateOnOrBeforeToday(dateObj) &&
+        appointment.status !== "COMPLETED" &&
+        appointment.status !== "CANCELLED";
+
       const actionHtml =
         recordKind === "follow_up"
-          ? '<span class="text-muted">Manage in Follow-up Sessions</span>'
+          ? `<button 
+                type="button" 
+                class="btn btn-sm btn-outline-primary follow-up-manage-btn"
+                data-parent-id="${appointment.parent_appointment_id || ""}"
+                data-student-id="${appointment.student_id || ""}"
+              >
+                <i class="fas fa-calendar-alt me-1"></i>
+                Follow-up Sessions
+              </button>`
           : appointment.status === "COMPLETED" ||
             appointment.status === "CANCELLED"
           ? '<span class="text-muted">No actions available</span>'
           : `<div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-success mark-complete-btn" data-id="${appointment.id}"><i class="fas fa-check me-1"></i>Mark Complete</button>
+                        <button class="btn btn-sm btn-success mark-complete-btn" data-id="${
+                          appointment.id
+                        }" ${
+            isCompletionEligible
+              ? ""
+              : 'disabled title="You can only mark this appointment as completed on or after the scheduled date."'
+          }><i class="fas fa-check me-1"></i>Mark Complete</button>
                         <button class="btn btn-sm btn-danger cancel-appointment-btn" data-id="${appointment.id}"><i class="fas fa-times me-1"></i>Cancel</button>
                        </div>`;
 
@@ -259,6 +294,14 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById(
           "cancellationReasonModal"
         ).dataset.appointmentId = id;
+      })
+    );
+
+    document.querySelectorAll(".follow-up-manage-btn").forEach((btn) =>
+      btn.addEventListener("click", function () {
+        const parentId = this.getAttribute("data-parent-id") || "";
+        const studentId = this.getAttribute("data-student-id") || "";
+        navigateToFollowUpSessions(parentId, studentId);
       })
     );
 
@@ -340,8 +383,9 @@ document.addEventListener("DOMContentLoaded", function () {
       filterAppointmentsTable(currentSearchQuery);
     }
 
-    // Update calendar with appointments
-    updateCalendarWithAppointments(appointments);
+    // Always keep the calendar in sync with the full approved appointments set
+    // so that count badges are never affected by table/date filters.
+    updateCalendarWithAppointments(originalAppointments);
   }
 
   function isToday(date) {
@@ -351,6 +395,123 @@ document.addEventListener("DOMContentLoaded", function () {
       date.getMonth() === t.getMonth() &&
       date.getFullYear() === t.getFullYear()
     );
+  }
+
+  /**
+   * Convert a Date object to a local YYYY-MM-DD string.
+   *
+   * @param {Date} date
+   * @returns {string}
+   */
+  function toLocalYmd(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  /**
+   * Handle clicks on a calendar date: filter the table to show only
+   * approved appointments for that exact date. Clicking the same date again
+   * clears the filter and restores the full appointments list.
+   *
+   * This uses the same "approved" status and date selection logic as
+   * AppointmentCalendar#getAppointmentCountForDate to keep behaviour consistent.
+   *
+   * @param {Date} date
+   */
+  function handleCalendarDateClick(date) {
+    const clickedYmd = toLocalYmd(date);
+
+    // Toggle behaviour: clicking the same date again clears the filter
+    if (activeCalendarFilterDate === clickedYmd) {
+      activeCalendarFilterDate = null;
+      displayAppointments(originalAppointments);
+      if (clearDateFilterBtn) {
+        clearDateFilterBtn.style.display = "none";
+      }
+      return;
+    }
+
+    activeCalendarFilterDate = clickedYmd;
+
+    if (clearDateFilterBtn) {
+      clearDateFilterBtn.style.display = "inline-block";
+    }
+
+    const filtered = originalAppointments.filter((apt) => {
+      const status = (apt.status || "").toString().toLowerCase();
+      const isApproved =
+        status === "approved" ||
+        status === "scheduled" ||
+        status === "approved\n";
+
+      if (!isApproved) {
+        return false;
+      }
+
+      const rawDateValue =
+        apt.appointed_date ||
+        apt.preferred_date ||
+        apt.appointedDate ||
+        apt.preferredDate;
+
+      if (!rawDateValue) {
+        return false;
+      }
+
+      const appointmentDate = new Date(rawDateValue);
+      if (Number.isNaN(appointmentDate.getTime())) {
+        return false;
+      }
+
+      return toLocalYmd(appointmentDate) === clickedYmd;
+    });
+
+    displayAppointments(filtered);
+  }
+
+  /**
+   * Navigate to the counselor follow-up page, optionally deep-linking to a
+   * specific parent appointment and student so the Follow-up Sessions modal
+   * can be opened automatically on that page.
+   *
+   * @param {string} parentAppointmentId
+   * @param {string} studentId
+   */
+  function navigateToFollowUpSessions(parentAppointmentId, studentId) {
+    const base = (window.BASE_URL || "/") + "counselor/follow-up";
+
+    if (!parentAppointmentId) {
+      window.location.href = base;
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.set("parent_appointment_id", String(parentAppointmentId));
+    if (studentId) {
+      params.set("student_id", String(studentId));
+    }
+
+    window.location.href = `${base}?${params.toString()}`;
+  }
+
+  /**
+   * Check if a given date (date-only comparison) is on or before today.
+   * This is used to determine whether the "Mark Complete" button should be enabled.
+   *
+   * @param {Date} date
+   * @returns {boolean}
+   */
+  function isDateOnOrBeforeToday(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+      return false;
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const candidate = new Date(date.getTime());
+    candidate.setHours(0, 0, 0, 0);
+    return candidate.getTime() <= today.getTime();
   }
   function formatTime(time) {
     if (!time) return "N/A";
@@ -607,6 +768,11 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           dayElement.innerHTML = `<span class="day-number">${day}</span>`;
         }
+
+        // Clicking a day filters the table to show only that day's approved appointments
+        dayElement.addEventListener("click", () =>
+          handleCalendarDateClick(currentLoopDate)
+        );
 
         calendarDays.appendChild(dayElement);
       }
