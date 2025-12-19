@@ -258,7 +258,10 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="signUpModalLabel">Sign Up</h5>
+                    <div>
+                        <h5 class="modal-title" id="signUpModalLabel">Sign Up</h5>
+                        <p class="text-muted small mb-0 mt-1">All fields are required</p>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -285,6 +288,9 @@
                         <button id="toggleSignUpPassword" class="btn position-absolute end-0 top-0">
                             <i class="fas fa-eye" id="eyeIconSignUp"></i>
                         </button>
+                        <small class="text-muted password-requirements">
+                            Minimum 8 characters, at least 1 lowercase, 1 uppercase, 1 number, 1 special symbol
+                        </small>
                     </div>
                     <div class="mb-3 position-relative">
                         <input type="password" id="confirmPasswordInput" placeholder="Confirm Password"
